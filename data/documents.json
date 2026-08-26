@@ -1,0 +1,28 @@
+[
+  {
+    "id": "srex5ezcscwj2ue7dkss",
+    "name": "Core Graphics _ Apple Developer Documentation.pdf",
+    "path": "documents/cmjywt2uv1atjpke5a3n1k.pdf",
+    "mimeType": "application/pdf",
+    "size": 158752,
+    "createdAt": "2026-08-26T20:31:31.567Z",
+    "updatedAt": "2026-08-26T20:31:31.778Z",
+    "pageCount": 5,
+    "chunkCount": 10,
+    "tokenCount": 3150,
+    "status": "ready"
+  },
+  {
+    "id": "az8og2iyh7f35i106s2m1u",
+    "name": "SwiftUI updates _ Apple Developer Documentation.pdf",
+    "path": "documents/w8yzl7hpbm5886bl4i1h7.pdf",
+    "mimeType": "application/pdf",
+    "size": 832730,
+    "createdAt": "2026-08-26T20:31:38.576Z",
+    "updatedAt": "2026-08-26T20:31:38.969Z",
+    "pageCount": 18,
+    "chunkCount": 144,
+    "tokenCount": 68526,
+    "status": "ready"
+  }
+]

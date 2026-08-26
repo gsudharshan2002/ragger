@@ -1,0 +1,16 @@
+{
+  "llmProvider": "groq",
+  "groqModel": "openai/gpt-oss-20b",
+  "groqApiKey": "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",
+  "geminiApiKey": "",
+  "embeddingProvider": "cohere",
+  "embeddingModel": "",
+  "embeddingApiKey": "EMbxEw2RvdbT1v4NylBY128hr0C56Jz9xrCNuKMD",
+  "chunkSize": 512,
+  "chunkOverlap": 64,
+  "defaultTopK": 20,
+  "defaultStrategy": "hybrid-rerank-mmr",
+  "systemPrompt": "You are a helpful assistant. Answer the user's question based on the provided context. If the context does not contain enough information, say so clearly. Cite sources where applicable using [Source N] notation.",
+  "rerankerModel": "",
+  "mmrLambda": 0.7
+}

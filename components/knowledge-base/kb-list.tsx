@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import { Brain, Plus, Search, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -19,7 +20,7 @@ export function KbList() {
     try {
       setLoading(true)
       setError(null)
-      const res = await fetch("/api/knowledge-bases")
+      const res = await apiFetch("/knowledge-bases")
       const body: ApiResponse<KnowledgeBase[]> = await res.json()
 
       if (!body.success || !body.data) {

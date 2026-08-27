@@ -50,7 +50,7 @@ export function ChatMessage({ message, onViewTrace }: ChatMessageProps) {
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm border border-black/[0.04] text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+            <div className="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm border border-black/[0.04] text-sm text-gray-800 leading-relaxed whitespace-pre-wrap break-words overflow-hidden min-w-0">
               {message.content}
             </div>
 
@@ -102,7 +102,7 @@ export function ChatMessage({ message, onViewTrace }: ChatMessageProps) {
               </div>
             )}
 
-            {message.trace && (
+            {message.trace?.overview && (
               <div className="flex items-center gap-3 pt-1">
                 <div className="flex items-center gap-2 text-[11px] text-gray-400">
                   <div className="flex items-center gap-1.5">

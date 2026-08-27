@@ -1,0 +1,46 @@
+{
+  "id": "trace-test-1",
+  "runId": "run-test-1",
+  "sessionId": "session-test-1",
+  "requestId": "request-test-1",
+  "timestamp": "2026-08-27T13:47:34.996Z",
+  "query": "test query",
+  "strategy": "hybrid-rrf",
+  "config": {},
+  "events": [],
+  "queryProcessing": {
+    "originalQuery": "test query",
+    "tokenCount": 2,
+    "processingDurationMs": 100
+  },
+  "context": {
+    "chunks": [],
+    "totalTokens": 0,
+    "chunkCount": 0,
+    "documentCount": 0
+  },
+  "prompt": {
+    "system": "",
+    "context": "",
+    "user": "test query",
+    "systemTokens": 0,
+    "contextTokens": 0,
+    "userTokens": 2,
+    "totalTokens": 2
+  },
+  "llm": {
+    "provider": "groq",
+    "model": "test-model",
+    "startTime": "2026-08-27T13:47:34.996Z",
+    "endTime": "2026-08-27T13:47:34.996Z",
+    "latencyMs": 100,
+    "inputTokens": 10,
+    "outputTokens": 20,
+    "totalTokens": 30,
+    "answer": "test answer",
+    "status": "completed"
+  },
+  "sources": [],
+  "totalLatencyMs": 100,
+  "status": "completed"
+}

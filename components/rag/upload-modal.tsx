@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect, useRef } from "react"
+import { apiFetch, apiUpload, previewUrl as previewUrlHelper } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Upload, FileText, Check, Loader2, AlertCircle, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -64,7 +65,7 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
     (localId: string, serverDocId: string) => {
       const interval = setInterval(async () => {
         try {
-          const res = await fetch(`/api/documents/${serverDocId}`)
+          const res = await apiFetch(`/documents/${serverDocId}`)
           const body: ApiResponse<DocumentMetadata> = await res.json()
 
           if (!body.success || !body.data) {
@@ -140,7 +141,7 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
         const formData = new FormData()
         formData.append("file", file)
 
-        fetch("/api/documents", { method: "POST", body: formData })
+        apiUpload("/documents/upload", formData)
           .then(async (res) => {
             const body: ApiResponse<DocumentMetadata> = await res.json()
             if (!body.success || !body.data) {

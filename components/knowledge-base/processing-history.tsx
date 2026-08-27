@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Upload,
@@ -124,7 +125,7 @@ export function ProcessingHistory({ documentId }: ProcessingHistoryProps) {
     try {
       setLoading(true)
       setError(null)
-      const res = await fetch(`/api/documents/${documentId}/history`)
+      const res = await apiFetch(`/documents/${documentId}/history`)
       const body: ApiResponse<ProcessingHistoryEvent[]> = await res.json()
 
       if (!body.success || !body.data) {

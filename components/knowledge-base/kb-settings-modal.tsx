@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Settings, Loader2, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -22,7 +23,7 @@ export function KbSettingsModal({ open, onClose, knowledgeBaseId, onUpdate }: Kb
   useEffect(() => {
     if (!open) return
     setLoading(true)
-    fetch(`/api/knowledge-bases/${knowledgeBaseId}`)
+    apiFetch(`/knowledge-bases/${knowledgeBaseId}`)
       .then((r) => r.json())
       .then((res: ApiResponse<KnowledgeBase>) => {
         if (res.success && res.data) setKb(res.data)
@@ -35,7 +36,7 @@ export function KbSettingsModal({ open, onClose, knowledgeBaseId, onUpdate }: Kb
     if (!kb) return
     setSaving(true)
     try {
-      const res = await fetch(`/api/knowledge-bases/${knowledgeBaseId}`, {
+      const res = await apiFetch(`/knowledge-bases/${knowledgeBaseId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

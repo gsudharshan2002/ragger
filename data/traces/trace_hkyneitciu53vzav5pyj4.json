@@ -1,0 +1,1047 @@
+{
+  "id": "trace_hkyneitciu53vzav5pyj4",
+  "runId": "run_jk7fx8khgztkct3htxus",
+  "sessionId": "83w4waogm2v8nfb2tnsli",
+  "requestId": "83w4waogm2v8nfb2tnsli",
+  "timestamp": "1970-01-01T00:18:03.102Z",
+  "query": "what is swiftui",
+  "strategy": "hybrid-rerank-mmr",
+  "config": {
+    "strategy": "hybrid-rerank-mmr",
+    "vector": {
+      "embeddingModel": "",
+      "topK": 3,
+      "similarity": "cosine",
+      "similarityThreshold": 0
+    },
+    "bm25": {
+      "topK": 3,
+      "language": "english",
+      "tokenizer": "standard"
+    },
+    "rrf": {
+      "k": 60,
+      "vectorWeight": 1,
+      "bm25Weight": 1
+    },
+    "reranker": {
+      "enabled": false,
+      "candidateCount": 3,
+      "topN": 10
+    },
+    "mmr": {
+      "enabled": false,
+      "lambda": 0.7,
+      "candidateCount": 3,
+      "finalCount": 10
+    },
+    "llm": {
+      "model": "openai/gpt-oss-20b",
+      "temperature": 0.3,
+      "maxTokens": 2048,
+      "systemPrompt": "You are a helpful assistant. Answer the user's question based on the provided context. If the context does not contain enough information, say so clearly. Cite sources where applicable using [Source N] notation."
+    },
+    "chunking": {
+      "chunkSize": 512,
+      "chunkOverlap": 64,
+      "method": "token"
+    }
+  },
+  "events": [
+    {
+      "id": "zha39b3adoa9niezlug25",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "query",
+      "event": "query.started",
+      "timestamp": "2026-08-27T06:32:54.472Z",
+      "data": {
+        "query": "what is swiftui",
+        "strategy": "hybrid-rerank-mmr",
+        "requestId": "83w4waogm2v8nfb2tnsli",
+        "knowledgeBaseId": null
+      }
+    },
+    {
+      "id": "3ng2vh2aljqokzvtn7dvrm",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "query",
+      "event": "query.processed",
+      "timestamp": "2026-08-27T06:32:54.508Z",
+      "data": {
+        "chunkCount": 154,
+        "processingDurationMs": 55
+      }
+    },
+    {
+      "id": "uo937agyffsfp8pngmjn99",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "vector",
+      "event": "vector.started",
+      "timestamp": "2026-08-27T06:32:54.509Z",
+      "data": {
+        "topK": 3,
+        "embeddingModel": ""
+      }
+    },
+    {
+      "id": "5fw9v1lvrh2x2b215vqhvp",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "vector",
+      "event": "vector.completed",
+      "timestamp": "2026-08-27T06:32:55.154Z",
+      "data": {
+        "resultCount": 0,
+        "latencyMs": 0,
+        "embeddingModel": "",
+        "dimensions": 1024
+      }
+    },
+    {
+      "id": "z2vvmxft46t9emdmvyous",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "bm25",
+      "event": "bm25.started",
+      "timestamp": "2026-08-27T06:32:55.154Z",
+      "data": {
+        "topK": 3,
+        "language": "english"
+      }
+    },
+    {
+      "id": "b52tnpxyznm65rxlta0xw",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "bm25",
+      "event": "bm25.chunk.retrieved",
+      "timestamp": "2026-08-27T06:32:55.188Z",
+      "data": {
+        "chunkId": "chunk_2u2u7xhofcv51vf0rrz6kl",
+        "rank": 1,
+        "score": 1.3850770826949559,
+        "document": "SwiftUI updates _ Apple Developer Documentation.pdf",
+        "page": 1,
+        "queryTerms": [
+          "what",
+          "swiftui"
+        ]
+      }
+    },
+    {
+      "id": "esa8nzafh4zigf3r76sva",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "bm25",
+      "event": "bm25.chunk.retrieved",
+      "timestamp": "2026-08-27T06:32:55.188Z",
+      "data": {
+        "chunkId": "chunk_tc7fo8b40ug524hzb815m",
+        "rank": 2,
+        "score": 1.3850770826949559,
+        "document": "SwiftUI updates _ Apple Developer Documentation.pdf",
+        "page": 2,
+        "queryTerms": [
+          "what",
+          "swiftui"
+        ]
+      }
+    },
+    {
+      "id": "5u0xqy3tezge567erse5v5",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "bm25",
+      "event": "bm25.chunk.retrieved",
+      "timestamp": "2026-08-27T06:32:55.188Z",
+      "data": {
+        "chunkId": "chunk_j2lgk0yovq81uujli8sbkt",
+        "rank": 3,
+        "score": 1.3850770826949559,
+        "document": "SwiftUI updates _ Apple Developer Documentation.pdf",
+        "page": 3,
+        "queryTerms": [
+          "what",
+          "swiftui"
+        ]
+      }
+    },
+    {
+      "id": "b5lyg2zijnl1gqo4abzknv",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "bm25",
+      "event": "bm25.completed",
+      "timestamp": "2026-08-27T06:32:55.188Z",
+      "data": {
+        "resultCount": 3,
+        "latencyMs": 34,
+        "queryTerms": [
+          "what",
+          "swiftui"
+        ]
+      }
+    },
+    {
+      "id": "obc5adkj0ml0kyj5wa6xz1q",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "rrf",
+      "event": "rrf.started",
+      "timestamp": "2026-08-27T06:32:55.188Z",
+      "data": {
+        "k": 60,
+        "vectorWeight": 1,
+        "bm25Weight": 1,
+        "vectorResultCount": 0,
+        "bm25ResultCount": 3
+      }
+    },
+    {
+      "id": "waiyk432f3qv7323bmlhhp",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "rrf",
+      "event": "rrf.completed",
+      "timestamp": "2026-08-27T06:32:55.188Z",
+      "data": {
+        "resultCount": 3,
+        "latencyMs": 0,
+        "inputVectorChunks": 0,
+        "inputBM25Chunks": 3
+      }
+    },
+    {
+      "id": "3vgk2wirc9vvnaike0zki",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "reranker",
+      "event": "reranker.started",
+      "timestamp": "2026-08-27T06:32:55.188Z",
+      "data": {
+        "candidateCount": 3,
+        "topN": 10,
+        "configured": true
+      }
+    },
+    {
+      "id": "4p0smwi0taq8u1phxek1ns",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "reranker",
+      "event": "rerank.updated",
+      "timestamp": "2026-08-27T06:32:55.572Z",
+      "data": {
+        "chunkId": "chunk_2u2u7xhofcv51vf0rrz6kl",
+        "rank": 1,
+        "rerankScore": 0.42494884,
+        "originalScore": 0.42494884
+      }
+    },
+    {
+      "id": "t64a5gt9celhy2gor5d66",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "reranker",
+      "event": "rerank.updated",
+      "timestamp": "2026-08-27T06:32:55.573Z",
+      "data": {
+        "chunkId": "chunk_tc7fo8b40ug524hzb815m",
+        "rank": 2,
+        "rerankScore": 0.42494884,
+        "originalScore": 0.42494884
+      }
+    },
+    {
+      "id": "dz4jss1o69l2jnozobthjs",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "reranker",
+      "event": "rerank.updated",
+      "timestamp": "2026-08-27T06:32:55.573Z",
+      "data": {
+        "chunkId": "chunk_j2lgk0yovq81uujli8sbkt",
+        "rank": 3,
+        "rerankScore": 0.42494884,
+        "originalScore": 0.42494884
+      }
+    },
+    {
+      "id": "22lucrlnciosvds24u6vwp",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "reranker",
+      "event": "reranker.completed",
+      "timestamp": "2026-08-27T06:32:55.573Z",
+      "data": {
+        "resultCount": 3,
+        "latencyMs": 384,
+        "model": "heuristic"
+      }
+    },
+    {
+      "id": "dcm3g6lrq4hp78w69spjec",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "mmr",
+      "event": "mmr.started",
+      "timestamp": "2026-08-27T06:32:55.573Z",
+      "data": {
+        "lambda": 0.7,
+        "candidateCount": 3,
+        "finalCount": 10
+      }
+    },
+    {
+      "id": "g3tqo7y4iq62meq5yaxqfx",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "mmr",
+      "event": "mmr.selection.updated",
+      "timestamp": "2026-08-27T06:32:55.574Z",
+      "data": {
+        "chunkId": "chunk_2u2u7xhofcv51vf0rrz6kl",
+        "rank": 1,
+        "mmrScore": 1,
+        "relevanceScore": 0.42494884,
+        "maxSimilarity": 0,
+        "selected": true
+      }
+    },
+    {
+      "id": "3ysc0gmyd2r8a1i3hmp696",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "mmr",
+      "event": "mmr.selection.updated",
+      "timestamp": "2026-08-27T06:32:55.574Z",
+      "data": {
+        "chunkId": "chunk_tc7fo8b40ug524hzb815m",
+        "rank": 2,
+        "mmrScore": 0.3999999999999999,
+        "relevanceScore": 0.42494884,
+        "maxSimilarity": 1,
+        "selected": true
+      }
+    },
+    {
+      "id": "4mi0ds9om9e33f9vqkq1nn",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "mmr",
+      "event": "mmr.selection.updated",
+      "timestamp": "2026-08-27T06:32:55.574Z",
+      "data": {
+        "chunkId": "chunk_j2lgk0yovq81uujli8sbkt",
+        "rank": 3,
+        "mmrScore": 0.3999999999999999,
+        "relevanceScore": 0.42494884,
+        "maxSimilarity": 1,
+        "selected": true
+      }
+    },
+    {
+      "id": "0i1r82iz3uxs43ptq9gtz2p",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "mmr",
+      "event": "mmr.completed",
+      "timestamp": "2026-08-27T06:32:55.574Z",
+      "data": {
+        "selectedCount": 3,
+        "rejectedCount": 0,
+        "latencyMs": 1,
+        "lambda": 0.7
+      }
+    },
+    {
+      "id": "78mizzt30im3gmqmc2ifkb",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "context",
+      "event": "context.built",
+      "timestamp": "2026-08-27T06:32:55.574Z",
+      "data": {
+        "chunkCount": 3,
+        "documentCount": 1,
+        "totalTokens": 1536,
+        "chunks": [
+          {
+            "chunkId": "chunk_2u2u7xhofcv51vf0rrz6kl",
+            "document": "SwiftUI updates _ Apple Developer Documentation.pdf",
+            "page": 1,
+            "score": 1,
+            "method": "mmr"
+          },
+          {
+            "chunkId": "chunk_tc7fo8b40ug524hzb815m",
+            "document": "SwiftUI updates _ Apple Developer Documentation.pdf",
+            "page": 2,
+            "score": 0.3999999999999999,
+            "method": "mmr"
+          },
+          {
+            "chunkId": "chunk_j2lgk0yovq81uujli8sbkt",
+            "document": "SwiftUI updates _ Apple Developer Documentation.pdf",
+            "page": 3,
+            "score": 0.3999999999999999,
+            "method": "mmr"
+          }
+        ]
+      }
+    },
+    {
+      "id": "emdkvoh1xphn3lg4zc28ra",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "prompt",
+      "event": "prompt.built",
+      "timestamp": "2026-08-27T06:32:55.574Z",
+      "data": {
+        "systemTokens": 44,
+        "contextTokens": 48,
+        "userTokens": 4,
+        "totalTokens": 96
+      }
+    },
+    {
+      "id": "lomsjkhot88srip1d0kf1k",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "llm",
+      "event": "llm.started",
+      "timestamp": "2026-08-27T06:32:55.575Z",
+      "data": {
+        "model": "openai/gpt-oss-20b",
+        "temperature": 0.3,
+        "maxTokens": 2048
+      }
+    },
+    {
+      "id": "aiibwe89mcuw3e1wo9o3l",
+      "traceId": "trace_hkyneitciu53vzav5pyj4",
+      "runId": "run_jk7fx8khgztkct3htxus",
+      "stage": "llm",
+      "event": "llm.completed",
+      "timestamp": "2026-08-27T06:32:57.451Z",
+      "data": {
+        "model": "openai/gpt-oss-20b",
+        "latencyMs": 1875,
+        "inputTokens": 2575,
+        "outputTokens": 552,
+        "totalTokens": 3127,
+        "status": "completed"
+      }
+    }
+  ],
+  "queryProcessing": {
+    "originalQuery": "what is swiftui",
+    "tokenCount": 4,
+    "processingDurationMs": 0
+  },
+  "context": {
+    "chunks": [
+      {
+        "chunkId": "chunk_2u2u7xhofcv51vf0rrz6kl",
+        "documentId": "az8og2iyh7f35i106s2m1u",
+        "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+        "page": 1,
+        "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+        "score": 1,
+        "method": "mmr",
+        "tokenCount": 512,
+        "rank": 1
+      },
+      {
+        "chunkId": "chunk_tc7fo8b40ug524hzb815m",
+        "documentId": "az8og2iyh7f35i106s2m1u",
+        "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+        "page": 2,
+        "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+        "score": 0.3999999999999999,
+        "method": "mmr",
+        "tokenCount": 512,
+        "rank": 2
+      },
+      {
+        "chunkId": "chunk_j2lgk0yovq81uujli8sbkt",
+        "documentId": "az8og2iyh7f35i106s2m1u",
+        "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+        "page": 3,
+        "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+        "score": 0.3999999999999999,
+        "method": "mmr",
+        "tokenCount": 512,
+        "rank": 3
+      }
+    ],
+    "totalTokens": 1536,
+    "chunkCount": 3,
+    "documentCount": 1
+  },
+  "prompt": {
+    "system": "You are a helpful assistant. Answer the user's question based on the provided context. If the context does not contain enough information, say so clearly. Cite sources where applicable using [Source N] notation.",
+    "context": "[Source 1] Document: SwiftUI updates _ Apple Developer Documentation.pdf, Page: 1\nJune2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering\n\n[Source 2] Document: SwiftUI updates _ Apple Developer Documentation.pdf, Page: 2\nJune2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering\n\n[Source 3] Document: SwiftUI updates _ Apple Developer Documentation.pdf, Page: 3\nJune2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+    "user": "what is swiftui",
+    "systemTokens": 44,
+    "contextTokens": 48,
+    "userTokens": 4,
+    "totalTokens": 96
+  },
+  "llm": {
+    "provider": "groq",
+    "model": "openai/gpt-oss-20b",
+    "startTime": "1970-01-01T00:18:03.102Z",
+    "endTime": "2026-08-27T06:32:57.451Z",
+    "latencyMs": 1875,
+    "inputTokens": 2575,
+    "outputTokens": 552,
+    "totalTokens": 3127,
+    "answer": "**SwiftUI** is Apple’s declarative framework for building user interfaces across all of its platforms—iOS, macOS, watchOS, tvOS, and even visionOS. Instead of writing imperative code that manipulates view hierarchies, developers describe *what* the UI should look like and *how* it should behave, and SwiftUI takes care of updating the visual representation whenever the underlying data changes.\n\nKey points:\n\n| Feature | What it means |\n|---------|---------------|\n| **Declarative syntax** | You write code that describes the UI state (e.g., `Text(\"Hello\")`, `Button { … }`). SwiftUI automatically renders the view and updates it when the state changes. |\n| **State‑driven updates** | SwiftUI monitors `@State`, `@Binding`, `@ObservedObject`, `@EnvironmentObject`, etc. When any of these change, the framework recomputes the affected view hierarchy. |\n| **Cross‑platform** | A single SwiftUI codebase can target iOS, macOS, watchOS, tvOS, and visionOS, with platform‑specific modifiers and components. |\n| **Rich set of built‑in components** | `List`, `Form`, `NavigationView`, `TabView`, `Sheet`, `Alert`, and many more are available out of the box. |\n| **Modifiers** | SwiftUI uses a chainable modifier system (e.g., `.padding()`, `.background()`, `.onTapGesture()`) to customize views. |\n| **Animations & transitions** | Built‑in support for smooth animations, transitions, and gesture handling. |\n| **Integration with Swift** | Because it’s written in Swift, you can use all Swift language features, libraries, and tooling. |\n\nThe recent updates (as of June 2024) have added new modifiers and APIs—such as `onVolumeViewpointChange`, `defaultWindowPlacement`, `WindowIdealSize`, and many others—to extend SwiftUI’s capabilities for window management, immersive spaces, and more. These changes further simplify building complex, platform‑specific UIs while keeping the declarative style intact.  \n\n*Sources: SwiftUI updates documentation (June 2024) – see references to new modifiers and features.*",
+    "status": "completed"
+  },
+  "sources": [
+    {
+      "documentId": "az8og2iyh7f35i106s2m1u",
+      "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+      "page": 1,
+      "chunkId": "chunk_2u2u7xhofcv51vf0rrz6kl",
+      "retrievalMethod": "mmr",
+      "score": 1
+    },
+    {
+      "documentId": "az8og2iyh7f35i106s2m1u",
+      "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+      "page": 2,
+      "chunkId": "chunk_tc7fo8b40ug524hzb815m",
+      "retrievalMethod": "mmr",
+      "score": 0.3999999999999999
+    },
+    {
+      "documentId": "az8og2iyh7f35i106s2m1u",
+      "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+      "page": 3,
+      "chunkId": "chunk_j2lgk0yovq81uujli8sbkt",
+      "retrievalMethod": "mmr",
+      "score": 0.3999999999999999
+    }
+  ],
+  "totalLatencyMs": 2997,
+  "status": "completed",
+  "bm25": {
+    "latencyMs": 0,
+    "chunkCount": 3,
+    "queryTerms": [
+      "what",
+      "swiftui"
+    ],
+    "results": [
+      {
+        "chunkId": "chunk_2u2u7xhofcv51vf0rrz6kl",
+        "score": 1.3850770826949559,
+        "rank": 1,
+        "chunk": {
+          "id": "chunk_2u2u7xhofcv51vf0rrz6kl",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        },
+        "queryTerms": [
+          "what",
+          "swiftui"
+        ],
+        "termFreqs": {
+          "26": 3,
+          "27": 3,
+          "june2024volumes8": 1,
+          "13amswiftuiupdates": 3,
+          "appledeveloperdocumentationhttps": 3,
+          "developer": 3,
+          "apple": 4,
+          "com": 4,
+          "documentation": 5,
+          "updates": 3,
+          "swiftui5": 1,
+          "18defineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonvolumeviewpointchange": 1,
+          "updatestrategy": 1,
+          "initial": 1,
+          "viewmodifier": 5,
+          "changethedefaultinitialsizeandpositionofawindowusingthedefaultwindowplacement": 1,
+          "modifier": 6,
+          "changethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingwindowidealsizeandprovidetheplacementforthezoomedwindowwiththewindowidealplacement": 1,
+          "createutilitywindowsinswiftuiusingthenewutilitywindowscenetypeandtogglethewindow": 1,
+          "svisibilityusingthewindowvisibilitytoggle": 1,
+          "customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement": 1,
+          "thetoolbar": 1,
+          "removing": 1,
+          "andtheplainwindowstyle": 1,
+          "setthedefaultlaunchbehaviorforasceneusingthedefaultlaunchbehavior": 1,
+          "replaceonescenewithanotherusingthepushwindowmethod": 1,
+          "addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc": 1,
+          "swiftui": 1,
+          "view": 1,
+          "onimmersionchange": 1,
+          "applyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolormultiply": 1,
+          "anddim": 1,
+          "intensity": 1,
+          "initializers": 1,
+          "customizethelaunchexperienceofdocument": 1,
+          "basedapplicationsusingdocumentgrouplaunchsceneandnewdocumentbutton": 1,
+          "specifytheappearanceandinteractionoftabviewwiththetabviewstyle": 1,
+          "modifierusingvalueslikesidebaradaptable": 1,
+          "tabbaronly": 1,
+          "andgrouped": 1,
+          "windowsimmersivespacesdocumentsnavigation8": 1,
+          "swiftui6": 1,
+          "18buildhierarchybynestingtabsasatabitemwithintabsection": 1,
+          "enablepeopletocustomizeatabviewusingthetabviewcustomization": 1,
+          "modifierandpersistcustomizationstateinappstoragewithtabviewcustomization": 1,
+          "usebuilt": 1,
+          "inpresentationsizesforsheetslikeformorpagewiththepresentationsizing": 1,
+          "modifierorcreatecustomsizedsheetsusingthepresentationsizingprotocol": 1,
+          "specifythedisplaymodeoftoolbarsinmacosusingthetoolbarlabelstyletype": 1,
+          "configuretheforegroundstyleinthetoolbarenvironmentinwatchosusingthetoolbarforegroundstyle": 1,
+          "anchorornamentsrelativetothedepthofyourvolume": 1,
+          "inadditiontotheheightandwidth": 1,
+          "usingthescene": 1,
+          "methodthattakesaunitpoint3d": 1,
+          "createcustomcontainerviewslikepicker": 1,
+          "list": 1,
+          "andtabviewusingnewgroupandforeachinitializers": 1,
+          "likeinit": 1,
+          "subviews": 2,
+          "transform": 1,
+          "andinit": 1,
+          "content": 1,
+          "respectively": 1,
+          "declareacustomcontainervaluebydefiningakeythatconformstothecontainervaluekeyprotocol": 1,
+          "andsetthecontainervalueforaviewusingthecontainervalue": 1,
+          "createenvironmentvalues": 1,
+          "transaction": 1,
+          "containervalues": 1,
+          "andfocusedvaluesentriesbyusingtheentry": 1,
+          "macrotothevariabledeclaration": 1,
+          "customizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationtransition": 1,
+          "addnewsymbolseffectsandconfigurationslikewiggle": 1,
+          "rotate": 1,
+          "andbreatheusingthesymboleffect": 1,
+          "options": 1,
+          "value": 1,
+          "modalpresentationstoolbarsviewsanimation8": 1,
+          "swiftui7": 1,
+          "18addtextsuggestionssupporttoanytextfieldusingtextinputsuggestions": 1,
+          "andtextinputcompletion": 1,
+          "viewmodifiers": 1,
+          "accessandmodifyselectedtextusinganewtextselectionbindingfortextfieldandtexteditor": 1,
+          "bindtothefocusstateofanapp": 1,
+          "ssearchfieldusingthesearchfocused": 1,
+          "equals": 1,
+          "precompileshadersatbuildtimeusingthecompile": 1,
+          "method": 1,
+          "createmeshgradientswithagridofpointsandcolorsusingthenewmeshgradienttype": 1,
+          "extendswiftuitextviewswithcustomrendering": 1
+        }
+      },
+      {
+        "chunkId": "chunk_tc7fo8b40ug524hzb815m",
+        "score": 1.3850770826949559,
+        "rank": 2,
+        "chunk": {
+          "id": "chunk_tc7fo8b40ug524hzb815m",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 2,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        },
+        "queryTerms": [
+          "what",
+          "swiftui"
+        ],
+        "termFreqs": {
+          "26": 3,
+          "27": 3,
+          "june2024volumes8": 1,
+          "13amswiftuiupdates": 3,
+          "appledeveloperdocumentationhttps": 3,
+          "developer": 3,
+          "apple": 4,
+          "com": 4,
+          "documentation": 5,
+          "updates": 3,
+          "swiftui5": 1,
+          "18defineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonvolumeviewpointchange": 1,
+          "updatestrategy": 1,
+          "initial": 1,
+          "viewmodifier": 5,
+          "changethedefaultinitialsizeandpositionofawindowusingthedefaultwindowplacement": 1,
+          "modifier": 6,
+          "changethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingwindowidealsizeandprovidetheplacementforthezoomedwindowwiththewindowidealplacement": 1,
+          "createutilitywindowsinswiftuiusingthenewutilitywindowscenetypeandtogglethewindow": 1,
+          "svisibilityusingthewindowvisibilitytoggle": 1,
+          "customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement": 1,
+          "thetoolbar": 1,
+          "removing": 1,
+          "andtheplainwindowstyle": 1,
+          "setthedefaultlaunchbehaviorforasceneusingthedefaultlaunchbehavior": 1,
+          "replaceonescenewithanotherusingthepushwindowmethod": 1,
+          "addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc": 1,
+          "swiftui": 1,
+          "view": 1,
+          "onimmersionchange": 1,
+          "applyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolormultiply": 1,
+          "anddim": 1,
+          "intensity": 1,
+          "initializers": 1,
+          "customizethelaunchexperienceofdocument": 1,
+          "basedapplicationsusingdocumentgrouplaunchsceneandnewdocumentbutton": 1,
+          "specifytheappearanceandinteractionoftabviewwiththetabviewstyle": 1,
+          "modifierusingvalueslikesidebaradaptable": 1,
+          "tabbaronly": 1,
+          "andgrouped": 1,
+          "windowsimmersivespacesdocumentsnavigation8": 1,
+          "swiftui6": 1,
+          "18buildhierarchybynestingtabsasatabitemwithintabsection": 1,
+          "enablepeopletocustomizeatabviewusingthetabviewcustomization": 1,
+          "modifierandpersistcustomizationstateinappstoragewithtabviewcustomization": 1,
+          "usebuilt": 1,
+          "inpresentationsizesforsheetslikeformorpagewiththepresentationsizing": 1,
+          "modifierorcreatecustomsizedsheetsusingthepresentationsizingprotocol": 1,
+          "specifythedisplaymodeoftoolbarsinmacosusingthetoolbarlabelstyletype": 1,
+          "configuretheforegroundstyleinthetoolbarenvironmentinwatchosusingthetoolbarforegroundstyle": 1,
+          "anchorornamentsrelativetothedepthofyourvolume": 1,
+          "inadditiontotheheightandwidth": 1,
+          "usingthescene": 1,
+          "methodthattakesaunitpoint3d": 1,
+          "createcustomcontainerviewslikepicker": 1,
+          "list": 1,
+          "andtabviewusingnewgroupandforeachinitializers": 1,
+          "likeinit": 1,
+          "subviews": 2,
+          "transform": 1,
+          "andinit": 1,
+          "content": 1,
+          "respectively": 1,
+          "declareacustomcontainervaluebydefiningakeythatconformstothecontainervaluekeyprotocol": 1,
+          "andsetthecontainervalueforaviewusingthecontainervalue": 1,
+          "createenvironmentvalues": 1,
+          "transaction": 1,
+          "containervalues": 1,
+          "andfocusedvaluesentriesbyusingtheentry": 1,
+          "macrotothevariabledeclaration": 1,
+          "customizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationtransition": 1,
+          "addnewsymbolseffectsandconfigurationslikewiggle": 1,
+          "rotate": 1,
+          "andbreatheusingthesymboleffect": 1,
+          "options": 1,
+          "value": 1,
+          "modalpresentationstoolbarsviewsanimation8": 1,
+          "swiftui7": 1,
+          "18addtextsuggestionssupporttoanytextfieldusingtextinputsuggestions": 1,
+          "andtextinputcompletion": 1,
+          "viewmodifiers": 1,
+          "accessandmodifyselectedtextusinganewtextselectionbindingfortextfieldandtexteditor": 1,
+          "bindtothefocusstateofanapp": 1,
+          "ssearchfieldusingthesearchfocused": 1,
+          "equals": 1,
+          "precompileshadersatbuildtimeusingthecompile": 1,
+          "method": 1,
+          "createmeshgradientswithagridofpointsandcolorsusingthenewmeshgradienttype": 1,
+          "extendswiftuitextviewswithcustomrendering": 1
+        }
+      },
+      {
+        "chunkId": "chunk_j2lgk0yovq81uujli8sbkt",
+        "score": 1.3850770826949559,
+        "rank": 3,
+        "chunk": {
+          "id": "chunk_j2lgk0yovq81uujli8sbkt",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 3,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        },
+        "queryTerms": [
+          "what",
+          "swiftui"
+        ],
+        "termFreqs": {
+          "26": 3,
+          "27": 3,
+          "june2024volumes8": 1,
+          "13amswiftuiupdates": 3,
+          "appledeveloperdocumentationhttps": 3,
+          "developer": 3,
+          "apple": 4,
+          "com": 4,
+          "documentation": 5,
+          "updates": 3,
+          "swiftui5": 1,
+          "18defineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonvolumeviewpointchange": 1,
+          "updatestrategy": 1,
+          "initial": 1,
+          "viewmodifier": 5,
+          "changethedefaultinitialsizeandpositionofawindowusingthedefaultwindowplacement": 1,
+          "modifier": 6,
+          "changethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingwindowidealsizeandprovidetheplacementforthezoomedwindowwiththewindowidealplacement": 1,
+          "createutilitywindowsinswiftuiusingthenewutilitywindowscenetypeandtogglethewindow": 1,
+          "svisibilityusingthewindowvisibilitytoggle": 1,
+          "customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement": 1,
+          "thetoolbar": 1,
+          "removing": 1,
+          "andtheplainwindowstyle": 1,
+          "setthedefaultlaunchbehaviorforasceneusingthedefaultlaunchbehavior": 1,
+          "replaceonescenewithanotherusingthepushwindowmethod": 1,
+          "addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc": 1,
+          "swiftui": 1,
+          "view": 1,
+          "onimmersionchange": 1,
+          "applyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolormultiply": 1,
+          "anddim": 1,
+          "intensity": 1,
+          "initializers": 1,
+          "customizethelaunchexperienceofdocument": 1,
+          "basedapplicationsusingdocumentgrouplaunchsceneandnewdocumentbutton": 1,
+          "specifytheappearanceandinteractionoftabviewwiththetabviewstyle": 1,
+          "modifierusingvalueslikesidebaradaptable": 1,
+          "tabbaronly": 1,
+          "andgrouped": 1,
+          "windowsimmersivespacesdocumentsnavigation8": 1,
+          "swiftui6": 1,
+          "18buildhierarchybynestingtabsasatabitemwithintabsection": 1,
+          "enablepeopletocustomizeatabviewusingthetabviewcustomization": 1,
+          "modifierandpersistcustomizationstateinappstoragewithtabviewcustomization": 1,
+          "usebuilt": 1,
+          "inpresentationsizesforsheetslikeformorpagewiththepresentationsizing": 1,
+          "modifierorcreatecustomsizedsheetsusingthepresentationsizingprotocol": 1,
+          "specifythedisplaymodeoftoolbarsinmacosusingthetoolbarlabelstyletype": 1,
+          "configuretheforegroundstyleinthetoolbarenvironmentinwatchosusingthetoolbarforegroundstyle": 1,
+          "anchorornamentsrelativetothedepthofyourvolume": 1,
+          "inadditiontotheheightandwidth": 1,
+          "usingthescene": 1,
+          "methodthattakesaunitpoint3d": 1,
+          "createcustomcontainerviewslikepicker": 1,
+          "list": 1,
+          "andtabviewusingnewgroupandforeachinitializers": 1,
+          "likeinit": 1,
+          "subviews": 2,
+          "transform": 1,
+          "andinit": 1,
+          "content": 1,
+          "respectively": 1,
+          "declareacustomcontainervaluebydefiningakeythatconformstothecontainervaluekeyprotocol": 1,
+          "andsetthecontainervalueforaviewusingthecontainervalue": 1,
+          "createenvironmentvalues": 1,
+          "transaction": 1,
+          "containervalues": 1,
+          "andfocusedvaluesentriesbyusingtheentry": 1,
+          "macrotothevariabledeclaration": 1,
+          "customizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationtransition": 1,
+          "addnewsymbolseffectsandconfigurationslikewiggle": 1,
+          "rotate": 1,
+          "andbreatheusingthesymboleffect": 1,
+          "options": 1,
+          "value": 1,
+          "modalpresentationstoolbarsviewsanimation8": 1,
+          "swiftui7": 1,
+          "18addtextsuggestionssupporttoanytextfieldusingtextinputsuggestions": 1,
+          "andtextinputcompletion": 1,
+          "viewmodifiers": 1,
+          "accessandmodifyselectedtextusinganewtextselectionbindingfortextfieldandtexteditor": 1,
+          "bindtothefocusstateofanapp": 1,
+          "ssearchfieldusingthesearchfocused": 1,
+          "equals": 1,
+          "precompileshadersatbuildtimeusingthecompile": 1,
+          "method": 1,
+          "createmeshgradientswithagridofpointsandcolorsusingthenewmeshgradienttype": 1,
+          "extendswiftuitextviewswithcustomrendering": 1
+        }
+      }
+    ]
+  },
+  "rrf": {
+    "latencyMs": 0,
+    "inputVectorChunks": 0,
+    "inputBM25Chunks": 3,
+    "results": [
+      {
+        "chunkId": "chunk_2u2u7xhofcv51vf0rrz6kl",
+        "rrfScore": 0.01639344262295082,
+        "bm25Rank": 1,
+        "bm25Score": 1.3850770826949559,
+        "chunk": {
+          "id": "chunk_2u2u7xhofcv51vf0rrz6kl",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        }
+      },
+      {
+        "chunkId": "chunk_tc7fo8b40ug524hzb815m",
+        "rrfScore": 0.016129032258064516,
+        "bm25Rank": 2,
+        "bm25Score": 1.3850770826949559,
+        "chunk": {
+          "id": "chunk_tc7fo8b40ug524hzb815m",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 2,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        }
+      },
+      {
+        "chunkId": "chunk_j2lgk0yovq81uujli8sbkt",
+        "rrfScore": 0.015873015873015872,
+        "bm25Rank": 3,
+        "bm25Score": 1.3850770826949559,
+        "chunk": {
+          "id": "chunk_j2lgk0yovq81uujli8sbkt",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 3,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        }
+      }
+    ]
+  },
+  "reranker": {
+    "latencyMs": 0,
+    "inputChunkCount": 3,
+    "results": [
+      {
+        "chunkId": "chunk_2u2u7xhofcv51vf0rrz6kl",
+        "originalScore": 0.42494884,
+        "rerankScore": 0.42494884,
+        "rank": 1,
+        "chunk": {
+          "id": "chunk_2u2u7xhofcv51vf0rrz6kl",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        }
+      },
+      {
+        "chunkId": "chunk_tc7fo8b40ug524hzb815m",
+        "originalScore": 0.42494884,
+        "rerankScore": 0.42494884,
+        "rank": 2,
+        "chunk": {
+          "id": "chunk_tc7fo8b40ug524hzb815m",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 2,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        }
+      },
+      {
+        "chunkId": "chunk_j2lgk0yovq81uujli8sbkt",
+        "originalScore": 0.42494884,
+        "rerankScore": 0.42494884,
+        "rank": 3,
+        "chunk": {
+          "id": "chunk_j2lgk0yovq81uujli8sbkt",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 3,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        }
+      }
+    ],
+    "skipped": false
+  },
+  "mmr": {
+    "latencyMs": 0,
+    "lambda": 0.7,
+    "inputChunkCount": 3,
+    "selectedChunks": [
+      {
+        "chunkId": "chunk_2u2u7xhofcv51vf0rrz6kl",
+        "mmrScore": 1,
+        "relevanceScore": 0.42494884,
+        "maxSimilarity": 0,
+        "selected": true,
+        "rank": 1,
+        "chunk": {
+          "id": "chunk_2u2u7xhofcv51vf0rrz6kl",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        }
+      },
+      {
+        "chunkId": "chunk_tc7fo8b40ug524hzb815m",
+        "mmrScore": 0.3999999999999999,
+        "relevanceScore": 0.42494884,
+        "maxSimilarity": 1,
+        "selected": true,
+        "rank": 2,
+        "chunk": {
+          "id": "chunk_tc7fo8b40ug524hzb815m",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 2,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        }
+      },
+      {
+        "chunkId": "chunk_j2lgk0yovq81uujli8sbkt",
+        "mmrScore": 0.3999999999999999,
+        "relevanceScore": 0.42494884,
+        "maxSimilarity": 1,
+        "selected": true,
+        "rank": 3,
+        "chunk": {
+          "id": "chunk_j2lgk0yovq81uujli8sbkt",
+          "documentId": "az8og2iyh7f35i106s2m1u",
+          "documentName": "SwiftUI updates _ Apple Developer Documentation.pdf",
+          "page": 3,
+          "content": "June2024Volumes8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui5/18DefineacustomactiontoexecutewhentheviewpointofavolumechangesusingtheonVolumeViewpointChange(updateStrategy:initial:_:)viewmodifier.ChangethedefaultinitialsizeandpositionofawindowusingthedefaultWindowPlacement(_:)modifier.ChangethedefaultbehaviorforhowwindowsbehavewhenperformingazoomusingWindowIdealSizeandprovidetheplacementforthezoomedwindowwiththewindowIdealPlacement(_:)modifier.CreateutilitywindowsinSwiftUIusingthenewUtilityWindowscenetypeandtogglethewindowʼsvisibilityusingtheWindowVisibilityToggle.Customizethestyleofawindowusingthenewwindowcontainerbackgroundplacement,thetoolbar(removing:)viewmodifier,andtheplainwindowstyle.SetthedefaultlaunchbehaviorforasceneusingthedefaultLaunchBehavior(_:)modifier.ReplaceonescenewithanotherusingthepushWindowmethod.Addanactiontoperformwhenthestateoftheimmersionchangesusingthedoc://com.apple.documentation/documentation/SwiftUI/View/onImmersionChange(_:)modifier.ApplyacustomcolorordimapassthroughvideoinanimmersivespaceusingthecolorMultiply(_:)anddim(intensity:)initializers.Customizethelaunchexperienceofdocument-basedapplicationsusingDocumentGroupLaunchSceneandNewDocumentButton.SpecifytheappearanceandinteractionofTabViewwiththetabViewStyle(_:)modifierusingvalueslikesidebarAdaptable,tabBarOnly,andgrouped.WindowsImmersivespacesDocumentsNavigation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui6/18BuildhierarchybynestingtabsasatabitemwithinTabSection.EnablepeopletocustomizeaTabViewusingthetabViewCustomization(_:)modifierandpersistcustomizationstateinAppStoragewithTabViewCustomization.Usebuilt-inpresentationsizesforsheetslikeformorpagewiththepresentationSizing(_:)modifierorcreatecustomsizedsheetsusingthePresentationSizingprotocol.SpecifythedisplaymodeoftoolbarsinmacOSusingtheToolbarLabelStyletype.ConfiguretheforegroundstyleinthetoolbarenvironmentinwatchOSusingthetoolbarForegroundStyle(_:for:)viewmodifier.Anchorornamentsrelativetothedepthofyourvolume—inadditiontotheheightandwidth—usingthescene(_:)methodthattakesaUnitPoint3D.CreatecustomcontainerviewslikePicker,List,andTabViewusingnewGroupandForEachinitializers,likeinit(subviews:transform:)andinit(subviews:content:),respectively.DeclareacustomcontainervaluebydefiningakeythatconformstotheContainerValueKeyprotocol,andsetthecontainervalueforaviewusingthecontainerValue(_:_:)modifier.CreateEnvironmentValues,Transaction,ContainerValues,andFocusedValuesentriesbyusingtheEntry()macrotothevariabledeclaration.CustomizethetransitionwhenpushingaviewontoanavigationstackorpresentingaviewwiththenavigationTransition(_:)viewmodifier.Addnewsymbolseffectsandconfigurationslikewiggle,rotate,andbreatheusingthesymbolEffect(_:options:value:)modifier.ModalpresentationsToolbarsViewsAnimation8/27/26,1:13AMSwiftUIupdates|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/updates/swiftui7/18AddtextsuggestionssupporttoanytextfieldusingtextInputSuggestions(_:)andtextInputCompletion(_:)viewmodifiers.AccessandmodifyselectedtextusinganewTextSelectionbindingforTextFieldandTextEditor.BindtothefocusstateofanappʼssearchfieldusingthesearchFocused(_:equals:)viewmodifier.Precompileshadersatbuildtimeusingthecompile(as:)method.CreatemeshgradientswithagridofpointsandcolorsusingthenewMeshGradienttype.ExtendSwiftUITextviewswithcustomrendering",
+          "tokenCount": 512,
+          "startOffset": 7158,
+          "endOffset": 11122
+        }
+      }
+    ],
+    "rejectedChunks": [],
+    "skipped": false
+  }
+}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
+import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import { motion } from "framer-motion"
 import {
   ChevronLeft,
@@ -43,13 +44,13 @@ export function PdfViewer({
 
   const zoom = ZOOM_LEVELS[zoomIndex]
   const totalPages = docMeta?.pageCount ?? 0
-  const previewUrl = `/api/documents/${documentId}/preview`
+  const previewUrl = previewUrlHelper(documentId)
 
   const fetchDocument = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
-      const res = await fetch(`/api/documents/${documentId}`)
+      const res = await apiFetch(`/documents/${documentId}`)
       const body: ApiResponse<DocumentMetadata> = await res.json()
 
       if (!body.success || !body.data) {

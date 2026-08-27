@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import { X, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -33,7 +34,7 @@ export function KbCreateModal({ open, onClose, onCreated }: KbCreateModalProps) 
         .map((t) => t.trim())
         .filter(Boolean)
 
-      const res = await fetch("/api/knowledge-bases", {
+      const res = await apiFetch("/knowledge-bases", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim(), description: description.trim(), tags }),

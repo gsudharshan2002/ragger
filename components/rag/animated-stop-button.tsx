@@ -14,6 +14,8 @@ const FRAME_INTERVAL_MS = 90
 export function AnimatedStopButton({ onClick, disabled }: AnimatedStopButtonProps) {
   const [frame, setFrame] = useState(1)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const disabledRef = useRef(disabled)
+  disabledRef.current = disabled
   const [reducedMotion, setReducedMotion] = useState<boolean>(() => {
     if (typeof window === "undefined") return false
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -30,14 +32,21 @@ export function AnimatedStopButton({ onClick, disabled }: AnimatedStopButtonProp
   }, [])
 
   useEffect(() => {
-    if (reducedMotion || disabled) return
+    if (reducedMotion || disabledRef.current) return
     intervalRef.current = setInterval(() => {
       setFrame((prev) => (prev % FRAME_COUNT) + 1)
     }, FRAME_INTERVAL_MS)
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  }, [reducedMotion, disabled])
+  }, [reducedMotion])
+
+  useEffect(() => {
+    if (disabled && intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }, [disabled])
 
   if (reducedMotion) {
     return (

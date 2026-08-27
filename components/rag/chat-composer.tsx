@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import { Send, Paperclip, Mic, ChevronDown, Check, Database, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -25,7 +26,7 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
   const recognitionRef = useRef<any>(null)
 
   useEffect(() => {
-    fetch("/api/knowledge-bases")
+    apiFetch("/knowledge-bases")
       .then((r) => r.json())
       .then((data) => {
         if (data.success && data.data) {

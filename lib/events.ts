@@ -62,7 +62,10 @@ export class RagEventBus {
   }
 
   emit(event: RagEvent): void {
-    this.listeners.forEach((l) => l(event))
+    // Emit asynchronously to avoid state updates during synchronous execution
+    queueMicrotask(() => {
+      this.listeners.forEach((l) => l(event))
+    })
   }
 
   clear(): void {

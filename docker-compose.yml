@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  ragger-backend:
+    build:
+      context: ./ragger-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=false
+      - HOST=0.0.0.0
+      - PORT=8000
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-none}
+      - EMBEDDING_API_KEY=${EMBEDDING_API_KEY}
+      - LLM_PROVIDER=${LLM_PROVIDER:-groq}
+      - DEFAULT_STRATEGY=${DEFAULT_STRATEGY:-hybrid-rerank-mmr}
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    volumes:
+      - ./ragger-backend/data:/app/data
+      - ./ragger-backend/uploads:/app/uploads
+    restart: unless-stopped

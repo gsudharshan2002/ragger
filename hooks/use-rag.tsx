@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useCallback, useRef, useState, useEffect, type ReactNode } from "react"
+import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import type { RagStrategy, RagTrace, ChatMessage, UploadedDocument, Session } from "../lib/types"
 import type { RagEvent } from "../lib/events"
 import { RagEventBus, createEventBus } from "../lib/events"
@@ -43,7 +44,7 @@ async function fetchRagStream(
   const controller = new AbortController()
 
   try {
-    const response = await fetch("/api/chat", {
+    const response = await apiFetch("/chat/stream", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, strategy, knowledgeBaseId }),
@@ -122,7 +123,7 @@ export function RagProvider({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => {
-    fetch("/api/documents")
+    apiFetch("/documents")
       .then((r) => r.json())
       .then((data) => {
         if (data.success && data.data) {
@@ -144,7 +145,7 @@ export function RagProvider({ children }: { children: ReactNode }) {
       ...prev,
       documents: prev.documents.filter((d) => d.id !== id),
     }))
-    fetch(`/api/documents/${id}`, { method: "DELETE" }).catch(() => {})
+    apiFetch(`/documents/${id}`, { method: "DELETE" }).catch(() => {})
   }, [])
 
   const sendMessage = useCallback((content: string) => {
@@ -167,11 +168,24 @@ export function RagProvider({ children }: { children: ReactNode }) {
     setActiveTrace(null)
     setEvents([])
 
-    const collectedEvents: RagEvent[] = []
+    const collectedEventsRef = { current: [] as RagEvent[] }
+    let eventsUpdateScheduled = false
+
+    const scheduleEventsUpdate = () => {
+      if (eventsUpdateScheduled) return
+      eventsUpdateScheduled = true
+      queueMicrotask(() => {
+        eventsUpdateScheduled = false
+        setEvents([...collectedEventsRef.current])
+      })
+    }
 
     const unsubscribe = busRef.current.subscribe((event: RagEvent) => {
-      collectedEvents.push(event)
-      setEvents([...collectedEvents])
+      // Skip high-frequency token events to avoid excessive re-renders
+      const t = event.type as string
+      if (t === "llm.token" || t === "llm.token.generated") return
+      collectedEventsRef.current.push(event)
+      scheduleEventsUpdate()
     })
 
     fetchRagStream(content.trim(), strategy, (event) => {
@@ -188,7 +202,7 @@ export function RagProvider({ children }: { children: ReactNode }) {
           const trace = event.data as unknown as RagTrace
           setActiveTrace(trace)
           setIsExecuting(false)
-          setEvents([...collectedEvents])
+          setEvents([...collectedEventsRef.current])
 
           const assistantMessage: ChatMessage = {
             id: generateId(),
@@ -217,7 +231,7 @@ export function RagProvider({ children }: { children: ReactNode }) {
 
           const errorMessage = (event.data as { error?: string })?.error || "Something went wrong."
           setIsExecuting(false)
-          setEvents([...collectedEvents])
+          setEvents([...collectedEventsRef.current])
 
           const assistantMessage: ChatMessage = {
             id: generateId(),
@@ -240,7 +254,7 @@ export function RagProvider({ children }: { children: ReactNode }) {
       unsubscribe()
       setIsExecuting(false)
     })
-  }, [strategy, isExecuting, selectedKnowledgeBaseId])
+  }, [strategy, selectedKnowledgeBaseId])
 
   const stopGeneration = useCallback(() => {
     cancelRef.current?.()

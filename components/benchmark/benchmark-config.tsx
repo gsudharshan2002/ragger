@@ -288,7 +288,7 @@ export function BenchmarkConfig() {
 
         <div className="space-y-3">
           <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">RAG Strategy</label>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2.5">
             {RAG_STRATEGIES.map((s) => {
               const colors = STRATEGY_COLORS[s.value]
               const isActive = config.strategy === s.value
@@ -297,7 +297,7 @@ export function BenchmarkConfig() {
                   key={s.value}
                   onClick={() => updateConfig({ strategy: s.value })}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all",
+                    "flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium border transition-all",
                     isActive
                       ? cn(colors.active, colors.text)
                       : cn("border-black/[0.06] bg-white text-gray-500 hover:bg-gray-50")
@@ -558,38 +558,40 @@ export function BenchmarkConfig() {
             <BarChart3 className="w-3.5 h-3.5 text-gray-500" />
             <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">Evaluation Metrics</label>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {Object.entries(metricsByCategory).map(([category, metrics]) => (
-              <div key={category} className="space-y-2">
+              <div key={category} className="space-y-2.5">
                 <div className="flex items-center gap-1.5">
                   {categoryIcons[category]}
                   <span className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider">{category}</span>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {metrics.map((metric) => {
                     const isActive = config.metrics.includes(metric.value)
                     return (
                       <Tooltip key={metric.value}>
-                        <TooltipTrigger>
-                          <button
-                            onClick={() => toggleMetric(metric.value)}
-                            className={cn(
-                              "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all",
-                              isActive
-                                ? "bg-gray-900 text-white border-gray-900"
-                                : "bg-white text-gray-500 border-black/[0.06] hover:bg-gray-50"
-                            )}
-                          >
-                            {isActive && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                              >
-                                <Check className="w-2.5 h-2.5" />
-                              </motion.div>
-                            )}
-                            {metric.label}
-                          </button>
+                        <TooltipTrigger
+                          render={
+                            <button
+                              onClick={() => toggleMetric(metric.value)}
+                              className={cn(
+                                "flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium border transition-all",
+                                isActive
+                                  ? "bg-gray-900 text-white border-gray-900"
+                                  : "bg-white text-gray-500 border-black/[0.06] hover:bg-gray-50"
+                              )}
+                            />
+                          }
+                        >
+                          {isActive && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                            >
+                              <Check className="w-2.5 h-2.5" />
+                            </motion.div>
+                          )}
+                          {metric.label}
                         </TooltipTrigger>
                         <TooltipContent side="top">
                           {metric.tooltip}

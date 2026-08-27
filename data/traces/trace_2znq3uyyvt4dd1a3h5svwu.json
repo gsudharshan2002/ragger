@@ -1,0 +1,1036 @@
+{
+  "id": "trace_2znq3uyyvt4dd1a3h5svwu",
+  "runId": "run_n1i73e3dlpfppd7zavats",
+  "sessionId": "ayqq3v68m9ws7icdrwnqv",
+  "requestId": "ayqq3v68m9ws7icdrwnqv",
+  "timestamp": "1970-01-01T01:29:54.971Z",
+  "query": "Give me a comprehensive summary of all the key points across my uploaded documents.",
+  "strategy": "hybrid-rerank-mmr",
+  "config": {
+    "strategy": "hybrid-rerank-mmr",
+    "vector": {
+      "embeddingModel": "",
+      "topK": 3,
+      "similarity": "cosine",
+      "similarityThreshold": 0
+    },
+    "bm25": {
+      "topK": 3,
+      "language": "english",
+      "tokenizer": "standard"
+    },
+    "rrf": {
+      "k": 60,
+      "vectorWeight": 1,
+      "bm25Weight": 1
+    },
+    "reranker": {
+      "enabled": false,
+      "candidateCount": 3,
+      "topN": 10
+    },
+    "mmr": {
+      "enabled": false,
+      "lambda": 0.7,
+      "candidateCount": 3,
+      "finalCount": 10
+    },
+    "llm": {
+      "model": "openai/gpt-oss-20b",
+      "temperature": 0.3,
+      "maxTokens": 2048,
+      "systemPrompt": "You are a helpful assistant. Answer the user's question based on the provided context. If the context does not contain enough information, say so clearly. Cite sources where applicable using [Source N] notation."
+    },
+    "chunking": {
+      "chunkSize": 512,
+      "chunkOverlap": 64,
+      "method": "token"
+    }
+  },
+  "events": [
+    {
+      "id": "cwuenf5xy9cxy6xznz732",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "query",
+      "event": "query.started",
+      "timestamp": "2026-08-27T07:44:46.353Z",
+      "data": {
+        "query": "Give me a comprehensive summary of all the key points across my uploaded documents.",
+        "strategy": "hybrid-rerank-mmr",
+        "requestId": "ayqq3v68m9ws7icdrwnqv",
+        "knowledgeBaseId": null
+      }
+    },
+    {
+      "id": "lpromqn4hca0k5rj7xcak",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "query",
+      "event": "query.processed",
+      "timestamp": "2026-08-27T07:44:46.370Z",
+      "data": {
+        "chunkCount": 154,
+        "processingDurationMs": 28
+      }
+    },
+    {
+      "id": "aom74f27ydq03q9pvnyv",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "vector",
+      "event": "vector.started",
+      "timestamp": "2026-08-27T07:44:46.370Z",
+      "data": {
+        "topK": 3,
+        "embeddingModel": ""
+      }
+    },
+    {
+      "id": "dlytbbavyh7ca1nv351pz5",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "vector",
+      "event": "vector.completed",
+      "timestamp": "2026-08-27T07:44:47.201Z",
+      "data": {
+        "resultCount": 0,
+        "latencyMs": 0,
+        "embeddingModel": "",
+        "dimensions": 1024
+      }
+    },
+    {
+      "id": "l3ct3k16u5u2u88hhl18",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "bm25",
+      "event": "bm25.started",
+      "timestamp": "2026-08-27T07:44:47.201Z",
+      "data": {
+        "topK": 3,
+        "language": "english"
+      }
+    },
+    {
+      "id": "iapwf4zrfxckra62scz1tr",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "bm25",
+      "event": "bm25.chunk.retrieved",
+      "timestamp": "2026-08-27T07:44:47.227Z",
+      "data": {
+        "chunkId": "chunk_feqgiyosmuuzhd5dy2btzf",
+        "rank": 1,
+        "score": 0,
+        "document": "Core Graphics _ Apple Developer Documentation.pdf",
+        "page": 1,
+        "queryTerms": [
+          "give",
+          "me",
+          "comprehensive",
+          "summary",
+          "key",
+          "points",
+          "across",
+          "my",
+          "uploaded",
+          "documents"
+        ]
+      }
+    },
+    {
+      "id": "rre3el9qwsym92lvh16a",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "bm25",
+      "event": "bm25.chunk.retrieved",
+      "timestamp": "2026-08-27T07:44:47.227Z",
+      "data": {
+        "chunkId": "chunk_p9llg49sq2j6mppesd1qvu",
+        "rank": 2,
+        "score": 0,
+        "document": "Core Graphics _ Apple Developer Documentation.pdf",
+        "page": 1,
+        "queryTerms": [
+          "give",
+          "me",
+          "comprehensive",
+          "summary",
+          "key",
+          "points",
+          "across",
+          "my",
+          "uploaded",
+          "documents"
+        ]
+      }
+    },
+    {
+      "id": "9eetcrge7zlnzauxph3k3m",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "bm25",
+      "event": "bm25.chunk.retrieved",
+      "timestamp": "2026-08-27T07:44:47.227Z",
+      "data": {
+        "chunkId": "chunk_hwiuwa9ov94zr1914pghe",
+        "rank": 3,
+        "score": 0,
+        "document": "Core Graphics _ Apple Developer Documentation.pdf",
+        "page": 2,
+        "queryTerms": [
+          "give",
+          "me",
+          "comprehensive",
+          "summary",
+          "key",
+          "points",
+          "across",
+          "my",
+          "uploaded",
+          "documents"
+        ]
+      }
+    },
+    {
+      "id": "a3aye0p2dstnkyk09i26i",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "bm25",
+      "event": "bm25.completed",
+      "timestamp": "2026-08-27T07:44:47.227Z",
+      "data": {
+        "resultCount": 3,
+        "latencyMs": 26,
+        "queryTerms": [
+          "give",
+          "me",
+          "comprehensive",
+          "summary",
+          "key",
+          "points",
+          "across",
+          "my",
+          "uploaded",
+          "documents"
+        ]
+      }
+    },
+    {
+      "id": "zndare4s35c2zw4kko95yu",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "rrf",
+      "event": "rrf.started",
+      "timestamp": "2026-08-27T07:44:47.227Z",
+      "data": {
+        "k": 60,
+        "vectorWeight": 1,
+        "bm25Weight": 1,
+        "vectorResultCount": 0,
+        "bm25ResultCount": 3
+      }
+    },
+    {
+      "id": "d322asn030rmgq8wsorgy",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "rrf",
+      "event": "rrf.completed",
+      "timestamp": "2026-08-27T07:44:47.227Z",
+      "data": {
+        "resultCount": 3,
+        "latencyMs": 0,
+        "inputVectorChunks": 0,
+        "inputBM25Chunks": 3
+      }
+    },
+    {
+      "id": "1t64meoye7v5yyvdc0hx6",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "reranker",
+      "event": "reranker.started",
+      "timestamp": "2026-08-27T07:44:47.227Z",
+      "data": {
+        "candidateCount": 3,
+        "topN": 10,
+        "configured": true
+      }
+    },
+    {
+      "id": "qzm1cp94mr8k29szji5pe",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "reranker",
+      "event": "rerank.updated",
+      "timestamp": "2026-08-27T07:44:47.637Z",
+      "data": {
+        "chunkId": "chunk_feqgiyosmuuzhd5dy2btzf",
+        "rank": 1,
+        "rerankScore": 0.00005307508,
+        "originalScore": 0.00005307508
+      }
+    },
+    {
+      "id": "no28lpkhfgkgetc9wxne3l",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "reranker",
+      "event": "rerank.updated",
+      "timestamp": "2026-08-27T07:44:47.637Z",
+      "data": {
+        "chunkId": "chunk_hwiuwa9ov94zr1914pghe",
+        "rank": 2,
+        "rerankScore": 0.00005307508,
+        "originalScore": 0.00005307508
+      }
+    },
+    {
+      "id": "pdgrpxxahnnpnsp9xgkv",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "reranker",
+      "event": "rerank.updated",
+      "timestamp": "2026-08-27T07:44:47.638Z",
+      "data": {
+        "chunkId": "chunk_p9llg49sq2j6mppesd1qvu",
+        "rank": 3,
+        "rerankScore": 0.000044001186,
+        "originalScore": 0.000044001186
+      }
+    },
+    {
+      "id": "tuan32j6mqpeb916qu838",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "reranker",
+      "event": "reranker.completed",
+      "timestamp": "2026-08-27T07:44:47.638Z",
+      "data": {
+        "resultCount": 3,
+        "latencyMs": 410,
+        "model": "heuristic"
+      }
+    },
+    {
+      "id": "9zhlb0ahlbtj8sed5m4db",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "mmr",
+      "event": "mmr.started",
+      "timestamp": "2026-08-27T07:44:47.638Z",
+      "data": {
+        "lambda": 0.7,
+        "candidateCount": 3,
+        "finalCount": 10
+      }
+    },
+    {
+      "id": "s1f1p9h17kfewf14k58i7a",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "mmr",
+      "event": "mmr.selection.updated",
+      "timestamp": "2026-08-27T07:44:47.638Z",
+      "data": {
+        "chunkId": "chunk_feqgiyosmuuzhd5dy2btzf",
+        "rank": 1,
+        "mmrScore": 1,
+        "relevanceScore": 0.00005307508,
+        "maxSimilarity": 0,
+        "selected": true
+      }
+    },
+    {
+      "id": "xw9lru89uanybtg45g5w8b",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "mmr",
+      "event": "mmr.selection.updated",
+      "timestamp": "2026-08-27T07:44:47.638Z",
+      "data": {
+        "chunkId": "chunk_hwiuwa9ov94zr1914pghe",
+        "rank": 3,
+        "mmrScore": 0.3999999999999999,
+        "relevanceScore": 0.00005307508,
+        "maxSimilarity": 1,
+        "selected": true
+      }
+    },
+    {
+      "id": "3yx0xc6imdkqv2th257ibd",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "mmr",
+      "event": "mmr.selection.updated",
+      "timestamp": "2026-08-27T07:44:47.638Z",
+      "data": {
+        "chunkId": "chunk_p9llg49sq2j6mppesd1qvu",
+        "rank": 2,
+        "mmrScore": 0.5803256481196072,
+        "relevanceScore": 0.000044001186,
+        "maxSimilarity": 0,
+        "selected": true
+      }
+    },
+    {
+      "id": "84renpgwq3dypw7v50ta",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "mmr",
+      "event": "mmr.completed",
+      "timestamp": "2026-08-27T07:44:47.638Z",
+      "data": {
+        "selectedCount": 3,
+        "rejectedCount": 0,
+        "latencyMs": 0,
+        "lambda": 0.7
+      }
+    },
+    {
+      "id": "2qulcjwrwbhvl4evkrx2r",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "context",
+      "event": "context.built",
+      "timestamp": "2026-08-27T07:44:47.638Z",
+      "data": {
+        "chunkCount": 3,
+        "documentCount": 1,
+        "totalTokens": 1142,
+        "chunks": [
+          {
+            "chunkId": "chunk_feqgiyosmuuzhd5dy2btzf",
+            "document": "Core Graphics _ Apple Developer Documentation.pdf",
+            "page": 1,
+            "score": 1,
+            "method": "mmr"
+          },
+          {
+            "chunkId": "chunk_hwiuwa9ov94zr1914pghe",
+            "document": "Core Graphics _ Apple Developer Documentation.pdf",
+            "page": 2,
+            "score": 0.3999999999999999,
+            "method": "mmr"
+          },
+          {
+            "chunkId": "chunk_p9llg49sq2j6mppesd1qvu",
+            "document": "Core Graphics _ Apple Developer Documentation.pdf",
+            "page": 1,
+            "score": 0.5803256481196072,
+            "method": "mmr"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yvgbc2oq8yz3zs7ae2sxj",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "prompt",
+      "event": "prompt.built",
+      "timestamp": "2026-08-27T07:44:47.638Z",
+      "data": {
+        "systemTokens": 44,
+        "contextTokens": 48,
+        "userTokens": 19,
+        "totalTokens": 111
+      }
+    },
+    {
+      "id": "ssq2k7cn0o3tofa8zv8xu",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "llm",
+      "event": "llm.started",
+      "timestamp": "2026-08-27T07:44:47.639Z",
+      "data": {
+        "model": "openai/gpt-oss-20b",
+        "temperature": 0.3,
+        "maxTokens": 2048
+      }
+    },
+    {
+      "id": "mi96v7hzhp2feyb6oa72y",
+      "traceId": "trace_2znq3uyyvt4dd1a3h5svwu",
+      "runId": "run_n1i73e3dlpfppd7zavats",
+      "stage": "llm",
+      "event": "llm.completed",
+      "timestamp": "2026-08-27T07:44:49.149Z",
+      "data": {
+        "model": "openai/gpt-oss-20b",
+        "latencyMs": 1506,
+        "inputTokens": 1950,
+        "outputTokens": 855,
+        "totalTokens": 2805,
+        "status": "completed"
+      }
+    }
+  ],
+  "queryProcessing": {
+    "originalQuery": "Give me a comprehensive summary of all the key points across my uploaded documents.",
+    "tokenCount": 19,
+    "processingDurationMs": 0
+  },
+  "context": {
+    "chunks": [
+      {
+        "chunkId": "chunk_feqgiyosmuuzhd5dy2btzf",
+        "documentId": "srex5ezcscwj2ue7dkss",
+        "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+        "page": 1,
+        "content": "TheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore",
+        "score": 1,
+        "method": "mmr",
+        "tokenCount": 512,
+        "rank": 1
+      },
+      {
+        "chunkId": "chunk_hwiuwa9ov94zr1914pghe",
+        "documentId": "srex5ezcscwj2ue7dkss",
+        "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+        "page": 2,
+        "content": "TheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore",
+        "score": 0.3999999999999999,
+        "method": "mmr",
+        "tokenCount": 512,
+        "rank": 3
+      },
+      {
+        "chunkId": "chunk_p9llg49sq2j6mppesd1qvu",
+        "documentId": "srex5ezcscwj2ue7dkss",
+        "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+        "page": 1,
+        "content": "Providesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCoreGraphicsDataTypesclassCGPDFMarkedContentItemBetaclassCGPDFStructureElementclassCGRenderingBufferProviderstructCGBitmapParametersstructCGColorModelstructCGContentInfoenumCGBitmapLayoutenumCGComponentenumCGContentToneMappingInfoenumCGImageComponentInfoReferenceClassesStructuresEnumerations8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics4/5Quartz2DProgrammingGuideSeeAlsoRelatedDocumentation8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics5/5",
+        "score": 0.5803256481196072,
+        "method": "mmr",
+        "tokenCount": 118,
+        "rank": 2
+      }
+    ],
+    "totalTokens": 1142,
+    "chunkCount": 3,
+    "documentCount": 1
+  },
+  "prompt": {
+    "system": "You are a helpful assistant. Answer the user's question based on the provided context. If the context does not contain enough information, say so clearly. Cite sources where applicable using [Source N] notation.",
+    "context": "[Source 1] Document: Core Graphics _ Apple Developer Documentation.pdf, Page: 1\nTheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore\n\n[Source 2] Document: Core Graphics _ Apple Developer Documentation.pdf, Page: 2\nTheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore\n\n[Source 3] Document: Core Graphics _ Apple Developer Documentation.pdf, Page: 1\nProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCoreGraphicsDataTypesclassCGPDFMarkedContentItemBetaclassCGPDFStructureElementclassCGRenderingBufferProviderstructCGBitmapParametersstructCGColorModelstructCGContentInfoenumCGBitmapLayoutenumCGComponentenumCGContentToneMappingInfoenumCGImageComponentInfoReferenceClassesStructuresEnumerations8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics4/5Quartz2DProgrammingGuideSeeAlsoRelatedDocumentation8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics5/5",
+    "user": "Give me a comprehensive summary of all the key points across my uploaded documents.",
+    "systemTokens": 44,
+    "contextTokens": 48,
+    "userTokens": 19,
+    "totalTokens": 111
+  },
+  "llm": {
+    "provider": "groq",
+    "model": "openai/gpt-oss-20b",
+    "startTime": "1970-01-01T01:29:54.971Z",
+    "endTime": "2026-08-27T07:44:49.153Z",
+    "latencyMs": 1506,
+    "inputTokens": 1950,
+    "outputTokens": 855,
+    "totalTokens": 2805,
+    "answer": "**Core Graphics – Apple Developer Documentation (PDF)**  \n*Key points from the three uploaded pages*\n\n| Topic | Main Take‑aways | Source |\n|-------|-----------------|--------|\n| **What Core Graphics is** | • A lightweight, low‑level 2‑D rendering engine built on Quartz. <br>• Delivers high‑fidelity output with unmatched fidelity. <br>• Handles path‑based drawing, transformations, color management, off‑screen rendering, patterns, gradients, shading, image data, image creation, masking, and PDF creation/handling. <br>• On macOS it also exposes services for display hardware, low‑level user‑input events, and the windowing system. | [1], [2] |\n| **Primary data types** | • `CGFloat` – basic floating‑point scalar. <br>• `CGPoint`, `CGSize`, `CGRect` – geometric primitives. <br>• `CGVector`, `CGAffineTransform` – vector and transform utilities. | [1], [2] |\n| **Core classes & structures** | • `CGContext` – the drawing environment. <br>• `CGImage`, `CGImageMask` – bitmap images and masks. <br>• `CGPath` / `CGMutablePath` – immutable/mutable paths. <br>• `CGLayer` – off‑screen reusable content. <br>• `CGColor`, `CGColorSpace`, `CGColorConversionInfo` – color handling. <br>• `CGFont` – glyphs and layout for text. <br>• `CGGradient`, `CGShading` – radial/axial gradients and custom shading. <br>• `CGPattern` – 2‑D patterns. <br>• `CGPDFDocument`, `CGPDFMarkedContentItem`, `CGPDFStructureElement` – PDF support. <br>• `CGDataConsumer`, `CGDataProvider` – abstracted I/O for raw buffers. <br>• `CGFunction` – callback‑based custom functions. | [1], [2] |\n| **Quartz services** | • **Quartz Display Services** – direct access to macOS window server for configuring display hardware. <br>• **Quartz Event Services** – manage event taps (filters) for observing/altering low‑level user‑input streams. <br>• **Quartz Window Services** – information about windows managed by the macOS window server. | [1], [2] |\n| **Enumerations & constants** | • A wide range of enums (e.g., `CGBitmapLayout`, `CGComponent`, `CGContentInfo`) and constants that describe bitmap layouts, color models, component types, and content tone mapping. | [3] |\n| **Documentation & guidance** | • The PDF references the **Quartz 2‑D Programming Guide** and other related docs for deeper learning. | [3] |\n\n### Summary\nCore Graphics is a foundational 2‑D rendering framework that powers many Apple graphics APIs. It offers a rich set of primitives (points, sizes, rectangles, vectors, transforms), drawing contexts, image and color handling, and PDF support. The framework also exposes low‑level services for display configuration, event handling, and window management on macOS. Enumerations and constants provide fine‑grained control over bitmap layouts, color spaces, and shading. For developers, the documentation links to the Quartz 2‑D Programming Guide and related resources for detailed usage.",
+    "status": "completed"
+  },
+  "sources": [
+    {
+      "documentId": "srex5ezcscwj2ue7dkss",
+      "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+      "page": 1,
+      "chunkId": "chunk_feqgiyosmuuzhd5dy2btzf",
+      "retrievalMethod": "mmr",
+      "score": 1
+    },
+    {
+      "documentId": "srex5ezcscwj2ue7dkss",
+      "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+      "page": 2,
+      "chunkId": "chunk_hwiuwa9ov94zr1914pghe",
+      "retrievalMethod": "mmr",
+      "score": 0.3999999999999999
+    },
+    {
+      "documentId": "srex5ezcscwj2ue7dkss",
+      "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+      "page": 1,
+      "chunkId": "chunk_p9llg49sq2j6mppesd1qvu",
+      "retrievalMethod": "mmr",
+      "score": 0.5803256481196072
+    }
+  ],
+  "totalLatencyMs": 2807,
+  "status": "completed",
+  "bm25": {
+    "latencyMs": 0,
+    "chunkCount": 3,
+    "queryTerms": [
+      "give",
+      "me",
+      "comprehensive",
+      "summary",
+      "key",
+      "points",
+      "across",
+      "my",
+      "uploaded",
+      "documents"
+    ],
+    "results": [
+      {
+        "chunkId": "chunk_feqgiyosmuuzhd5dy2btzf",
+        "score": 0,
+        "rank": 1,
+        "chunk": {
+          "id": "chunk_feqgiyosmuuzhd5dy2btzf",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "TheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore",
+          "tokenCount": 512,
+          "startOffset": 0,
+          "endOffset": 3742
+        },
+        "queryTerms": [
+          "give",
+          "me",
+          "comprehensive",
+          "summary",
+          "key",
+          "points",
+          "across",
+          "my",
+          "uploaded",
+          "documents"
+        ],
+        "termFreqs": {
+          "26": 3,
+          "27": 3,
+          "thecoregraphicsframeworkisbasedonthequartzadvanceddrawingengine": 1,
+          "itprovideslow": 1,
+          "level": 1,
+          "lightweight2drenderingwithunmatchedoutputfidelity": 1,
+          "youusethisframeworktohandlepath": 1,
+          "baseddrawing": 2,
+          "transformations": 1,
+          "colormanagement": 2,
+          "offscreenrendering": 1,
+          "patterns": 1,
+          "gradientsandshadings": 1,
+          "imagedatamanagement": 1,
+          "imagecreation": 1,
+          "andimagemasking": 1,
+          "aswellaspdfdocumentcreation": 1,
+          "display": 1,
+          "andparsing": 1,
+          "inmacos": 1,
+          "coregraphicsalsoincludesservicesforworkingwithdisplayhardware": 1,
+          "low": 1,
+          "leveluserinputevents": 1,
+          "andthewindowingsystem": 1,
+          "structcgfloatthebasictypeforfloating": 1,
+          "pointscalarvaluesincoregraphicsandrelatedframeworks": 1,
+          "structcgpointstructcgsizeastructurethatcontainswidthandheightvalues": 1,
+          "structcgrectoverviewtopicsgeometricdatatypesframeworkcoregraphicsharnessthepowerofquartztechnologytoperformlightweight2drenderingwithhigh": 1,
+          "fidelityoutput": 1,
+          "handlepath": 1,
+          "antialiasedrendering": 1,
+          "gradients": 1,
+          "images": 1,
+          "pdfdocuments": 1,
+          "andmore": 1,
+          "ios2": 1,
+          "ipados2": 1,
+          "maccatalyst13": 1,
+          "macos10": 1,
+          "tvos9": 1,
+          "visionos1": 1,
+          "watchos2": 1,
+          "documentationlanguage": 1,
+          "swift8": 1,
+          "12amcoregraphics": 3,
+          "appledeveloperdocumentationhttps": 3,
+          "developer": 3,
+          "apple": 3,
+          "com": 3,
+          "documentation": 3,
+          "coregraphics1": 1,
+          "5structcgvectorastructurethatcontainsatwo": 1,
+          "dimensionalvector": 1,
+          "structcgaffinetransformclasscgcontextaquartz2ddrawingenvironment": 1,
+          "classcgimageabitmapimageorimagemask": 1,
+          "classcgpathanimmutablegraphicspath": 1,
+          "amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext": 2,
+          "classcgmutablepathamutablegraphicspath": 1,
+          "classcglayeranoffscreencontextforreusingcontentdrawnwithcoregraphics": 1,
+          "classcgcolorasetofcomponentsthatdefineacolor": 1,
+          "withacolorspacespecifyinghowtointerpretthem": 1,
+          "classcgcolorconversioninfoanobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices": 1,
+          "classcgcolorspaceaprofilethatspecifieshowtointerpretacolorvaluefordisplay": 1,
+          "classcgfontasetofcharacterglyphsandlayoutinformationfordrawingtext": 1,
+          "2ddrawingcolorsandfonts8": 1,
+          "coregraphics2": 1,
+          "5classcgpdfdocumentadocumentthatcontainspdf": 1,
+          "portabledocumentformat": 1,
+          "drawinginformation": 1,
+          "classcgdataconsumeranabstractionfordata": 1,
+          "writingtasksthateliminatestheneedtomanagearawmemorybuffer": 1,
+          "classcgdataprovideranabstractionfordata": 1,
+          "readingtasksthateliminatestheneedtomanagearawmemorybuffer": 1,
+          "classcgshadingadefinitionforasmoothtransitionbetweencolors": 1,
+          "controlledbyacustomfunctionyouprovide": 1,
+          "fordrawingradialandaxialgradientfills": 1,
+          "classcggradientadefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills": 1,
+          "classcgfunctionageneralfacilityfordefiningandusingcallbackfunctions": 1,
+          "classcgpatterna2dpatterntobeusedfordrawinggraphicspaths": 1,
+          "quartzdisplayservicesprovidesdirectaccesstofeaturesinthemacoswindowserverforconfiguringandcontrollingdisplayhardware": 1,
+          "quartzeventservicesprovidesfeaturesformanagingeventtaps": 1,
+          "filtersforobservingandalteringthestreamoflow": 1,
+          "leveluserinputeventsinmacos": 1,
+          "workingwithpdfdocumentsutilityandsupportclassesservices8": 1,
+          "coregraphics3": 1,
+          "5quartzwindowservicesprovidesinformationaboutthewindowsmanagedbythemacoswindowserver": 1,
+          "coregraphicsstructurescoregraphicsenumerationscoregraphicsconstantscoregraphicsfunctionscore": 1
+        }
+      },
+      {
+        "chunkId": "chunk_p9llg49sq2j6mppesd1qvu",
+        "score": 0,
+        "rank": 2,
+        "chunk": {
+          "id": "chunk_p9llg49sq2j6mppesd1qvu",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "Providesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCoreGraphicsDataTypesclassCGPDFMarkedContentItemBetaclassCGPDFStructureElementclassCGRenderingBufferProviderstructCGBitmapParametersstructCGColorModelstructCGContentInfoenumCGBitmapLayoutenumCGComponentenumCGContentToneMappingInfoenumCGImageComponentInfoReferenceClassesStructuresEnumerations8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics4/5Quartz2DProgrammingGuideSeeAlsoRelatedDocumentation8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics5/5",
+          "tokenCount": 118,
+          "startOffset": 3225,
+          "endOffset": 4358
+        },
+        "queryTerms": [
+          "give",
+          "me",
+          "comprehensive",
+          "summary",
+          "key",
+          "points",
+          "across",
+          "my",
+          "uploaded",
+          "documents"
+        ],
+        "termFreqs": {
+          "26": 3,
+          "27": 3,
+          "providesfeaturesformanagingeventtaps": 1,
+          "filtersforobservingandalteringthestreamoflow": 1,
+          "leveluserinputeventsinmacos": 1,
+          "workingwithpdfdocumentsutilityandsupportclassesservices8": 1,
+          "12amcoregraphics": 3,
+          "appledeveloperdocumentationhttps": 3,
+          "developer": 3,
+          "apple": 3,
+          "com": 3,
+          "documentation": 3,
+          "coregraphics3": 1,
+          "5quartzwindowservicesprovidesinformationaboutthewindowsmanagedbythemacoswindowserver": 1,
+          "coregraphicsstructurescoregraphicsenumerationscoregraphicsconstantscoregraphicsfunctionscoregraphicsdatatypesclasscgpdfmarkedcontentitembetaclasscgpdfstructureelementclasscgrenderingbufferproviderstructcgbitmapparametersstructcgcolormodelstructcgcontentinfoenumcgbitmaplayoutenumcgcomponentenumcgcontenttonemappinginfoenumcgimagecomponentinforeferenceclassesstructuresenumerations8": 1,
+          "coregraphics4": 1,
+          "5quartz2dprogrammingguideseealsorelateddocumentation8": 1,
+          "coregraphics5": 1
+        }
+      },
+      {
+        "chunkId": "chunk_hwiuwa9ov94zr1914pghe",
+        "score": 0,
+        "rank": 3,
+        "chunk": {
+          "id": "chunk_hwiuwa9ov94zr1914pghe",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 2,
+          "content": "TheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore",
+          "tokenCount": 512,
+          "startOffset": 0,
+          "endOffset": 3742
+        },
+        "queryTerms": [
+          "give",
+          "me",
+          "comprehensive",
+          "summary",
+          "key",
+          "points",
+          "across",
+          "my",
+          "uploaded",
+          "documents"
+        ],
+        "termFreqs": {
+          "26": 3,
+          "27": 3,
+          "thecoregraphicsframeworkisbasedonthequartzadvanceddrawingengine": 1,
+          "itprovideslow": 1,
+          "level": 1,
+          "lightweight2drenderingwithunmatchedoutputfidelity": 1,
+          "youusethisframeworktohandlepath": 1,
+          "baseddrawing": 2,
+          "transformations": 1,
+          "colormanagement": 2,
+          "offscreenrendering": 1,
+          "patterns": 1,
+          "gradientsandshadings": 1,
+          "imagedatamanagement": 1,
+          "imagecreation": 1,
+          "andimagemasking": 1,
+          "aswellaspdfdocumentcreation": 1,
+          "display": 1,
+          "andparsing": 1,
+          "inmacos": 1,
+          "coregraphicsalsoincludesservicesforworkingwithdisplayhardware": 1,
+          "low": 1,
+          "leveluserinputevents": 1,
+          "andthewindowingsystem": 1,
+          "structcgfloatthebasictypeforfloating": 1,
+          "pointscalarvaluesincoregraphicsandrelatedframeworks": 1,
+          "structcgpointstructcgsizeastructurethatcontainswidthandheightvalues": 1,
+          "structcgrectoverviewtopicsgeometricdatatypesframeworkcoregraphicsharnessthepowerofquartztechnologytoperformlightweight2drenderingwithhigh": 1,
+          "fidelityoutput": 1,
+          "handlepath": 1,
+          "antialiasedrendering": 1,
+          "gradients": 1,
+          "images": 1,
+          "pdfdocuments": 1,
+          "andmore": 1,
+          "ios2": 1,
+          "ipados2": 1,
+          "maccatalyst13": 1,
+          "macos10": 1,
+          "tvos9": 1,
+          "visionos1": 1,
+          "watchos2": 1,
+          "documentationlanguage": 1,
+          "swift8": 1,
+          "12amcoregraphics": 3,
+          "appledeveloperdocumentationhttps": 3,
+          "developer": 3,
+          "apple": 3,
+          "com": 3,
+          "documentation": 3,
+          "coregraphics1": 1,
+          "5structcgvectorastructurethatcontainsatwo": 1,
+          "dimensionalvector": 1,
+          "structcgaffinetransformclasscgcontextaquartz2ddrawingenvironment": 1,
+          "classcgimageabitmapimageorimagemask": 1,
+          "classcgpathanimmutablegraphicspath": 1,
+          "amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext": 2,
+          "classcgmutablepathamutablegraphicspath": 1,
+          "classcglayeranoffscreencontextforreusingcontentdrawnwithcoregraphics": 1,
+          "classcgcolorasetofcomponentsthatdefineacolor": 1,
+          "withacolorspacespecifyinghowtointerpretthem": 1,
+          "classcgcolorconversioninfoanobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices": 1,
+          "classcgcolorspaceaprofilethatspecifieshowtointerpretacolorvaluefordisplay": 1,
+          "classcgfontasetofcharacterglyphsandlayoutinformationfordrawingtext": 1,
+          "2ddrawingcolorsandfonts8": 1,
+          "coregraphics2": 1,
+          "5classcgpdfdocumentadocumentthatcontainspdf": 1,
+          "portabledocumentformat": 1,
+          "drawinginformation": 1,
+          "classcgdataconsumeranabstractionfordata": 1,
+          "writingtasksthateliminatestheneedtomanagearawmemorybuffer": 1,
+          "classcgdataprovideranabstractionfordata": 1,
+          "readingtasksthateliminatestheneedtomanagearawmemorybuffer": 1,
+          "classcgshadingadefinitionforasmoothtransitionbetweencolors": 1,
+          "controlledbyacustomfunctionyouprovide": 1,
+          "fordrawingradialandaxialgradientfills": 1,
+          "classcggradientadefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills": 1,
+          "classcgfunctionageneralfacilityfordefiningandusingcallbackfunctions": 1,
+          "classcgpatterna2dpatterntobeusedfordrawinggraphicspaths": 1,
+          "quartzdisplayservicesprovidesdirectaccesstofeaturesinthemacoswindowserverforconfiguringandcontrollingdisplayhardware": 1,
+          "quartzeventservicesprovidesfeaturesformanagingeventtaps": 1,
+          "filtersforobservingandalteringthestreamoflow": 1,
+          "leveluserinputeventsinmacos": 1,
+          "workingwithpdfdocumentsutilityandsupportclassesservices8": 1,
+          "coregraphics3": 1,
+          "5quartzwindowservicesprovidesinformationaboutthewindowsmanagedbythemacoswindowserver": 1,
+          "coregraphicsstructurescoregraphicsenumerationscoregraphicsconstantscoregraphicsfunctionscore": 1
+        }
+      }
+    ]
+  },
+  "rrf": {
+    "latencyMs": 0,
+    "inputVectorChunks": 0,
+    "inputBM25Chunks": 3,
+    "results": [
+      {
+        "chunkId": "chunk_feqgiyosmuuzhd5dy2btzf",
+        "rrfScore": 0.01639344262295082,
+        "bm25Rank": 1,
+        "bm25Score": 0,
+        "chunk": {
+          "id": "chunk_feqgiyosmuuzhd5dy2btzf",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "TheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore",
+          "tokenCount": 512,
+          "startOffset": 0,
+          "endOffset": 3742
+        }
+      },
+      {
+        "chunkId": "chunk_p9llg49sq2j6mppesd1qvu",
+        "rrfScore": 0.016129032258064516,
+        "bm25Rank": 2,
+        "bm25Score": 0,
+        "chunk": {
+          "id": "chunk_p9llg49sq2j6mppesd1qvu",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "Providesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCoreGraphicsDataTypesclassCGPDFMarkedContentItemBetaclassCGPDFStructureElementclassCGRenderingBufferProviderstructCGBitmapParametersstructCGColorModelstructCGContentInfoenumCGBitmapLayoutenumCGComponentenumCGContentToneMappingInfoenumCGImageComponentInfoReferenceClassesStructuresEnumerations8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics4/5Quartz2DProgrammingGuideSeeAlsoRelatedDocumentation8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics5/5",
+          "tokenCount": 118,
+          "startOffset": 3225,
+          "endOffset": 4358
+        }
+      },
+      {
+        "chunkId": "chunk_hwiuwa9ov94zr1914pghe",
+        "rrfScore": 0.015873015873015872,
+        "bm25Rank": 3,
+        "bm25Score": 0,
+        "chunk": {
+          "id": "chunk_hwiuwa9ov94zr1914pghe",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 2,
+          "content": "TheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore",
+          "tokenCount": 512,
+          "startOffset": 0,
+          "endOffset": 3742
+        }
+      }
+    ]
+  },
+  "reranker": {
+    "latencyMs": 0,
+    "inputChunkCount": 3,
+    "results": [
+      {
+        "chunkId": "chunk_feqgiyosmuuzhd5dy2btzf",
+        "originalScore": 0.00005307508,
+        "rerankScore": 0.00005307508,
+        "rank": 1,
+        "chunk": {
+          "id": "chunk_feqgiyosmuuzhd5dy2btzf",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "TheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore",
+          "tokenCount": 512,
+          "startOffset": 0,
+          "endOffset": 3742
+        }
+      },
+      {
+        "chunkId": "chunk_hwiuwa9ov94zr1914pghe",
+        "originalScore": 0.00005307508,
+        "rerankScore": 0.00005307508,
+        "rank": 2,
+        "chunk": {
+          "id": "chunk_hwiuwa9ov94zr1914pghe",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 2,
+          "content": "TheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore",
+          "tokenCount": 512,
+          "startOffset": 0,
+          "endOffset": 3742
+        }
+      },
+      {
+        "chunkId": "chunk_p9llg49sq2j6mppesd1qvu",
+        "originalScore": 0.000044001186,
+        "rerankScore": 0.000044001186,
+        "rank": 3,
+        "chunk": {
+          "id": "chunk_p9llg49sq2j6mppesd1qvu",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "Providesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCoreGraphicsDataTypesclassCGPDFMarkedContentItemBetaclassCGPDFStructureElementclassCGRenderingBufferProviderstructCGBitmapParametersstructCGColorModelstructCGContentInfoenumCGBitmapLayoutenumCGComponentenumCGContentToneMappingInfoenumCGImageComponentInfoReferenceClassesStructuresEnumerations8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics4/5Quartz2DProgrammingGuideSeeAlsoRelatedDocumentation8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics5/5",
+          "tokenCount": 118,
+          "startOffset": 3225,
+          "endOffset": 4358
+        }
+      }
+    ],
+    "skipped": false
+  },
+  "mmr": {
+    "latencyMs": 0,
+    "lambda": 0.7,
+    "inputChunkCount": 3,
+    "selectedChunks": [
+      {
+        "chunkId": "chunk_feqgiyosmuuzhd5dy2btzf",
+        "mmrScore": 1,
+        "relevanceScore": 0.00005307508,
+        "maxSimilarity": 0,
+        "selected": true,
+        "rank": 1,
+        "chunk": {
+          "id": "chunk_feqgiyosmuuzhd5dy2btzf",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "TheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore",
+          "tokenCount": 512,
+          "startOffset": 0,
+          "endOffset": 3742
+        }
+      },
+      {
+        "chunkId": "chunk_hwiuwa9ov94zr1914pghe",
+        "mmrScore": 0.3999999999999999,
+        "relevanceScore": 0.00005307508,
+        "maxSimilarity": 1,
+        "selected": true,
+        "rank": 3,
+        "chunk": {
+          "id": "chunk_hwiuwa9ov94zr1914pghe",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 2,
+          "content": "TheCoreGraphicsframeworkisbasedontheQuartzadvanceddrawingengine.Itprovideslow-level,lightweight2Drenderingwithunmatchedoutputfidelity.Youusethisframeworktohandlepath-baseddrawing,transformations,colormanagement,offscreenrendering,patterns,gradientsandshadings,imagedatamanagement,imagecreation,andimagemasking,aswellasPDFdocumentcreation,display,andparsing.InmacOS,CoreGraphicsalsoincludesservicesforworkingwithdisplayhardware,low-leveluserinputevents,andthewindowingsystem.structCGFloatThebasictypeforfloating-pointscalarvaluesinCoreGraphicsandrelatedframeworks.structCGPointstructCGSizeAstructurethatcontainswidthandheightvalues.structCGRectOverviewTopicsGeometricDataTypesFrameworkCoreGraphicsHarnessthepowerofQuartztechnologytoperformlightweight2Drenderingwithhigh-fidelityoutput.Handlepath-baseddrawing,antialiasedrendering,gradients,images,colormanagement,PDFdocuments,andmore.iOS2.0+iPadOS2.0+MacCatalyst13.1+macOS10.8+tvOS9.0+visionOS1.0+watchOS2.0+DocumentationLanguage:Swift8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics1/5structCGVectorAstructurethatcontainsatwo-dimensionalvector.structCGAffineTransformclassCGContextAQuartz2Ddrawingenvironment.classCGImageAbitmapimageorimagemask.classCGPathAnimmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGMutablePathAmutablegraphicspath:amathematicaldescriptionofshapesorlinestobedrawninagraphicscontext.classCGLayerAnoffscreencontextforreusingcontentdrawnwithCoreGraphics.classCGColorAsetofcomponentsthatdefineacolor,withacolorspacespecifyinghowtointerpretthem.classCGColorConversionInfoAnobjectthatdescribeshowtoconvertbetweencolorspacesforusebyothersystemservices.classCGColorSpaceAprofilethatspecifieshowtointerpretacolorvaluefordisplay.classCGFontAsetofcharacterglyphsandlayoutinformationfordrawingtext.2DDrawingColorsandFonts8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics2/5classCGPDFDocumentAdocumentthatcontainsPDF(PortableDocumentFormat)drawinginformation.classCGDataConsumerAnabstractionfordata-writingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGDataProviderAnabstractionfordata-readingtasksthateliminatestheneedtomanagearawmemorybuffer.classCGShadingAdefinitionforasmoothtransitionbetweencolors,controlledbyacustomfunctionyouprovide,fordrawingradialandaxialgradientfills.classCGGradientAdefinitionforasmoothtransitionbetweencolorsfordrawingradialandaxialgradientfills.classCGFunctionAgeneralfacilityfordefiningandusingcallbackfunctions.classCGPatternA2Dpatterntobeusedfordrawinggraphicspaths.QuartzDisplayServicesProvidesdirectaccesstofeaturesinthemacOSwindowserverforconfiguringandcontrollingdisplayhardware.QuartzEventServicesProvidesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCore",
+          "tokenCount": 512,
+          "startOffset": 0,
+          "endOffset": 3742
+        }
+      },
+      {
+        "chunkId": "chunk_p9llg49sq2j6mppesd1qvu",
+        "mmrScore": 0.5803256481196072,
+        "relevanceScore": 0.000044001186,
+        "maxSimilarity": 0,
+        "selected": true,
+        "rank": 2,
+        "chunk": {
+          "id": "chunk_p9llg49sq2j6mppesd1qvu",
+          "documentId": "srex5ezcscwj2ue7dkss",
+          "documentName": "Core Graphics _ Apple Developer Documentation.pdf",
+          "page": 1,
+          "content": "Providesfeaturesformanagingeventtaps—filtersforobservingandalteringthestreamoflow-leveluserinputeventsinmacOS.WorkingwithPDFDocumentsUtilityandSupportClassesServices8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics3/5QuartzWindowServicesProvidesinformationaboutthewindowsmanagedbythemacOSwindowserver.CoreGraphicsStructuresCoreGraphicsEnumerationsCoreGraphicsConstantsCoreGraphicsFunctionsCoreGraphicsDataTypesclassCGPDFMarkedContentItemBetaclassCGPDFStructureElementclassCGRenderingBufferProviderstructCGBitmapParametersstructCGColorModelstructCGContentInfoenumCGBitmapLayoutenumCGComponentenumCGContentToneMappingInfoenumCGImageComponentInfoReferenceClassesStructuresEnumerations8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics4/5Quartz2DProgrammingGuideSeeAlsoRelatedDocumentation8/27/26,1:12AMCoreGraphics|AppleDeveloperDocumentationhttps://developer.apple.com/documentation/coregraphics5/5",
+          "tokenCount": 118,
+          "startOffset": 3225,
+          "endOffset": 4358
+        }
+      }
+    ],
+    "rejectedChunks": [],
+    "skipped": false
+  }
+}

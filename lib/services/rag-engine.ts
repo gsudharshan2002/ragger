@@ -698,12 +698,7 @@ export async function* executeRag(
     llmLatencyMs, llmStatus, startTime, "completed", undefined, knowledgeBaseId
   )
 
-  yield emit("trace", "trace.completed", {
-    traceId,
-    runId,
-    totalLatencyMs: trace.totalLatencyMs,
-    status: "completed",
-  })
+  yield emit("trace", "trace.completed", trace as unknown as Record<string, unknown>)
 }
 
 // ============================================================

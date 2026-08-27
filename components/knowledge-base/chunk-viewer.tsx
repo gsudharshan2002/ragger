@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Search,
@@ -65,7 +66,7 @@ export function ChunkViewer({
     try {
       setLoading(true)
       setError(null)
-      const res = await fetch(`/api/documents/${documentId}/chunks`)
+      const res = await apiFetch(`/documents/${documentId}/chunks`)
       const body: ApiResponse<DocumentChunkWithMeta[]> = await res.json()
 
       if (!body.success || !body.data) {

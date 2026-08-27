@@ -149,7 +149,15 @@ export function StrategyComparison() {
       <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <RunDropdown label="Run A" side="a" runs={runs} selectedId={selectedRunA} onSelect={setSelectedRunA} />
-          <div className="flex items-end justify-center pb-1"><div className="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-gray-100"><ArrowRight className="h-4 w-4 text-gray-500" /></div></div>
+          <div className="flex items-end justify-center pb-1">
+            <button
+              type="button"
+              onClick={() => { if (selectedRunA && selectedRunB) { /* compare triggers automatically via state */ } }}
+              className="hidden md:flex items-center gap-1 px-4 py-2 rounded-full bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 hover:text-red-700 transition-colors cursor-pointer border border-red-200"
+            >
+              Go <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
           <RunDropdown label="Run B" side="b" runs={runs} selectedId={selectedRunB} onSelect={setSelectedRunB} />
         </div>
       </div>

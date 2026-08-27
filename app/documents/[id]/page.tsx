@@ -1,6 +1,7 @@
 "use client"
 
 import { use, useState, useEffect } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Header } from "@/components/rag/header"
@@ -35,7 +36,7 @@ export default function DocumentViewerPage({
 
     async function load() {
       try {
-        const res = await fetch(`/api/documents/${id}`)
+        const res = await apiFetch(`/documents/${id}`)
         const body: ApiResponse<DocumentMetadata> = await res.json()
 
         if (cancelled) return
@@ -216,7 +217,7 @@ function TextPreview({ documentId, documentName }: { documentId: string; documen
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`/api/documents/${documentId}/preview`)
+    apiFetch(`/documents/${documentId}/preview`)
       .then((r) => r.text())
       .then((t) => setContent(t))
       .catch(() => setContent("Failed to load preview"))

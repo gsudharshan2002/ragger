@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
@@ -54,7 +55,7 @@ export function KbDetail({ knowledgeBaseId }: KbDetailProps) {
       setLoading(true)
       setError(null)
 
-      const res = await fetch(`/api/knowledge-bases/${knowledgeBaseId}`)
+      const res = await apiFetch(`/knowledge-bases/${knowledgeBaseId}`)
       const body: ApiResponse<
         KnowledgeBase & { stats: KnowledgeBaseStats; folders?: DocumentFolder[] }
       > = await res.json()

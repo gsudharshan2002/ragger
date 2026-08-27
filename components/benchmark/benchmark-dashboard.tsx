@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   BarChart3,
   BookOpen,
+  Check,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -23,7 +24,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { SelectField } from "@/components/ui/select-field"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { cn, formatDuration, formatNumber } from "@/lib/utils"
 import { useBenchmark } from "@/hooks/use-benchmark"
 
@@ -182,17 +182,43 @@ export function BenchmarkDashboard() {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4 rounded-xl border border-gray-100 bg-white p-1 shadow-sm">
-          <TabsTrigger value="overview" className="rounded-lg px-3 py-1.5 text-xs font-medium"><BarChart3 className="mr-1.5 h-3.5 w-3.5" />Overview</TabsTrigger>
-          <TabsTrigger value="difficulty" className="rounded-lg px-3 py-1.5 text-xs font-medium"><Layers className="mr-1.5 h-3.5 w-3.5" />Difficulty</TabsTrigger>
-          <TabsTrigger value="tags" className="rounded-lg px-3 py-1.5 text-xs font-medium"><Hash className="mr-1.5 h-3.5 w-3.5" />Tags</TabsTrigger>
-          <TabsTrigger value="failures" className="rounded-lg px-3 py-1.5 text-xs font-medium"><AlertTriangle className="mr-1.5 h-3.5 w-3.5" />Failures</TabsTrigger>
-          <TabsTrigger value="history" className="rounded-lg px-3 py-1.5 text-xs font-medium"><History className="mr-1.5 h-3.5 w-3.5" />History</TabsTrigger>
-          <TabsTrigger value="compare" className="rounded-lg px-3 py-1.5 text-xs font-medium"><GitCompare className="mr-1.5 h-3.5 w-3.5" />Compare</TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+        {[
+          { value: "overview", label: "Overview", icon: BarChart3 },
+          { value: "difficulty", label: "Difficulty", icon: Layers },
+          { value: "tags", label: "Tags", icon: Hash },
+          { value: "failures", label: "Failures", icon: AlertTriangle },
+          { value: "history", label: "History", icon: History },
+          { value: "compare", label: "Compare", icon: GitCompare },
+        ].map((tab) => {
+          const isActive = activeTab === tab.value
+          const Icon = tab.icon
+          return (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => setActiveTab(tab.value)}
+              className={cn(
+                "flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-medium transition-all",
+                isActive
+                  ? "border-gray-900 bg-gray-900 text-white shadow-sm"
+                  : "border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {tab.label}
+              {isActive && (
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                  <Check className="h-3 w-3" />
+                </motion.div>
+              )}
+            </button>
+          )
+        })}
+      </div>
 
-        <TabsContent value="overview">
+      <div>
+        {activeTab === "overview" && (
           <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
             {latestRun ? (
               <div>
@@ -260,9 +286,9 @@ export function BenchmarkDashboard() {
               </div>
             )}
           </div>
-        </TabsContent>
+        )}
 
-        <TabsContent value="difficulty">
+        {activeTab === "difficulty" && (
           <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-sm font-semibold text-gray-900">Difficulty Analysis</h3>
             {latestRun ? (
@@ -285,9 +311,9 @@ export function BenchmarkDashboard() {
               </div>
             ) : <div className="flex flex-col items-center justify-center py-12"><Layers className="h-8 w-8 text-gray-300" /><p className="mt-2 text-xs text-gray-500">No difficulty data available.</p></div>}
           </div>
-        </TabsContent>
+        )}
 
-        <TabsContent value="tags">
+        {activeTab === "tags" && (
           <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-sm font-semibold text-gray-900">Tag Analysis</h3>
             {latestRun && Object.keys(latestRun.tagBreakdown).length > 0 ? (
@@ -310,9 +336,9 @@ export function BenchmarkDashboard() {
               </div>
             ) : <div className="flex flex-col items-center justify-center py-12"><Hash className="h-8 w-8 text-gray-300" /><p className="mt-2 text-xs text-gray-500">No tag data available.</p></div>}
           </div>
-        </TabsContent>
+        )}
 
-        <TabsContent value="failures">
+        {activeTab === "failures" && (
           <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-sm font-semibold text-gray-900">Failure Analysis</h3>
             {failureCategories.length > 0 ? (
@@ -346,9 +372,9 @@ export function BenchmarkDashboard() {
               </div>
             )}
           </div>
-        </TabsContent>
+        )}
 
-        <TabsContent value="history">
+        {activeTab === "history" && (
           <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-sm font-semibold text-gray-900">Run History</h3>
             {runs && runs.length > 0 ? (
@@ -372,9 +398,9 @@ export function BenchmarkDashboard() {
               </div>
             ) : <div className="flex flex-col items-center justify-center py-12"><History className="h-8 w-8 text-gray-300" /><p className="mt-2 text-xs text-gray-500">No benchmark runs recorded.</p></div>}
           </div>
-        </TabsContent>
+        )}
 
-        <TabsContent value="compare">
+        {activeTab === "compare" && (
           <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-sm font-semibold text-gray-900">Compare Runs</h3>
             <div className="mb-6 flex items-end gap-4">
@@ -427,8 +453,8 @@ export function BenchmarkDashboard() {
               </div>
             ) : <div className="flex flex-col items-center justify-center py-12"><GitCompare className="h-8 w-8 text-gray-300" /><p className="mt-2 text-xs text-gray-500">Select two runs to compare.</p></div>}
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
     </div>
   )
 }

@@ -4,6 +4,7 @@ const DEFAULT_SYSTEM_PROMPT =
   "You are a helpful assistant. Answer the user's question based on the provided context. If the context doesn't contain enough information, say so clearly. Always cite your sources when possible."
 
 const MAX_CONTEXT_TOKENS = 4000
+const MAX_CONTEXT_CHUNKS = 5
 
 function estimateTokens(text: string): number {
   if (!text) return 0
@@ -41,7 +42,9 @@ export function buildPrompt(
   const userTokens = estimateTokens(query)
   const availableForContext = Math.max(500, MAX_CONTEXT_TOKENS - systemTokens - userTokens)
 
-  const contextParts = contextChunks.map((chunk, index) => {
+  const limitedChunks = contextChunks.slice(0, MAX_CONTEXT_CHUNKS)
+
+  const contextParts = limitedChunks.map((chunk, index) => {
     const header = `[Source ${index + 1}] Document: ${chunk.documentName}, Page: ${chunk.page}${chunk.section ? `, Section: ${chunk.section}` : ""}`
     return `${header}\n${chunk.content}`
   })

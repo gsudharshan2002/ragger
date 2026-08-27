@@ -8,7 +8,7 @@
   "embeddingApiKey": "EMbxEw2RvdbT1v4NylBY128hr0C56Jz9xrCNuKMD",
   "chunkSize": 512,
   "chunkOverlap": 64,
-  "defaultTopK": 20,
+  "defaultTopK": 3,
   "defaultStrategy": "hybrid-rerank-mmr",
   "systemPrompt": "You are a helpful assistant. Answer the user's question based on the provided context. If the context does not contain enough information, say so clearly. Cite sources where applicable using [Source N] notation.",
   "rerankerModel": "",

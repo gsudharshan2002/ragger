@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   X,
@@ -128,7 +129,7 @@ export function DocumentDetail({
     try {
       setLoading(true)
       setError(null)
-      const res = await fetch(`/api/documents/${documentId}`)
+      const res = await apiFetch(`/documents/${documentId}`)
       const body: ApiResponse<DocumentWithVersion> = await res.json()
 
       if (!body.success || !body.data) {
@@ -152,7 +153,7 @@ export function DocumentDetail({
     if (actionLoading) return
     setActionLoading(action)
     try {
-      await fetch(`/api/documents/${documentId}/${endpoint}`, {
+      await apiFetch(`/documents/${documentId}/${endpoint}`, {
         method: "POST",
       })
       fetchDocument()
@@ -168,7 +169,7 @@ export function DocumentDetail({
     if (!window.confirm("Are you sure you want to delete this document?")) return
     setActionLoading("delete")
     try {
-      await fetch(`/api/documents/${documentId}`, { method: "DELETE" })
+      await apiFetch(`/documents/${documentId}`, { method: "DELETE" })
       onClose()
     } catch {
       /* error will be visible through status */

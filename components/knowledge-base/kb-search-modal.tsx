@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Search, Loader2, FileText, Hash } from "lucide-react"
 import type { ApiResponse, Chunk } from "@/lib/types"
@@ -30,14 +31,14 @@ export function KbSearchModal({ open, onClose, knowledgeBaseId }: KbSearchModalP
     setSearching(true)
     setSearched(true)
     try {
-      const res = await fetch(`/api/knowledge-bases/${knowledgeBaseId}/documents`)
+      const res = await apiFetch(`/knowledge-bases/${knowledgeBaseId}/documents`)
       const body = await res.json()
       if (body.success && body.data) {
         const docs = body.data as { id: string; name: string; chunkCount: number }[]
         const allResults: SearchResult[] = []
         for (const doc of docs.slice(0, 10)) {
           try {
-            const chunkRes = await fetch(`/api/documents/${doc.id}/chunks`)
+            const chunkRes = await apiFetch(`/documents/${doc.id}/chunks`)
             const chunkBody: ApiResponse<Chunk[]> = await chunkRes.json()
             if (chunkBody.success && chunkBody.data) {
               for (const c of chunkBody.data) {

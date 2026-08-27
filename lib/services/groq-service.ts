@@ -64,6 +64,9 @@ export async function generateCompletion(
   const startTime = performance.now()
 
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 60000)
+
     const response = await fetch(getApiUrl(provider), {
       method: "POST",
       headers: {
@@ -76,7 +79,10 @@ export async function generateCompletion(
         temperature: config.temperature,
         max_tokens: config.maxTokens,
       }),
+      signal: controller.signal,
     })
+
+    clearTimeout(timeoutId)
 
     const endTime = performance.now()
     const latencyMs = Math.round(endTime - startTime)
@@ -163,6 +169,9 @@ export async function* generateCompletionStream(
   ]
 
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 120000)
+
     const response = await fetch(getApiUrl(provider), {
       method: "POST",
       headers: {
@@ -176,7 +185,10 @@ export async function* generateCompletionStream(
         max_tokens: config.maxTokens,
         stream: true,
       }),
+      signal: controller.signal,
     })
+
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
       const errorBody = await response.text()

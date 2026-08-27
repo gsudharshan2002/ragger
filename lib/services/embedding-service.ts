@@ -29,17 +29,18 @@ async function callOpenAIEmbedding(
 
   const url = `${baseUrl}/v1/embeddings`
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      input: texts,
-    }),
-  })
+const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        input: texts,
+      }),
+      signal: AbortSignal.timeout(30000),
+    })
 
   if (!response.ok) {
     const errorBody = await response.text()
@@ -64,18 +65,19 @@ async function callCohereEmbedding(
 
   const url = "https://api.cohere.ai/v1/embed"
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      texts,
-      input_type: "search_document",
-    }),
-  })
+const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        texts,
+        input_type: "search_document",
+      }),
+      signal: AbortSignal.timeout(30000),
+    })
 
   if (!response.ok) {
     const errorBody = await response.text()

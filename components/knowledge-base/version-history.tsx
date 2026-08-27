@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Clock,
@@ -115,7 +116,7 @@ export function VersionHistory({ documentId, onRestore }: VersionHistoryProps) {
     try {
       setLoading(true)
       setError(null)
-      const res = await fetch(`/api/documents/${documentId}/versions`)
+      const res = await apiFetch(`/documents/${documentId}/versions`)
       const body: ApiResponse<DocumentVersion[]> = await res.json()
 
       if (!body.success || !body.data) {

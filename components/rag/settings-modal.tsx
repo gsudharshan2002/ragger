@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import { createPortal } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Settings, Loader2, Check, AlertCircle } from "lucide-react"
@@ -23,7 +24,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
   useEffect(() => {
     if (!open) return
     setLoading(true)
-    fetch("/api/rag/config")
+    apiFetch("/rag/config")
       .then((r) => r.json())
       .then((res: ApiResponse<{ settings: AppSettings }>) => {
         if (res.success && res.data) setSettings(res.data.settings)
@@ -37,7 +38,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
     setSaving(true)
     setSaveMsg(null)
     try {
-      const res = await fetch("/api/rag/config", {
+      const res = await apiFetch("/rag/config", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings),
@@ -117,7 +118,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                       <Field label="Groq API Key">
                         <input
                           type="password"
-                          value={settings.groqApiKey}
+                          value={settings.groqApiKey ?? ""}
                           onChange={(e) => update({ groqApiKey: e.target.value })}
                           placeholder="gsk_…"
                           className="input-field"
@@ -128,7 +129,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                       <Field label="Gemini API Key">
                         <input
                           type="password"
-                          value={settings.geminiApiKey}
+                          value={settings.geminiApiKey ?? ""}
                           onChange={(e) => update({ geminiApiKey: e.target.value })}
                           placeholder="AIzaSy…"
                           className="input-field"
@@ -168,7 +169,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                       <Field label="API Key">
                         <input
                           type="password"
-                          value={settings.embeddingApiKey}
+                          value={settings.embeddingApiKey ?? ""}
                           onChange={(e) => update({ embeddingApiKey: e.target.value })}
                           placeholder="sk-…"
                           className="input-field"

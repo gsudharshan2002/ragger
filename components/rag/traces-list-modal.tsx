@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import { createPortal } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Activity, Loader2, Clock, AlertCircle, ExternalLink } from "lucide-react"
@@ -32,7 +33,7 @@ export function TracesListModal({ open, onClose }: TracesListModalProps) {
     if (!open) return
     setLoading(true)
     setError(null)
-    fetch("/api/traces")
+    apiFetch("/traces")
       .then((r) => r.json())
       .then((res: ApiResponse<TraceSummary[]>) => {
         if (res.success && res.data) {
@@ -51,7 +52,7 @@ export function TracesListModal({ open, onClose }: TracesListModalProps) {
 
   const handleViewTrace = async (traceId: string) => {
     try {
-      const res = await fetch(`/api/traces/${traceId}`)
+      const res = await apiFetch(`/traces/${traceId}`)
       const body: ApiResponse<RagTrace> = await res.json()
       if (body.success && body.data) {
         setSelectedTrace(body.data)

@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useCallback, useRef, useState, useEffect, type ReactNode } from "react"
+import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import type {
   GoldenDataset,
   GoldenCase,
@@ -70,7 +71,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
   const cancelRef = useRef(false)
 
   useEffect(() => {
-    fetch("/api/datasets")
+    apiFetch("/datasets")
       .then((res) => res.json())
       .then((res: { success: boolean; data?: GoldenDataset[] }) => {
         const list = res.data ?? []
@@ -154,7 +155,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
     setProgress({ completed: 0, total: 0, currentQuery: "Starting benchmark..." })
 
     try {
-      const res = await fetch("/api/benchmark", {
+      const res = await apiFetch("/benchmark/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ datasetId: selectedDataset.id, strategy: config.strategy }),
@@ -192,7 +193,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
 
   const createDataset = useCallback(async (name: string, description: string, tags: string[]) => {
     try {
-      const res = await fetch("/api/datasets", {
+      const res = await apiFetch("/datasets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, description, tags }),
@@ -209,7 +210,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
 
   const addGoldenCase = useCallback(async (datasetId: string, goldenCase: GoldenCase) => {
     try {
-      const res = await fetch(`/api/datasets/${datasetId}`, { method: "PUT" })
+      const res = await apiFetch(`/datasets/${datasetId}`, { method: "PUT" })
       if (!res.ok) return
       const body = await res.json()
       if (body.success && body.data) {
@@ -220,7 +221,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
 
   const updateGoldenCase = useCallback(async (datasetId: string, goldenCase: GoldenCase) => {
     try {
-      const res = await fetch(`/api/datasets/${datasetId}`, { method: "PUT" })
+      const res = await apiFetch(`/datasets/${datasetId}`, { method: "PUT" })
       if (!res.ok) return
       const body = await res.json()
       if (body.success && body.data) {
@@ -231,7 +232,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
 
   const deleteGoldenCases = useCallback(async (datasetId: string, caseIds: string[]) => {
     try {
-      const res = await fetch(`/api/datasets/${datasetId}`, { method: "PUT" })
+      const res = await apiFetch(`/datasets/${datasetId}`, { method: "PUT" })
       if (!res.ok) return
       const body = await res.json()
       if (body.success && body.data) {
@@ -243,7 +244,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
 
   const duplicateDataset = useCallback(async (datasetId: string) => {
     try {
-      const res = await fetch(`/api/datasets/${datasetId}`, { method: "POST" })
+      const res = await apiFetch(`/datasets/${datasetId}`, { method: "POST" })
       if (!res.ok) throw new Error(`Failed to duplicate dataset: ${res.statusText}`)
       const duplicated: GoldenDataset = await res.json()
       setDatasets((prev) => [duplicated, ...prev])
@@ -254,7 +255,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
 
   const deleteDataset = useCallback(async (datasetId: string) => {
     try {
-      const res = await fetch(`/api/datasets/${datasetId}`, { method: "DELETE" })
+      const res = await apiFetch(`/datasets/${datasetId}`, { method: "DELETE" })
       if (!res.ok) throw new Error(`Failed to delete dataset: ${res.statusText}`)
       setDatasets((prev) => prev.filter((d) => d.id !== datasetId))
       if (selectedDataset?.id === datasetId) {

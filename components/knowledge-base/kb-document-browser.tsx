@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   FileText,
@@ -127,7 +128,7 @@ export function KbDocumentBrowser({
       const params = new URLSearchParams({ knowledgeBaseId })
       if (folderId) params.set("folderId", folderId)
 
-      const res = await fetch(`/api/knowledge-bases/${knowledgeBaseId}/documents?${params}`)
+      const res = await apiFetch(`/knowledge-bases/${knowledgeBaseId}/documents?${params}`)
       const body: ApiResponse<DocumentWithVersion[]> = await res.json()
 
       if (!body.success || !body.data) {

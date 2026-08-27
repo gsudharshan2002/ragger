@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useMemo, useCallback } from "react"
+import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import { useBenchmark } from "@/hooks/use-benchmark"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -233,7 +234,7 @@ export function DatasetManagement() {
             if (!selectedDataset) return
             const newVersion = `v${(selectedDataset.versions.length + 1)}.0`
             const lastVersion = selectedDataset.versions[selectedDataset.versions.length - 1]
-            await fetch(`/api/datasets/${selectedDataset.id}`, {
+            await apiFetch(`/datasets/${selectedDataset.id}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

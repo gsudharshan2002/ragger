@@ -11,7 +11,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   embeddingApiKey: "",
   chunkSize: 512,
   chunkOverlap: 64,
-  defaultTopK: 20,
+  defaultTopK: 5,
   defaultStrategy: "hybrid-rrf",
   systemPrompt:
     "You are a helpful assistant. Answer the user's question based on the provided context. If the context does not contain enough information, say so clearly. Cite sources where applicable using [Source N] notation.",

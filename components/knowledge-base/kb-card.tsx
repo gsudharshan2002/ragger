@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { apiFetch, apiUpload } from "@/lib/api"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Brain, FileText, Puzzle, Hash, Clock } from "lucide-react"
@@ -30,7 +31,7 @@ export function KbCard({ knowledgeBase, index }: KbCardProps) {
 
     async function fetchStats() {
       try {
-        const res = await fetch(`/api/knowledge-bases/${knowledgeBase.id}`)
+        const res = await apiFetch(`/knowledge-bases/${knowledgeBase.id}`)
         const body: ApiResponse<KnowledgeBase & { stats: KnowledgeBaseStats }> =
           await res.json()
         if (!cancelled && body.success && body.data?.stats) {

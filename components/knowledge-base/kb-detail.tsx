@@ -370,7 +370,11 @@ export function KbDetail({ knowledgeBaseId }: KbDetailProps) {
         </div>
       </div>
 
-      <UploadModal open={uploadOpen} onClose={() => { setUploadOpen(false); handleRefresh() }} />
+      <UploadModal
+        open={uploadOpen}
+        knowledgeBaseId={knowledgeBaseId}
+        onClose={() => { setUploadOpen(false); handleRefresh() }}
+      />
       <KbSearchModal open={searchOpen} onClose={() => setSearchOpen(false)} knowledgeBaseId={knowledgeBaseId} />
       <KbSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} knowledgeBaseId={knowledgeBaseId} onUpdate={handleRefresh} />
     </div>

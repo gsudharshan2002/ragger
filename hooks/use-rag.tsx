@@ -2,10 +2,89 @@
 
 import { createContext, useContext, useCallback, useRef, useState, useEffect, type ReactNode } from "react"
 import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
-import type { RagStrategy, RagTrace, ChatMessage, UploadedDocument, Session } from "../lib/types"
+import type { RagStrategy, RagTrace, Chunk, ChatMessage, UploadedDocument, Session } from "../lib/types"
 import type { RagEvent } from "../lib/events"
 import { RagEventBus, createEventBus } from "../lib/events"
 import { generateId } from "../lib/utils"
+
+function normalizeTrace(raw: Record<string, any>): RagTrace {
+  const context = raw.context ?? {}
+  const llm = raw.llm ?? {}
+  const config = raw.config ?? {}
+  const vectorConfig = config.vector ?? {}
+  const stages = Object.fromEntries(
+    (raw.events ?? []).reduce((entries: [string, Record<string, any>][], event: Record<string, any>) => {
+      const stage = event.stage ?? event.type?.split(".")[0]
+      if (stage && !entries.some(([name]) => name === stage)) {
+        entries.push([stage, { status: "completed", latencyMs: event.data?.latency_ms ?? 0 }])
+      }
+      return entries
+    }, [])
+  )
+  const mapChunk = (chunk: Record<string, any>, method: Chunk["method"] = "final"): Chunk => ({
+    ...chunk,
+    id: chunk.id ?? chunk.chunk_id ?? chunk.chunkId,
+    rank: chunk.rank ?? 0,
+    score: chunk.score ?? 0,
+    document: chunk.document ?? chunk.document_name ?? chunk.documentName ?? "",
+    page: chunk.page ?? 0,
+    section: chunk.section ?? "",
+    tokens: chunk.tokens ?? chunk.token_count ?? chunk.tokenCount ?? 0,
+    content: chunk.content ?? "",
+    method,
+  })
+  const chunks = (context.chunks ?? []).map((chunk: Record<string, any>) => mapChunk(chunk))
+  const vectorSearch = raw.vector_search
+    ? { embeddingModel: vectorConfig.embedding_model ?? vectorConfig.embeddingModel ?? "", dimensions: 0, topK: vectorConfig.top_k ?? vectorConfig.topK ?? 0, similarity: "cosine", latencyMs: raw.vector_search.latency_ms ?? 0, chunks: (raw.vector_search.results ?? []).map((c: Record<string, any>) => mapChunk(c, "vector")) }
+    : undefined
+  const bm25 = raw.bm25
+    ? { topK: raw.bm25.chunk_count ?? 0, queryTerms: raw.bm25.query_terms ?? [], latencyMs: raw.bm25.latency_ms ?? 0, chunks: (raw.bm25.results ?? []).map((c: Record<string, any>) => mapChunk(c, "bm25")) }
+    : undefined
+
+  return {
+    overview: {
+      traceId: raw.id,
+      runId: raw.run_id ?? raw.runId,
+      sessionId: raw.session_id ?? raw.sessionId,
+      requestId: raw.request_id ?? raw.requestId,
+      timestamp: raw.timestamp,
+      status: raw.status === "completed" ? "completed" : "error",
+      totalDurationMs: raw.total_latency_ms ?? raw.totalLatencyMs ?? 0,
+      strategy: raw.strategy,
+      model: llm.model ?? "",
+      embeddingModel: vectorConfig.embedding_model ?? vectorConfig.embeddingModel ?? "",
+      environment: "local",
+      version: "1.0.0",
+      stages,
+    },
+    query: raw.query ?? "",
+    vectorSearch,
+    bm25,
+    context: {
+      chunks,
+      totalTokens: context.total_tokens ?? context.totalTokens ?? 0,
+      chunkCount: context.chunk_count ?? context.chunkCount ?? chunks.length,
+      documentCount: context.document_count ?? context.documentCount ?? 0,
+    },
+    prompt: raw.prompt ?? { system: "", context: "", user: raw.query ?? "", systemTokens: 0, contextTokens: 0, userTokens: 0, totalTokens: 0 },
+    llm: {
+      ...llm,
+      inputTokens: llm.input_tokens ?? llm.inputTokens ?? 0,
+      outputTokens: llm.output_tokens ?? llm.outputTokens ?? 0,
+      latencyMs: llm.latency_ms ?? llm.latencyMs ?? 0,
+      temperature: config.llm?.temperature ?? 0,
+      maxTokens: config.llm?.max_tokens ?? config.llm?.maxTokens ?? 0,
+    },
+    tokenBreakdown: {
+      system: raw.prompt?.system_tokens ?? 0,
+      context: raw.prompt?.context_tokens ?? 0,
+      user: raw.prompt?.user_tokens ?? 0,
+      input: llm.input_tokens ?? 0,
+      output: llm.output_tokens ?? 0,
+      total: llm.total_tokens ?? 0,
+    },
+  }
+}
 
 interface RagContextValue {
   session: Session
@@ -199,7 +278,7 @@ export function RagProvider({ children }: { children: ReactNode }) {
           traceUnsubscribe()
           cleanup()
 
-          const trace = event.data as unknown as RagTrace
+          const trace = normalizeTrace(event.data as Record<string, any>)
           setActiveTrace(trace)
           setIsExecuting(false)
           setEvents([...collectedEventsRef.current])

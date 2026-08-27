@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { apiFetch, apiUpload } from "@/lib/api"
+import { apiFetch } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Search, Loader2, FileText, Hash } from "lucide-react"
-import type { ApiResponse, Chunk } from "@/lib/types"
+import type { ApiResponse } from "@/lib/types"
 
 interface KbSearchModalProps {
   open: boolean
@@ -31,32 +31,13 @@ export function KbSearchModal({ open, onClose, knowledgeBaseId }: KbSearchModalP
     setSearching(true)
     setSearched(true)
     try {
-      const res = await apiFetch(`/knowledge-bases/${knowledgeBaseId}/documents`)
-      const body = await res.json()
-      if (body.success && body.data) {
-        const docs = body.data as { id: string; name: string; chunkCount: number }[]
-        const allResults: SearchResult[] = []
-        for (const doc of docs.slice(0, 10)) {
-          try {
-            const chunkRes = await apiFetch(`/documents/${doc.id}/chunks`)
-            const chunkBody: ApiResponse<Chunk[]> = await chunkRes.json()
-            if (chunkBody.success && chunkBody.data) {
-              for (const c of chunkBody.data) {
-                if (c.content.toLowerCase().includes(query.toLowerCase())) {
-                  allResults.push({
-                    chunkId: c.id,
-                    content: c.content.slice(0, 200),
-                    documentName: doc.name,
-                    page: c.page,
-                    score: 1,
-                  })
-                }
-              }
-            }
-          } catch { /* skip */ }
-        }
-        setResults(allResults.slice(0, 20))
-      }
+      const res = await apiFetch(`/knowledge-bases/${knowledgeBaseId}/search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: query.trim(), top_k: 20 }),
+      })
+      const body: ApiResponse<SearchResult[]> = await res.json()
+      if (body.success && body.data) setResults(body.data)
     } catch { /* ignore */ }
     setSearching(false)
   }

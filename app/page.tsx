@@ -8,6 +8,7 @@ import { ChatMessage } from "@/components/rag/chat-message"
 import { RagExecutionCanvas } from "@/components/rag/rag-execution-canvas"
 import { UploadModal } from "@/components/rag/upload-modal"
 import { TracePanel } from "@/components/rag/trace-panel"
+import { ChatVisual } from "@/components/rag/chat-visual"
 import { useRagContext } from "@/hooks/use-rag"
 import type { RagTrace } from "@/lib/types"
 import { FileText, Search, GitCompare, BookOpen, Layers, Zap, ListTree, Sparkles } from "lucide-react"
@@ -109,8 +110,9 @@ export default function Home() {
       <Header onUploadClick={() => setUploadOpen(true)} />
 
       {!hasMessages ? (
-        <main className="flex-1 flex items-center justify-center relative z-10 px-4">
-          <div className="w-full max-w-7xl flex items-center gap-12">
+        <main className="flex-1 flex items-center justify-center relative z-10 px-4 overflow-hidden">
+          <ChatVisual />
+          <div className="relative z-10 w-full max-w-7xl flex items-center gap-12">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}

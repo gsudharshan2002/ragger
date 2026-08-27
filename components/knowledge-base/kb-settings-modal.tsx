@@ -118,16 +118,16 @@ export function KbSettingsModal({ open, onClose, knowledgeBaseId, onUpdate }: Kb
                     <Field label="Embedding Model">
                       <input
                         value={kb.settings.embeddingModel}
-                        onChange={(e) => setKb({ ...kb, settings: { ...kb.settings, embeddingModel: e.target.value } })}
-                        className="input-field"
+                        readOnly
+                        className="input-field bg-gray-50 text-gray-500"
                       />
                     </Field>
                     <Field label="Chunk Size">
                       <input
                         type="number"
                         value={kb.settings.defaultChunkSize}
-                        onChange={(e) => setKb({ ...kb, settings: { ...kb.settings, defaultChunkSize: parseInt(e.target.value) || 512 } })}
-                        className="input-field"
+                        readOnly
+                        className="input-field bg-gray-50 text-gray-500"
                       />
                     </Field>
                   </div>
@@ -135,8 +135,8 @@ export function KbSettingsModal({ open, onClose, knowledgeBaseId, onUpdate }: Kb
                     <input
                       type="number"
                       value={kb.settings.defaultChunkOverlap}
-                      onChange={(e) => setKb({ ...kb, settings: { ...kb.settings, defaultChunkOverlap: parseInt(e.target.value) || 64 } })}
-                      className="input-field"
+                      readOnly
+                      className="input-field bg-gray-50 text-gray-500"
                     />
                   </Field>
                 </>

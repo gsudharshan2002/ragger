@@ -9,6 +9,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import type { ChatMessage as ChatMessageType } from "@/lib/types"
 import { copyToClipboard, cn } from "@/lib/utils"
 import Link from "next/link"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface ChatMessageProps {
   message: ChatMessageType
@@ -50,8 +52,8 @@ export function ChatMessage({ message, onViewTrace }: ChatMessageProps) {
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm border border-black/[0.04] text-sm text-gray-800 leading-relaxed whitespace-pre-wrap break-words overflow-hidden min-w-0">
-              {message.content}
+            <div className="markdown-body bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm border border-black/[0.04] text-sm text-gray-800 leading-relaxed break-words overflow-hidden min-w-0">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
             </div>
 
             {uniqueSources.length > 0 && (

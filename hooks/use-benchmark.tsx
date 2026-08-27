@@ -78,7 +78,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         setDatasets(list)
         if (list.length > 0) {
           setSelectedDataset(list[0])
-          setSelectedVersion(list[0].currentVersion || "v1.0")
+          setSelectedVersion(list[0].currentVersion || "v1")
         }
       })
       .catch((err) => console.error("Failed to fetch datasets:", err))
@@ -86,9 +86,9 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
 
   const defaultConfig: BenchmarkConfig = {
     datasetId: selectedDataset?.id || "",
-    datasetVersion: selectedVersion || "v1.0",
+    datasetVersion: selectedVersion || "v1",
     strategy: "hybrid-rerank-mmr",
-    vector: { embeddingModel: "text-embedding-3-large", topK: 20, similarity: "Cosine" },
+    vector: { embeddingModel: "sentence-transformers/all-MiniLM-L6-v2", topK: 20, similarity: "cosine" },
     bm25: { topK: 20, language: "english", tokenizer: "standard" },
     rrf: { k: 60, vectorWeight: 1, bm25Weight: 1 },
     reranker: { model: "cross-encoder/ms-marco-MiniLM-L-6-v2", candidateCount: 20, topN: 8 },
@@ -158,12 +158,22 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
       const res = await apiFetch("/benchmark/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ datasetId: selectedDataset.id, strategy: config.strategy }),
+        body: JSON.stringify({
+          datasetId: selectedDataset.id,
+          strategy: config.strategy,
+          ragConfig: config,
+        }),
       })
 
       if (!res.ok) throw new Error(`Benchmark failed: ${res.statusText}`)
 
-      const completedRun: BenchmarkRun = await res.json()
+      const response = await res.json()
+      const completedRun: BenchmarkRun = {
+        ...response.data,
+        config: response.data.config ?? config,
+        datasetName: response.data.datasetName ?? selectedDataset.name,
+        datasetVersion: response.data.datasetVersion ?? selectedVersion,
+      }
       completedRun.id = runId
       completedRun.startedAt = placeholderRun.startedAt
       completedRun.completedAt = new Date().toISOString()
@@ -199,10 +209,11 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ name, description, tags }),
       })
       if (!res.ok) throw new Error(`Failed to create dataset: ${res.statusText}`)
-      const newDataset: GoldenDataset = await res.json()
+      const response = await res.json()
+      const newDataset: GoldenDataset = response.data
       setDatasets((prev) => [newDataset, ...prev])
       setSelectedDataset(newDataset)
-      setSelectedVersion(newDataset.currentVersion || "v1.0")
+      setSelectedVersion(newDataset.currentVersion || "v1")
     } catch (err) {
       console.error("Create dataset error:", err)
     }
@@ -210,29 +221,38 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
 
   const addGoldenCase = useCallback(async (datasetId: string, goldenCase: GoldenCase) => {
     try {
-      const res = await apiFetch(`/datasets/${datasetId}`, { method: "PUT" })
+      const dataset = datasets.find((item) => item.id === datasetId)
+      if (!dataset) return
+      const version = dataset.versions.find((item) => item.version === dataset.currentVersion)
+      if (!version) return
+      const updatedVersion = { ...version, cases: [...version.cases, goldenCase], casesCount: version.cases.length + 1 }
+      const res = await apiFetch(`/datasets/${datasetId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ versions: dataset.versions.map((item) => item.version === version.version ? updatedVersion : item) }) })
       if (!res.ok) return
       const body = await res.json()
       if (body.success && body.data) {
         setDatasets((prev) => prev.map((d) => d.id === datasetId ? body.data : d))
       }
     } catch { /* ignore */ }
-  }, [])
+  }, [datasets])
 
   const updateGoldenCase = useCallback(async (datasetId: string, goldenCase: GoldenCase) => {
     try {
-      const res = await apiFetch(`/datasets/${datasetId}`, { method: "PUT" })
+      const dataset = datasets.find((item) => item.id === datasetId)
+      if (!dataset) return
+      const res = await apiFetch(`/datasets/${datasetId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ versions: dataset.versions.map((version) => version.version === dataset.currentVersion ? { ...version, cases: version.cases.map((item) => item.id === goldenCase.id ? goldenCase : item), casesCount: version.cases.length } : version) }) })
       if (!res.ok) return
       const body = await res.json()
       if (body.success && body.data) {
         setDatasets((prev) => prev.map((d) => d.id === datasetId ? body.data : d))
       }
     } catch { /* ignore */ }
-  }, [])
+  }, [datasets])
 
   const deleteGoldenCases = useCallback(async (datasetId: string, caseIds: string[]) => {
     try {
-      const res = await apiFetch(`/datasets/${datasetId}`, { method: "PUT" })
+      const dataset = datasets.find((item) => item.id === datasetId)
+      if (!dataset) return
+      const res = await apiFetch(`/datasets/${datasetId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ versions: dataset.versions.map((version) => version.version === dataset.currentVersion ? { ...version, cases: version.cases.filter((item) => !caseIds.includes(item.id)), casesCount: version.cases.filter((item) => !caseIds.includes(item.id)).length } : version) }) })
       if (!res.ok) return
       const body = await res.json()
       if (body.success && body.data) {
@@ -240,7 +260,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
       }
     } catch { /* ignore */ }
     setSelectedCases(new Set())
-  }, [])
+  }, [datasets])
 
   const duplicateDataset = useCallback(async (datasetId: string) => {
     try {

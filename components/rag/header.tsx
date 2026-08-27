@@ -31,8 +31,8 @@ export function Header({ onUploadClick }: HeaderProps) {
 
   return (
     <header className="relative z-10 flex items-center justify-between px-6 py-3 bg-transparent">
-      <div className="flex items-center gap-3">
-        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0 bg-white rounded-full px-3.5 py-2 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center gap-1 bg-white rounded-full p-1 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]">
+        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0 px-3.5 py-2 rounded-full">
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-sm">
             <Layers className="w-3.5 h-3.5 text-white" />
           </div>
@@ -46,26 +46,26 @@ export function Header({ onUploadClick }: HeaderProps) {
           </div>
         </Link>
 
-        <nav className="flex items-center gap-1 bg-white rounded-full p-1 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-            const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href)
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
-                  isActive
-                    ? "bg-gray-900 text-white shadow-sm"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                )}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {label}
-              </Link>
-            )
-          })}
-        </nav>
+        <span className="w-px h-6 bg-gray-200 shrink-0" />
+
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href)
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
+                isActive
+                  ? "bg-gray-900 text-white shadow-sm"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              )}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              {label}
+            </Link>
+          )
+        })}
       </div>
 
       <div className="flex items-center gap-1.5">

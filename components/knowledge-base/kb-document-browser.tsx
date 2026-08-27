@@ -125,8 +125,8 @@ export function KbDocumentBrowser({
       setLoading(true)
       setError(null)
 
-      const params = new URLSearchParams({ knowledgeBaseId })
-      if (folderId) params.set("folderId", folderId)
+      const params = new URLSearchParams()
+      if (folderId) params.set("folder_id", folderId)
 
       const res = await apiFetch(`/knowledge-bases/${knowledgeBaseId}/documents?${params}`)
       const body: ApiResponse<DocumentWithVersion[]> = await res.json()
@@ -465,7 +465,11 @@ export function KbDocumentBrowser({
         )}
       </AnimatePresence>
 
-      <UploadModal open={uploadOpen} onClose={() => { setUploadOpen(false); fetchDocuments() }} />
+      <UploadModal
+        open={uploadOpen}
+        knowledgeBaseId={knowledgeBaseId}
+        onClose={() => { setUploadOpen(false); fetchDocuments() }}
+      />
     </div>
   )
 }

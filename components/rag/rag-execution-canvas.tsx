@@ -98,10 +98,10 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
           ...next["vector"],
           status: "running",
           config: {
-            "Embedding Model": data.embeddingModel as string,
-            Dimensions: data.dimensions as number,
-            "Top K": data.topK as number,
-            Similarity: data.similarity as string,
+            "Embedding Model": (data.embeddingModel as string) || "local MiniLM",
+            Dimensions: (data.dimensions as number) || "pending",
+            "Top K": (data.topK as number) || "pending",
+            Similarity: (data.similarity as string) || "cosine",
           },
         }
         setCurrentStage("vector")
@@ -118,8 +118,10 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
           ...next["bm25"],
           status: "running",
           config: {
-            "Top K": data.topK as number,
-            "Query Terms": (data.queryTerms as string[]).join(", "),
+            "Top K": (data.topK as number) || "pending",
+            "Query Terms": Array.isArray(data.queryTerms)
+              ? data.queryTerms.join(", ")
+              : "pending",
           },
         }
         setCurrentStage("bm25")
@@ -148,9 +150,9 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
           ...next["reranker"],
           status: "running",
           config: {
-            Model: data.model as string,
-            Candidates: data.candidates as number,
-            "Top N": data.topN as number,
+            Model: (data.model as string) || "local cross-encoder",
+            Candidates: (data.candidates as number) || "pending",
+            "Top N": (data.topN as number) || "pending",
           },
         }
         setCurrentStage("reranker")
@@ -172,8 +174,8 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
           ...next["mmr"],
           status: "running",
           config: {
-            Lambda: data.lambda as number,
-            Candidates: data.candidateCount as number,
+            Lambda: (data.lambda as number) ?? "pending",
+            Candidates: (data.candidateCount as number) || "pending",
           },
         }
         setCurrentStage("mmr")
@@ -249,7 +251,11 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
     >
       <div className="max-w-3xl mx-auto space-y-3">
         <div className="flex items-center gap-2 px-1">
-          <Loader2 className={cn("w-3.5 h-3.5", isExecuting ? "animate-spin text-blue-500" : "text-emerald-500")} />
+          {isExecuting ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
+          ) : (
+            <Check className="w-3.5 h-3.5 text-emerald-500" />
+          )}
           <span className="text-[11px] font-medium text-gray-500">
             {isExecuting ? "Executing RAG pipeline..." : "Pipeline complete"}
           </span>

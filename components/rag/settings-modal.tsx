@@ -154,28 +154,24 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                   </Section>
 
                   <Section title="Embedding">
-                    <Field label="Provider">
+                    <Field label="Local Model">
+                      <input
+                        value={settings.embeddingModel}
+                        readOnly
+                        className="input-field bg-gray-50 text-gray-500"
+                      />
+                    </Field>
+                    <Field label="Similarity Metric">
                       <SelectField
-                        value={settings.embeddingProvider}
-                        onChange={(v) => update({ embeddingProvider: v as AppSettings["embeddingProvider"] })}
+                        value={settings.vectorSimilarity ?? "cosine"}
+                        onChange={(v) => update({ vectorSimilarity: v as AppSettings["vectorSimilarity"] })}
                         options={[
-                          { value: "none", label: "None" },
-                          { value: "openai", label: "OpenAI" },
-                          { value: "cohere", label: "Cohere" },
+                          { value: "cosine", label: "Cosine similarity" },
+                          { value: "dot_product", label: "Dot product" },
+                          { value: "l2", label: "Euclidean (L2) distance" },
                         ]}
                       />
                     </Field>
-                    {settings.embeddingProvider !== "none" && (
-                      <Field label="API Key">
-                        <input
-                          type="password"
-                          value={settings.embeddingApiKey ?? ""}
-                          onChange={(e) => update({ embeddingApiKey: e.target.value })}
-                          placeholder="sk-…"
-                          className="input-field"
-                        />
-                      </Field>
-                    )}
                   </Section>
 
                   <Section title="Chunking">

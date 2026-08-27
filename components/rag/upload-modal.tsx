@@ -12,6 +12,7 @@ import { generateId, formatNumber } from "@/lib/utils"
 interface UploadModalProps {
   open: boolean
   onClose: () => void
+  knowledgeBaseId?: string
 }
 
 interface UploadEntry {
@@ -25,17 +26,56 @@ interface UploadEntry {
   tokens?: number
 }
 
-export function UploadModal({ open, onClose }: UploadModalProps) {
+interface ExistingDocument {
+  id: string
+  name: string
+  mimeType: string
+  size: number
+  chunkCount: number
+  tokenCount: number
+  knowledgeBaseId?: string | null
+}
+
+export function UploadModal({ open, onClose, knowledgeBaseId }: UploadModalProps) {
   const { session, addDocument, removeDocument } = useRagContext()
   const [dragOver, setDragOver] = useState(false)
   const [uploads, setUploads] = useState<UploadEntry[]>([])
+  const [existingDocuments, setExistingDocuments] = useState<ExistingDocument[]>([])
+  const [attachingId, setAttachingId] = useState<string | null>(null)
   const pollingIntervalsRef = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map())
+
+  useEffect(() => {
+    if (!open || !knowledgeBaseId) return
+    apiFetch("/documents")
+      .then((res) => res.json())
+      .then((body: ApiResponse<ExistingDocument[]>) => {
+        if (body.success && body.data) setExistingDocuments(body.data)
+      })
+      .catch(() => {})
+  }, [open, knowledgeBaseId])
 
   useEffect(() => {
     return () => {
       pollingIntervalsRef.current.forEach((interval) => clearInterval(interval))
     }
   }, [])
+
+  const attachExisting = useCallback(async (documentId: string) => {
+    if (!knowledgeBaseId) return
+    setAttachingId(documentId)
+    try {
+      const res = await apiFetch(
+        `/knowledge-bases/${knowledgeBaseId}/documents/${documentId}/attach`,
+        { method: "POST" }
+      )
+      if (res.ok) {
+        setExistingDocuments((prev) => prev.filter((doc) => doc.id !== documentId))
+        onClose()
+      }
+    } finally {
+      setAttachingId(null)
+    }
+  }, [knowledgeBaseId, onClose])
 
   const updateUpload = useCallback((localId: string, update: Partial<UploadEntry>) => {
     setUploads((prev) =>
@@ -141,7 +181,12 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
         const formData = new FormData()
         formData.append("file", file)
 
-        apiUpload("/documents/upload", formData)
+        apiUpload(
+          knowledgeBaseId
+            ? `/knowledge-bases/${knowledgeBaseId}/documents`
+            : "/documents/upload",
+          formData
+        )
           .then(async (res) => {
             const body: ApiResponse<DocumentMetadata> = await res.json()
             if (!body.success || !body.data) {
@@ -175,7 +220,7 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
           })
       })
     },
-    [addDocument, updateUpload, startPolling]
+    [addDocument, updateUpload, startPolling, knowledgeBaseId]
   )
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -311,6 +356,34 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
                     </span>
                   </label>
                 </div>
+
+                {knowledgeBaseId && existingDocuments.filter((doc) => !doc.knowledgeBaseId).length > 0 && (
+                  <div className="mt-5">
+                    <div className="mb-2 text-xs font-semibold text-gray-600">Add existing documents</div>
+                    <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                      {existingDocuments
+                        .filter((doc) => !doc.knowledgeBaseId)
+                        .map((doc) => (
+                          <div key={doc.id} className="flex items-center gap-3 rounded-lg border border-gray-100 px-3 py-2.5">
+                            <FileText className="w-4 h-4 text-gray-400 shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate text-xs font-medium text-gray-700">{doc.name}</div>
+                              <div className="text-[10px] text-gray-400">{doc.chunkCount} chunks · {formatNumber(doc.tokenCount)} tokens</div>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              onClick={() => attachExisting(doc.id)}
+                              disabled={attachingId === doc.id}
+                              className="shrink-0 rounded-full text-[10px]"
+                            >
+                              {attachingId === doc.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Add"}
+                            </Button>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
 
                 {allDocs.length > 0 && (
                   <div className="mt-4 space-y-1.5">

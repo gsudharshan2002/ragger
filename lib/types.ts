@@ -710,9 +710,10 @@ export interface AppSettings {
   groqModel: string
   groqApiKey: string
   geminiApiKey: string
-  embeddingProvider: "none" | "openai" | "cohere"
+  embeddingProvider: "none" | "openai" | "cohere" | "local"
   embeddingModel: string
   embeddingApiKey: string
+  vectorSimilarity?: "cosine" | "dot_product" | "l2"
   chunkSize: number
   chunkOverlap: number
   defaultTopK: number
@@ -757,7 +758,7 @@ export interface KnowledgeBase {
 export interface KnowledgeBaseSettings {
   defaultChunkSize: number
   defaultChunkOverlap: number
-  embeddingProvider: "none" | "openai" | "cohere"
+  embeddingProvider: "none" | "openai" | "cohere" | "local"
   embeddingModel: string
 }
 

@@ -1,0 +1,420 @@
+{
+  "dataset": "Apple Combine RAG Golden Set",
+  "version": "v1",
+  "cases": [
+    {
+      "id": "case_combine_001",
+      "query": "What is Combine in Swift?",
+      "expectedAnswer": "Combine is a declarative Swift API for processing values over time. It provides publishers to expose values that can change over time and subscribers to receive those values.",
+      "expectedSources": [
+        {
+          "id": "combine_p1_overview",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Overview",
+          "page": 1,
+          "chunkId": "P1-C1"
+        }
+      ],
+      "expectedSection": "Overview",
+      "expectedPages": [1],
+      "whyDifficult": "Easy semantic question with terminology that directly matches the document.",
+      "difficulty": "easy",
+      "tags": ["combine", "overview", "publisher", "subscriber", "vector-search"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_002",
+      "query": "How do publishers and subscribers work in Combine?",
+      "expectedAnswer": "Publishers expose values that can change over time, while subscribers receive those values. Publishers have operators that can process upstream values and republish them.",
+      "expectedSources": [
+        {
+          "id": "combine_p1_publisher_subscriber",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Overview",
+          "page": 1,
+          "chunkId": "P1-C1"
+        }
+      ],
+      "expectedSection": "Overview",
+      "expectedPages": [1],
+      "whyDifficult": "The query asks about the relationship between two concepts rather than one exact definition.",
+      "difficulty": "easy",
+      "tags": ["publisher", "subscriber", "relationship", "semantic-search"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_003",
+      "query": "What is the Publisher protocol?",
+      "expectedAnswer": "The Publisher protocol declares a type that can deliver a sequence of values over time.",
+      "expectedSources": [
+        {
+          "id": "combine_p2_publisher",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Publishers",
+          "page": 2,
+          "chunkId": "P2-C1"
+        }
+      ],
+      "expectedSection": "Publishers",
+      "expectedPages": [2],
+      "whyDifficult": "The query uses the exact API name, so keyword retrieval should perform well.",
+      "difficulty": "easy",
+      "tags": ["publisher", "protocol", "api", "exact-keyword"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_004",
+      "query": "Why does Combine have operators for publishers?",
+      "expectedAnswer": "Publishers have operators that act on values received from upstream publishers and republish those values.",
+      "expectedSources": [
+        {
+          "id": "combine_p1_operators",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Overview",
+          "page": 1,
+          "chunkId": "P1-C1"
+        }
+      ],
+      "expectedSection": "Overview",
+      "expectedPages": [1],
+      "whyDifficult": "The question asks for the purpose of an API concept rather than directly asking for its definition.",
+      "difficulty": "medium",
+      "tags": ["publisher", "operators", "upstream", "republish", "semantic-search"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_005",
+      "query": "Which Foundation types expose functionality through Combine publishers?",
+      "expectedAnswer": "Foundation types including Timer, NotificationCenter, and URLSession expose functionality through publishers. Combine also provides a publisher for properties compliant with Key-Value Observing.",
+      "expectedSources": [
+        {
+          "id": "combine_p1_foundation_publishers",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Overview",
+          "page": 1,
+          "chunkId": "P1-C2"
+        }
+      ],
+      "expectedSection": "Overview",
+      "expectedPages": [1],
+      "whyDifficult": "The answer contains several separate examples that must all be retrieved from the same conceptual area.",
+      "difficulty": "medium",
+      "tags": ["foundation", "timer", "notificationcenter", "urlsession", "kvo"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_006",
+      "query": "How does Combine control how fast subscribers receive events?",
+      "expectedAnswer": "Publishers emit values when subscribers explicitly request them. This gives subscriber code control over how quickly it receives events from connected publishers.",
+      "expectedSources": [
+        {
+          "id": "combine_p1_demand",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Overview",
+          "page": 1,
+          "chunkId": "P1-C1"
+        },
+        {
+          "id": "combine_p2_backpressure",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Receiving and Handling Events with Combine",
+          "page": 2,
+          "chunkId": "P2-C2"
+        }
+      ],
+      "expectedSection": "Overview / Receiving and Handling Events with Combine",
+      "expectedPages": [1, 2],
+      "whyDifficult": "The answer requires retrieving related information across two pages and connecting explicit demand with back pressure.",
+      "difficulty": "hard",
+      "tags": ["demand", "back-pressure", "subscriber", "publisher", "multi-page", "hybrid-search"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_007",
+      "query": "What problem does Combine solve compared with nested closures and convention-based callbacks?",
+      "expectedAnswer": "Combine can make asynchronous event-processing code easier to read and maintain by centralizing event-processing logic and eliminating troublesome techniques such as nested closures and convention-based callbacks.",
+      "expectedSources": [
+        {
+          "id": "combine_p2_async-code",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Receiving and Handling Events with Combine",
+          "page": 2,
+          "chunkId": "P2-C1"
+        }
+      ],
+      "expectedSection": "Receiving and Handling Events with Combine",
+      "expectedPages": [2],
+      "whyDifficult": "The query uses conceptual wording such as 'what problem' instead of repeating the documentation wording.",
+      "difficulty": "medium",
+      "tags": ["async", "closures", "callbacks", "maintainability", "semantic-search"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_008",
+      "query": "What is AnyPublisher used for?",
+      "expectedAnswer": "AnyPublisher is a publisher that performs type erasure by wrapping another publisher.",
+      "expectedSources": [
+        {
+          "id": "combine_p2_anypublisher",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Publishers",
+          "page": 2,
+          "chunkId": "P2-C1"
+        }
+      ],
+      "expectedSection": "Publishers",
+      "expectedPages": [2],
+      "whyDifficult": "The API name is exact, but the question uses 'used for' instead of directly asking for its definition.",
+      "difficulty": "easy",
+      "tags": ["anypublisher", "type-erasure", "publisher", "exact-keyword"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_009",
+      "query": "What is the difference between Future and Just in Combine?",
+      "expectedAnswer": "Future eventually produces a single value and then finishes or fails. Just emits an output to each subscriber just once and then finishes.",
+      "expectedSources": [
+        {
+          "id": "combine_p3_future",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Convenience Publishers",
+          "page": 3,
+          "chunkId": "P3-C1"
+        }
+      ],
+      "expectedSection": "Convenience Publishers",
+      "expectedPages": [3],
+      "whyDifficult": "Two closely related publisher types must be retrieved and compared. Retrieving only one produces an incomplete answer.",
+      "difficulty": "hard",
+      "tags": ["future", "just", "comparison", "convenience-publishers", "hybrid-search", "cross-reranking"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_010",
+      "query": "What does Deferred do before a subscriber subscribes?",
+      "expectedAnswer": "Deferred waits for subscription before running its supplied closure to create a publisher for the new subscriber.",
+      "expectedSources": [
+        {
+          "id": "combine_p3_deferred",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Convenience Publishers",
+          "page": 3,
+          "chunkId": "P3-C1"
+        }
+      ],
+      "expectedSection": "Convenience Publishers",
+      "expectedPages": [3],
+      "whyDifficult": "The query describes the timing behavior indirectly.",
+      "difficulty": "medium",
+      "tags": ["deferred", "subscription", "publisher", "timing"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_011",
+      "query": "What is the difference between CurrentValueSubject and PassthroughSubject?",
+      "expectedAnswer": "CurrentValueSubject wraps a single value and publishes a new element whenever the value changes. PassthroughSubject broadcasts elements to downstream subscribers.",
+      "expectedSources": [
+        {
+          "id": "combine_p4_subjects",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Subjects",
+          "page": 4,
+          "chunkId": "P4-C1"
+        }
+      ],
+      "expectedSection": "Subjects",
+      "expectedPages": [4],
+      "whyDifficult": "Two related concepts appear together and must both be retrieved for a complete comparison.",
+      "difficulty": "hard",
+      "tags": ["currentvaluesubject", "passthroughsubject", "comparison", "subjects", "mmr", "cross-reranking"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_012",
+      "query": "What is a Scheduler in Combine?",
+      "expectedAnswer": "The Scheduler protocol defines when and how to execute a closure. ImmediateScheduler performs synchronous actions.",
+      "expectedSources": [
+        {
+          "id": "combine_p4_scheduler",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Schedulers",
+          "page": 4,
+          "chunkId": "P4-C1"
+        }
+      ],
+      "expectedSection": "Schedulers",
+      "expectedPages": [4],
+      "whyDifficult": "The query targets the protocol definition while the expected answer also includes its concrete scheduler example.",
+      "difficulty": "medium",
+      "tags": ["scheduler", "immediatescheduler", "synchronous", "protocol"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_013",
+      "query": "How does Combine expose publisher elements as asynchronous sequences?",
+      "expectedAnswer": "AsyncPublisher exposes publisher elements as an asynchronous sequence, while AsyncThrowingPublisher exposes them as a throwing asynchronous sequence.",
+      "expectedSources": [
+        {
+          "id": "combine_p5_async-publishers",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Asynchronous Publishers",
+          "page": 5,
+          "chunkId": "P5-C1"
+        }
+      ],
+      "expectedSection": "Asynchronous Publishers",
+      "expectedPages": [5],
+      "whyDifficult": "The query describes the purpose of two related APIs without using their names directly.",
+      "difficulty": "medium",
+      "tags": ["asyncpublisher", "asyncthrowingpublisher", "async-sequence", "semantic-search"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_014",
+      "query": "What is ObservableObjectPublisher used for?",
+      "expectedAnswer": "ObservableObjectPublisher is a publisher that publishes changes from observable objects.",
+      "expectedSources": [
+        {
+          "id": "combine_p5_observableobject",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Observable Objects",
+          "page": 5,
+          "chunkId": "P5-C1"
+        }
+      ],
+      "expectedSection": "Observable Objects",
+      "expectedPages": [5],
+      "whyDifficult": "The exact API name is present in the document, making this primarily an exact retrieval test.",
+      "difficulty": "easy",
+      "tags": ["observableobject", "observableobjectpublisher", "publisher"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_015",
+      "query": "What are TopLevelEncoder and TopLevelDecoder?",
+      "expectedAnswer": "TopLevelEncoder defines methods for encoding, while TopLevelDecoder defines methods for decoding.",
+      "expectedSources": [
+        {
+          "id": "combine_p6_encoders-decoders",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Encoders and Decoders",
+          "page": 6,
+          "chunkId": "P6-C1"
+        }
+      ],
+      "expectedSection": "Encoders and Decoders",
+      "expectedPages": [6],
+      "whyDifficult": "Two similarly named APIs must be distinguished correctly.",
+      "difficulty": "medium",
+      "tags": ["toplevelencoder", "topleveldecoder", "encoding", "decoding"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_016",
+      "query": "How can Combine replace Foundation timers?",
+      "expectedAnswer": "Combine provides Timer publishers that publish elements periodically, allowing timer events to be handled through Combine.",
+      "expectedSources": [
+        {
+          "id": "combine_p5_timer-publishers",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Replacing Foundation Timers with Timer Publishers",
+          "page": 5,
+          "chunkId": "P5-C1"
+        }
+      ],
+      "expectedSection": "Replacing Foundation Timers with Timer Publishers",
+      "expectedPages": [5],
+      "whyDifficult": "The query uses the concept of replacing timers instead of directly using the documentation's section wording.",
+      "difficulty": "medium",
+      "tags": ["timer", "timer-publisher", "foundation", "replacement", "vector-search"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_017",
+      "query": "How are notifications delivered to Combine subscribers?",
+      "expectedAnswer": "Notifications can be delivered to Combine subscribers by using NotificationCenter publishers.",
+      "expectedSources": [
+        {
+          "id": "combine_p5_notifications",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Routing Notifications to Combine Subscribers",
+          "page": 5,
+          "chunkId": "P5-C1"
+        }
+      ],
+      "expectedSection": "Routing Notifications to Combine Subscribers",
+      "expectedPages": [5],
+      "whyDifficult": "The wording is semantically related to the source but does not exactly match the section description.",
+      "difficulty": "medium",
+      "tags": ["notifications", "notificationcenter", "subscriber", "publisher", "semantic-search"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_018",
+      "query": "What is the difference between Cancellable and AnyCancellable?",
+      "expectedAnswer": "Cancellable is a protocol indicating that an activity or action supports cancellation. AnyCancellable is a type-erasing cancellable object that executes a provided closure when canceled.",
+      "expectedSources": [
+        {
+          "id": "combine_p2_cancellable",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Receiving and Handling Events with Combine",
+          "page": 2,
+          "chunkId": "P2-C1"
+        }
+      ],
+      "expectedSection": "Receiving and Handling Events with Combine",
+      "expectedPages": [2],
+      "whyDifficult": "The query requires distinguishing a protocol from its type-erasing implementation.",
+      "difficulty": "hard",
+      "tags": ["cancellable", "anycancellable", "type-erasure", "comparison", "cross-reranking"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_019",
+      "query": "What is the relationship between Publisher, Subscriber, and Subscription?",
+      "expectedAnswer": "A Publisher delivers values over time, a Subscriber receives input from a Publisher, and a Subscription represents the connection between a subscriber and publisher.",
+      "expectedSources": [
+        {
+          "id": "combine_p2_publisher",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Publishers",
+          "page": 2,
+          "chunkId": "P2-C1"
+        },
+        {
+          "id": "combine_p4_subscriber-subscription",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Subscribers",
+          "page": 4,
+          "chunkId": "P4-C1"
+        }
+      ],
+      "expectedSection": "Publishers / Subscribers",
+      "expectedPages": [2, 4],
+      "whyDifficult": "The three related concepts are distributed across different pages and require multi-hop retrieval.",
+      "difficulty": "expert",
+      "tags": ["publisher", "subscriber", "subscription", "relationship", "multi-hop", "hybrid-search", "cross-reranking"],
+      "status": "not_run"
+    },
+    {
+      "id": "case_combine_020",
+      "query": "Which Combine APIs are related to encoding, decoding, identifiers, and debugging?",
+      "expectedAnswer": "The documentation lists TopLevelEncoder, TopLevelDecoder, CustomCombineIdentifierConvertible, CombineIdentifier, and Debugging Identifiers.",
+      "expectedSources": [
+        {
+          "id": "combine_p6_identifiers-debugging",
+          "document": "Combine | Apple Developer Documentation",
+          "section": "Encoders and Decoders / Debugging Identifiers",
+          "page": 6,
+          "chunkId": "P6-C1"
+        }
+      ],
+      "expectedSection": "Encoders and Decoders / Debugging Identifiers",
+      "expectedPages": [6],
+      "whyDifficult": "The query combines several concepts from the end of the document and requires broad retrieval without losing any expected terms.",
+      "difficulty": "expert",
+      "tags": ["encoding", "decoding", "identifier", "debugging", "mmr", "hybrid-search"],
+      "status": "not_run"
+    }
+  ]
+}

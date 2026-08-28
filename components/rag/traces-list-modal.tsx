@@ -6,8 +6,8 @@ import { createPortal } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Activity, Loader2, Clock, AlertCircle, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useRagContext } from "@/hooks/use-rag"
-import type { RagTrace, ApiResponse } from "@/lib/types"
+import { useRagContext, normalizeTrace } from "@/hooks/use-rag"
+import type { ApiResponse } from "@/lib/types"
 import { formatDuration } from "@/lib/utils"
 
 interface TracesListModalProps {
@@ -53,9 +53,9 @@ export function TracesListModal({ open, onClose }: TracesListModalProps) {
   const handleViewTrace = async (traceId: string) => {
     try {
       const res = await apiFetch(`/traces/${traceId}`)
-      const body: ApiResponse<RagTrace> = await res.json()
+      const body: ApiResponse<Record<string, any>> = await res.json()
       if (body.success && body.data) {
-        setSelectedTrace(body.data)
+        setSelectedTrace(normalizeTrace(body.data))
         setTracePanelOpen(true)
         onClose()
       }

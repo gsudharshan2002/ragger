@@ -107,11 +107,16 @@ export default function Home() {
         <div className="bg-orb bg-orb-4" />
       </div>
 
+      {!hasMessages && (
+        <div className="fixed inset-0 z-[1]">
+          <ChatVisual />
+        </div>
+      )}
+
       <Header onUploadClick={() => setUploadOpen(true)} />
 
       {!hasMessages ? (
         <main className="flex-1 flex items-center justify-center relative z-10 px-4 overflow-hidden">
-          <ChatVisual />
           <div className="relative z-10 w-full max-w-7xl flex items-center gap-12">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -149,8 +154,8 @@ export default function Home() {
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="text-center mb-8 flex-1 max-w-4xl"
             >
-              <h1 className="text-3xl font-semibold text-gray-900 tracking-tight mb-2">
-                RAG Lab
+              <h1 className="text-6xl font-semibold text-white tracking-tight mb-2">
+                RAG LAB
               </h1>
               <p className="text-sm text-gray-400 max-w-md mx-auto leading-relaxed mb-8">
                 Ask your documents anything

@@ -29,6 +29,7 @@ import { SelectField } from "@/components/ui/select-field"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+import { apiFetch } from "@/lib/api"
 import { cn, formatDuration, formatNumber } from "@/lib/utils"
 import {
   BenchmarkRun,
@@ -36,8 +37,10 @@ import {
   EvaluationMetrics,
   Difficulty,
   ALL_METRICS,
+  ApiResponse,
 } from "@/lib/types"
 import { useBenchmark } from "@/hooks/use-benchmark"
+import { useRagContext, normalizeTrace } from "@/hooks/use-rag"
 
 const DIFFICULTY_STYLES: Record<Difficulty, { label: string; badge: string }> = {
   easy: { label: "Easy", badge: "bg-emerald-100 text-emerald-700" },
@@ -147,7 +150,8 @@ function overallScore(m: EvaluationMetrics): number {
 }
 
 export function BenchmarkResults() {
-  const { runs, activeRun, comparisonRuns, setSelectedTrace, setTracePanelOpen } = useBenchmark()
+  const { runs, activeRun, comparisonRuns } = useBenchmark()
+  const { setSelectedTrace, setTracePanelOpen } = useRagContext()
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("results")
   const [expandedFailureCategory, setExpandedFailureCategory] = useState<string | null>(null)
@@ -164,33 +168,23 @@ export function BenchmarkResults() {
     return completedRuns.find((r) => r.id !== activeRun.id) ?? null
   }, [activeRun, completedRuns])
 
-  if (!activeRun || activeRun.status !== "completed" || completedRuns.length === 0) {
-    return null
-  }
-
-  const run = activeRun
-  const metrics = run.aggregateMetrics
-  const score = overallScore(metrics)
-
-  const sortedResults = useMemo(
-    () => [...run.results].sort((a, b) => {
+  const sortedResults = useMemo(() => {
+    if (!activeRun) return []
+    return [...activeRun.results].sort((a, b) => {
       const order: Record<string, number> = { failed: 0, partial: 1, not_run: 2, passed: 3 }
       return (order[a.status] ?? 4) - (order[b.status] ?? 4)
-    }),
-    [run.results]
-  )
+    })
+  }, [activeRun])
 
-  const totalDurationMs = run.results.reduce((acc, r) => acc + r.durationMs, 0)
-
-  const failedResults = useMemo(
-    () => run.results.filter((r) => r.status === "failed"),
-    [run.results]
-  )
+  const failedResults = useMemo(() => {
+    if (!activeRun) return []
+    return activeRun.results.filter((r) => r.status === "failed")
+  }, [activeRun])
 
   const difficultyRows: { level: Difficulty; label: string; badge: string; count: number; metrics: Partial<EvaluationMetrics> }[] = useMemo(() => {
     const levels: Difficulty[] = ["easy", "medium", "hard", "expert"]
     return levels.map((level) => {
-      const bm = run.difficultyBreakdown[level]
+      const bm = activeRun?.difficultyBreakdown[level]
       return {
         level,
         label: DIFFICULTY_STYLES[level].label,
@@ -199,11 +193,12 @@ export function BenchmarkResults() {
         metrics: bm ?? {},
       }
     })
-  }, [run.difficultyBreakdown])
+  }, [activeRun])
 
   const failureCategoryData = useMemo(() => {
+    if (!activeRun) return []
     const total = failedResults.length
-    return Object.entries(run.failureCategories)
+    return Object.entries(activeRun.failureCategories)
       .filter(([, count]) => count > 0)
       .map(([category, count]) => ({
         category,
@@ -213,7 +208,7 @@ export function BenchmarkResults() {
         cases: failedResults.filter((r) => r.failureCategories.includes(category as any)),
       }))
       .sort((a, b) => b.count - a.count)
-  }, [failedResults, run.failureCategories])
+  }, [failedResults, activeRun])
 
   const comparisonData = useMemo(() => {
     if (!compareA || !compareB) return null
@@ -230,10 +225,28 @@ export function BenchmarkResults() {
     })
   }, [compareA, compareB, completedRuns])
 
-  const handleViewTrace = (result: TestCaseResult) => {
-    setSelectedTrace(result)
-    setTracePanelOpen(true)
+  const handleViewTrace = async (result: TestCaseResult) => {
+    if (!result.traceId) return
+    try {
+      const res = await apiFetch(`/traces/${result.traceId}`)
+      const body: ApiResponse<Record<string, any>> = await res.json()
+      if (body.success && body.data) {
+        setSelectedTrace(normalizeTrace(body.data))
+        setTracePanelOpen(true)
+      }
+    } catch (err) {
+      console.error("Failed to load trace:", err)
+    }
   }
+
+  if (!activeRun || activeRun.status !== "completed" || completedRuns.length === 0) {
+    return null
+  }
+
+  const run = activeRun
+  const metrics = run.aggregateMetrics
+  const score = overallScore(metrics)
+  const totalDurationMs = run.results.reduce((acc, r) => acc + r.durationMs, 0)
 
   return (
     <div className="space-y-6">
@@ -386,6 +399,7 @@ export function BenchmarkResults() {
               </div>
             </div>
             <ScrollArea className="max-h-[600px]">
+              <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead className="sticky top-0 z-10 bg-gray-50">
                   <tr className="border-b border-gray-100">
@@ -462,6 +476,7 @@ export function BenchmarkResults() {
                               variant="ghost"
                               size="xs"
                               className="text-[10px]"
+                              disabled={!result.traceId}
                               onClick={(e) => {
                                 e.stopPropagation()
                                 handleViewTrace(result)
@@ -610,6 +625,7 @@ export function BenchmarkResults() {
                   })}
                 </tbody>
               </table>
+              </div>
             </ScrollArea>
           </div>
         </TabsContent>

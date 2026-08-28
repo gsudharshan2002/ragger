@@ -10,6 +10,7 @@ import { useRagContext } from "@/hooks/use-rag"
 import { cn } from "@/lib/utils"
 import { SettingsModal } from "./settings-modal"
 import { TracesListModal } from "./traces-list-modal"
+import { TracePanel } from "./trace-panel"
 
 interface HeaderProps {
   onUploadClick?: () => void
@@ -24,7 +25,7 @@ const NAV_ITEMS = [
 
 export function Header({ onUploadClick }: HeaderProps) {
   const pathname = usePathname()
-  const { clearChat, session } = useRagContext()
+  const { clearChat, session, tracePanelOpen, setTracePanelOpen, selectedTrace, setSelectedTrace } = useRagContext()
   const isChatPage = pathname === "/"
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [tracesOpen, setTracesOpen] = useState(false)
@@ -143,14 +144,33 @@ export function Header({ onUploadClick }: HeaderProps) {
         </Tooltip>
 
         {isChatPage && session.documents.length > 0 && (
-          <div className="ml-2 text-[11px] text-gray-400 font-medium">
-            {session.documents.length} docs
-          </div>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <div className="ml-2 text-[11px] text-gray-400 font-medium cursor-default" />
+              }
+            >
+              {session.documents.length} docs
+            </TooltipTrigger>
+            <TooltipContent side="bottom" align="end" className="flex-col items-start gap-1 max-w-xs">
+              {session.documents.map((doc) => (
+                <div key={doc.id} className="w-full truncate">{doc.name}</div>
+              ))}
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
 
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <TracesListModal open={tracesOpen} onClose={() => setTracesOpen(false)} />
+      <TracePanel
+        open={tracePanelOpen}
+        onClose={() => {
+          setTracePanelOpen(false)
+          setSelectedTrace(null)
+        }}
+        trace={selectedTrace}
+      />
     </header>
   )
 }

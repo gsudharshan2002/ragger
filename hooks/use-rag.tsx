@@ -7,7 +7,7 @@ import type { RagEvent } from "../lib/events"
 import { RagEventBus, createEventBus } from "../lib/events"
 import { generateId } from "../lib/utils"
 
-function normalizeTrace(raw: Record<string, any>): RagTrace {
+export function normalizeTrace(raw: Record<string, any>): RagTrace {
   const context = raw.context ?? {}
   const llm = raw.llm ?? {}
   const config = raw.config ?? {}

@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useMemo, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import { useBenchmark } from "@/hooks/use-benchmark"
 import { Button } from "@/components/ui/button"
@@ -10,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Database, Plus, Copy, Trash2, Download, Upload, Play, ChevronDown, ChevronRight, Search, Edit, Tag, Clock, Hash, Check, X, FileText, MoreHorizontal } from "lucide-react"
+import { Database, Plus, Copy, Trash2, Download, Upload, Play, ChevronDown, ChevronRight, Search, Edit, Tag, Clock, Hash, Check, X, FileText, MoreHorizontal, AlertTriangle } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn, formatDuration, formatNumber, generateId } from "@/lib/utils"
 import type { GoldenDataset, GoldenCase, Difficulty, ExpectedSource } from "@/lib/types"
@@ -46,7 +47,8 @@ function formatPercent(value: number | undefined): string {
 }
 
 export function DatasetManagement() {
-  const { datasets, selectedDataset, setSelectedDataset, selectedVersion, setSelectedVersion, createDataset, addGoldenCase, updateGoldenCase, deleteGoldenCases, exportDataset, startBenchmark, isRunning } = useBenchmark()
+  const { datasets, selectedDataset, setSelectedDataset, selectedVersion, setSelectedVersion, createDataset, importDataset, addGoldenCase, updateGoldenCase, deleteGoldenCases, deleteDataset, exportDataset, startBenchmark, isRunning } = useBenchmark()
+  const router = useRouter()
 
   const [view, setView] = useState<"list" | "detail">("list")
   const [searchQuery, setSearchQuery] = useState("")
@@ -99,6 +101,20 @@ export function DatasetManagement() {
 
   const handleBackToList = useCallback(() => { setView("list"); setSelectedDataset(null); setSelectedCaseIds(new Set()) }, [setSelectedDataset])
 
+  const handleRunBenchmark = useCallback((dataset: GoldenDataset) => {
+    startBenchmark(dataset, dataset.currentVersion)
+    router.push("/benchmark")
+  }, [startBenchmark, router])
+
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null)
+
+  const handleConfirmDelete = useCallback(() => {
+    if (!pendingDelete) return
+    deleteDataset(pendingDelete.id)
+    if (selectedDataset?.id === pendingDelete.id) { setView("list"); setSelectedCaseIds(new Set()) }
+    setPendingDelete(null)
+  }, [pendingDelete, deleteDataset, selectedDataset])
+
   const handleBulkDelete = useCallback(() => {
     if (selectedCaseIds.size === 0 || !selectedDataset) return
     deleteGoldenCases(selectedDataset.id, Array.from(selectedCaseIds))
@@ -124,7 +140,7 @@ export function DatasetManagement() {
             <p className="mt-1 text-sm text-gray-500">Manage benchmark datasets for evaluation</p>
           </div>
           <div className="flex items-center gap-3">
-            <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target?.result as string); if (data.name) createDataset(data.name, data.description || "", data.tags || []) } catch { console.error("Invalid JSON") } }; reader.readAsText(file) }; e.target.value = "" }} />
+            <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target?.result as string); const name = data.name || data.dataset; if (name) { const cases: GoldenCase[] = Array.isArray(data.cases) ? data.cases : []; importDataset(name, data.description || "", data.tags || [], cases) } } catch { console.error("Invalid JSON") } }; reader.readAsText(file) }; e.target.value = "" }} />
             <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="rounded-full border-gray-200"><Upload className="mr-1.5 h-3.5 w-3.5" />Import</Button>
             <Button size="sm" onClick={() => setShowCreateModal(true)} className="rounded-full bg-gray-900 text-white hover:bg-gray-800"><Plus className="mr-1.5 h-3.5 w-3.5" />New Dataset</Button>
           </div>
@@ -147,7 +163,7 @@ export function DatasetManagement() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3">
-                          <h3 className="text-base font-semibold text-gray-900 truncate">{dataset.name}</h3>
+                          <h3 className="text-base font-semibold text-gray-900 truncate cursor-pointer hover:underline" onClick={() => handleViewDataset(dataset.id)}>{dataset.name}</h3>
                           <Badge variant="outline" className="border-gray-200 text-gray-500 shrink-0">v{dataset.currentVersion}</Badge>
                         </div>
                         {dataset.description && <p className="mt-1 text-sm text-gray-500 line-clamp-2">{dataset.description}</p>}
@@ -161,9 +177,11 @@ export function DatasetManagement() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 ml-4">
+                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900" onClick={() => handleViewDataset(dataset.id)}>View<ChevronRight className="ml-1 h-3.5 w-3.5" /></Button>
                         <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900" onClick={() => handleExport(dataset.id)}><Download className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900" onClick={() => createDataset(`${dataset.name} (Copy)`, dataset.description, [...dataset.tags])}><Copy className="h-4 w-4" /></Button>
-                        <Button size="sm" className="rounded-full bg-gray-900 text-white hover:bg-gray-800" onClick={() => handleViewDataset(dataset.id)}><Play className="mr-1.5 h-3.5 w-3.5" />Run Benchmark</Button>
+                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => setPendingDelete({ id: dataset.id, name: dataset.name })}><Trash2 className="h-4 w-4" /></Button>
+                        <Button size="sm" className="rounded-full bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 hover:bg-emerald-500 hover:shadow-md hover:shadow-emerald-500/40" onClick={() => handleRunBenchmark(dataset)}><Play className="mr-1.5 h-3.5 w-3.5" />Run Benchmark</Button>
                       </div>
                     </div>
                   </motion.div>
@@ -176,6 +194,7 @@ export function DatasetManagement() {
         {showCreateModal && (
           <CreateDatasetModal open={showCreateModal} onClose={() => setShowCreateModal(false)} onCreate={(name, desc, tags) => { createDataset(name, desc, tags); setShowCreateModal(false) }} />
         )}
+        <DeleteDatasetModal target={pendingDelete} onCancel={() => setPendingDelete(null)} onConfirm={handleConfirmDelete} />
       </div>
     )
   }
@@ -207,6 +226,9 @@ export function DatasetManagement() {
             <Badge variant="outline" className="border-gray-200 text-gray-500"><Hash className="mr-1 h-3 w-3" />{allCases.length} test cases</Badge>
           </div>
         </div>
+        {selectedDataset && (
+          <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => setPendingDelete({ id: selectedDataset.id, name: selectedDataset.name })}><Trash2 className="mr-1.5 h-3.5 w-3.5" />Delete Dataset</Button>
+        )}
       </div>
 
       <div className="flex items-center justify-between">
@@ -246,7 +268,7 @@ export function DatasetManagement() {
             window.location.reload()
           }}><Tag className="mr-2 h-4 w-4" />New Version</Button>
         </div>
-        <Button size="sm" onClick={startBenchmark} disabled={isRunning} className="bg-gray-900 text-white hover:bg-gray-800"><Play className="mr-2 h-4 w-4" />{isRunning ? "Running..." : "Run Benchmark"}</Button>
+        <Button size="sm" onClick={() => selectedDataset && handleRunBenchmark(selectedDataset)} disabled={isRunning} className="rounded-full bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 hover:bg-emerald-500 hover:shadow-md hover:shadow-emerald-500/40"><Play className="mr-2 h-4 w-4" />{isRunning ? "Running..." : "Run Benchmark"}</Button>
       </div>
 
       <div className="flex items-center gap-3">
@@ -343,7 +365,30 @@ export function DatasetManagement() {
 
       {showCreateModal && <CreateDatasetModal open={showCreateModal} onClose={() => setShowCreateModal(false)} onCreate={(name, desc, tags) => { createDataset(name, desc, tags); setShowCreateModal(false) }} />}
       {showCaseEditor && <GoldenCaseEditorModal open={showCaseEditor} onClose={() => { setShowCaseEditor(false); setEditingCase(null) }} existingCase={editingCase} onSave={(data) => { if (editingCase && selectedDataset) updateGoldenCase(selectedDataset.id, data); else if (selectedDataset) addGoldenCase(selectedDataset.id, data); setShowCaseEditor(false); setEditingCase(null) }} />}
+      <DeleteDatasetModal target={pendingDelete} onCancel={() => setPendingDelete(null)} onConfirm={handleConfirmDelete} />
     </div>
+  )
+}
+
+function DeleteDatasetModal({ target, onCancel, onConfirm }: { target: { id: string; name: string } | null; onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <Dialog open={!!target} onOpenChange={(open) => { if (!open) onCancel() }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-red-50">
+            <AlertTriangle className="h-5 w-5 text-red-600" />
+          </div>
+          <DialogTitle className="text-center">Delete dataset?</DialogTitle>
+          <DialogDescription className="text-center">
+            This will permanently delete <span className="font-medium text-gray-700">&ldquo;{target?.name}&rdquo;</span> and all of its test cases. This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="sm:justify-center">
+          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+          <Button className="bg-red-600 text-white hover:bg-red-700" onClick={onConfirm}><Trash2 className="mr-2 h-4 w-4" />Delete</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

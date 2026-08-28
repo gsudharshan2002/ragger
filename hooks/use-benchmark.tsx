@@ -27,9 +27,10 @@ interface BenchmarkContextValue {
   toggleCaseSelection: (id: string) => void
   selectAllCases: (ids: string[]) => void
   clearSelection: () => void
-  startBenchmark: () => void
+  startBenchmark: (overrideDataset?: GoldenDataset, overrideVersion?: string) => void
   cancelBenchmark: () => void
   createDataset: (name: string, description: string, tags: string[]) => void
+  importDataset: (name: string, description: string, tags: string[], cases: GoldenCase[]) => Promise<GoldenDataset | null>
   addGoldenCase: (datasetId: string, goldenCase: GoldenCase) => void
   updateGoldenCase: (datasetId: string, goldenCase: GoldenCase) => void
   deleteGoldenCases: (datasetId: string, caseIds: string[]) => void
@@ -41,10 +42,6 @@ interface BenchmarkContextValue {
   setComparisonRuns: (runs: BenchmarkRun[]) => void
   selectedFailedCase: TestCaseResult | null
   setSelectedFailedCase: (r: TestCaseResult | null) => void
-  tracePanelOpen: boolean
-  setTracePanelOpen: (open: boolean) => void
-  selectedTrace: unknown | null
-  setSelectedTrace: (t: unknown | null) => void
 }
 
 const BenchmarkContext = createContext<BenchmarkContextValue | null>(null)
@@ -66,8 +63,6 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
   const [selectedCases, setSelectedCases] = useState<Set<string>>(new Set())
   const [comparisonRuns, setComparisonRuns] = useState<BenchmarkRun[]>([])
   const [selectedFailedCase, setSelectedFailedCase] = useState<TestCaseResult | null>(null)
-  const [tracePanelOpen, setTracePanelOpen] = useState(false)
-  const [selectedTrace, setSelectedTrace] = useState<unknown | null>(null)
   const cancelRef = useRef(false)
 
   useEffect(() => {
@@ -116,17 +111,23 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
     setSelectedCases(new Set())
   }, [])
 
-  const startBenchmark = useCallback(async () => {
-    if (!selectedDataset || isRunning) return
+  const startBenchmark = useCallback(async (overrideDataset?: GoldenDataset, overrideVersion?: string) => {
+    const ds = overrideDataset ?? selectedDataset
+    if (!ds || isRunning) return
+    const version = overrideVersion ?? selectedVersion
+    if (overrideDataset) {
+      setSelectedDataset(overrideDataset)
+      setSelectedVersion(version)
+    }
     cancelRef.current = false
     setIsRunning(true)
 
     const runId = `bench_${generateId()}`
     const placeholderRun: BenchmarkRun = {
       id: runId,
-      datasetId: selectedDataset.id,
-      datasetName: selectedDataset.name,
-      datasetVersion: selectedVersion,
+      datasetId: ds.id,
+      datasetName: ds.name,
+      datasetVersion: version,
       strategy: config.strategy,
       config: { ...config },
       status: "running",
@@ -159,7 +160,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          datasetId: selectedDataset.id,
+          datasetId: ds.id,
           strategy: config.strategy,
           ragConfig: config,
         }),
@@ -171,8 +172,8 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
       const completedRun: BenchmarkRun = {
         ...response.data,
         config: response.data.config ?? config,
-        datasetName: response.data.datasetName ?? selectedDataset.name,
-        datasetVersion: response.data.datasetVersion ?? selectedVersion,
+        datasetName: response.data.datasetName ?? ds.name,
+        datasetVersion: response.data.datasetVersion ?? version,
       }
       completedRun.id = runId
       completedRun.startedAt = placeholderRun.startedAt
@@ -192,7 +193,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsRunning(false)
     }
-  }, [selectedDataset, selectedVersion, config, isRunning])
+  }, [selectedDataset, selectedVersion, config, isRunning, setSelectedDataset, setSelectedVersion])
 
   const cancelBenchmark = useCallback(() => {
     cancelRef.current = true
@@ -216,6 +217,42 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
       setSelectedVersion(newDataset.currentVersion || "v1")
     } catch (err) {
       console.error("Create dataset error:", err)
+    }
+  }, [])
+
+  const importDataset = useCallback(async (name: string, description: string, tags: string[], cases: GoldenCase[]) => {
+    try {
+      const res = await apiFetch("/datasets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, description, tags }),
+      })
+      if (!res.ok) throw new Error(`Failed to create dataset: ${res.statusText}`)
+      const created: GoldenDataset = (await res.json()).data
+
+      if (cases.length === 0) {
+        setDatasets((prev) => [created, ...prev])
+        setSelectedDataset(created)
+        setSelectedVersion(created.currentVersion || "v1")
+        return created
+      }
+
+      const version = created.versions.find((v) => v.version === created.currentVersion) ?? created.versions[0]
+      const updatedVersion = { ...version, cases, casesCount: cases.length }
+      const putRes = await apiFetch(`/datasets/${created.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ versions: created.versions.map((v) => (v.version === version.version ? updatedVersion : v)) }),
+      })
+      const finalDataset: GoldenDataset = putRes.ok ? (await putRes.json()).data ?? created : created
+
+      setDatasets((prev) => [finalDataset, ...prev])
+      setSelectedDataset(finalDataset)
+      setSelectedVersion(finalDataset.currentVersion || "v1")
+      return finalDataset
+    } catch (err) {
+      console.error("Import dataset error:", err)
+      return null
     }
   }, [])
 
@@ -321,6 +358,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         startBenchmark,
         cancelBenchmark,
         createDataset,
+        importDataset,
         addGoldenCase,
         updateGoldenCase,
         deleteGoldenCases,
@@ -332,10 +370,6 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         setComparisonRuns,
         selectedFailedCase,
         setSelectedFailedCase,
-        tracePanelOpen,
-        setTracePanelOpen,
-        selectedTrace,
-        setSelectedTrace,
       }}
     >
       {children}

@@ -660,13 +660,13 @@ export function BenchmarkConfig() {
 
       <div className="border-t border-black/[0.06] bg-white px-5 py-4">
         <Button
-          onClick={startBenchmark}
+          onClick={() => startBenchmark()}
           disabled={isRunning || !selectedDataset || config.metrics.length === 0}
           className={cn(
             "w-full h-10 rounded-lg text-sm font-semibold transition-all",
             isRunning
               ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-              : "bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-950"
+              : "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 hover:bg-emerald-500 hover:shadow-md hover:shadow-emerald-500/40 active:bg-emerald-700"
           )}
         >
           {isRunning ? (

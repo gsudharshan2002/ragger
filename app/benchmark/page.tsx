@@ -1,6 +1,8 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { TracePanel } from "@/components/rag/trace-panel"
+import { useRagContext } from "@/hooks/use-rag"
 
 const BenchmarkDashboard = dynamic(
   () => import("@/components/benchmark/benchmark-dashboard").then(m => ({ default: m.BenchmarkDashboard })),
@@ -28,6 +30,8 @@ const StrategyComparison = dynamic(
 )
 
 export default function BenchmarkPage() {
+  const { tracePanelOpen, setTracePanelOpen, selectedTrace, setSelectedTrace } = useRagContext()
+
   return (
     <div className="flex flex-col h-full bg-gray-50/50">
       <div className="flex-1 overflow-auto">
@@ -39,6 +43,14 @@ export default function BenchmarkPage() {
           <StrategyComparison />
         </div>
       </div>
+      <TracePanel
+        open={tracePanelOpen}
+        onClose={() => {
+          setTracePanelOpen(false)
+          setSelectedTrace(null)
+        }}
+        trace={selectedTrace}
+      />
     </div>
   )
 }

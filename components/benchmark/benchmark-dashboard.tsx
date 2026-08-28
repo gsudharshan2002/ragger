@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import {
   AlertTriangle,
   BarChart3,
@@ -59,6 +60,7 @@ function formatMetricValue(def: (typeof METRIC_DEFS)[number], value: number | un
 
 export function BenchmarkDashboard() {
   const { datasets, selectedDataset, selectedVersion, setSelectedDataset, setSelectedVersion, runs, config, startBenchmark, isRunning } = useBenchmark()
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState("overview")
   const [compareRun1, setCompareRun1] = useState("")
   const [compareRun2, setCompareRun2] = useState("")
@@ -112,13 +114,13 @@ export function BenchmarkDashboard() {
           <p className="mt-1 text-sm text-gray-500">Evaluate and improve your RAG pipeline using real test cases.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="rounded-full border-gray-200 px-4 text-xs font-medium text-gray-600 hover:bg-gray-50">
+          <Button variant="outline" size="sm" onClick={() => router.push("/datasets")} className="rounded-full border-gray-200 px-4 text-xs font-medium text-gray-600 hover:bg-gray-50">
             <Database className="mr-1.5 h-3.5 w-3.5" /> New Dataset
           </Button>
           <Button variant="outline" size="sm" onClick={() => setActiveTab("compare")} className="rounded-full border-gray-200 px-4 text-xs font-medium text-gray-600 hover:bg-gray-50">
             <GitCompare className="mr-1.5 h-3.5 w-3.5" /> Compare Runs
           </Button>
-          <Button size="sm" className="rounded-full bg-gray-900 px-4 text-xs font-medium text-white hover:bg-gray-800" onClick={handleRunBenchmark} disabled={isRunning}>
+          <Button size="sm" className="rounded-full bg-emerald-600 px-4 text-xs font-medium text-white shadow-sm shadow-emerald-600/30 hover:bg-emerald-500 hover:shadow-md hover:shadow-emerald-500/40" onClick={handleRunBenchmark} disabled={isRunning}>
             <Play className="mr-1.5 h-3.5 w-3.5" /> {isRunning ? "Running..." : "Run Benchmark"}
           </Button>
         </div>
@@ -282,7 +284,7 @@ export function BenchmarkDashboard() {
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100"><BarChart3 className="h-7 w-7 text-gray-400" /></div>
                 <h3 className="mt-4 text-sm font-medium text-gray-900">No benchmark runs yet</h3>
                 <p className="mt-1 text-xs text-gray-500">Select a dataset and run your first benchmark to see results.</p>
-                <Button className="mt-4 rounded-full bg-gray-900 px-4 text-xs font-medium text-white hover:bg-gray-800" onClick={handleRunBenchmark}><Play className="mr-1.5 h-3.5 w-3.5" />Run First Benchmark</Button>
+                <Button className="mt-4 rounded-full bg-emerald-600 px-4 text-xs font-medium text-white shadow-sm shadow-emerald-600/30 hover:bg-emerald-500 hover:shadow-md hover:shadow-emerald-500/40" onClick={handleRunBenchmark}><Play className="mr-1.5 h-3.5 w-3.5" />Run First Benchmark</Button>
               </div>
             )}
           </div>

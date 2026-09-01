@@ -4,9 +4,10 @@ import { useState, useEffect } from "react"
 import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import { createPortal } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Settings, Loader2, Check, AlertCircle } from "lucide-react"
+import { X, Settings, Loader2, Check, AlertCircle, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SelectField } from "@/components/ui/select-field"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import type { AppSettings, ApiResponse } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -20,18 +21,55 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState<"ok" | "err" | null>(null)
+  const [totalChunks, setTotalChunks] = useState(0)
+  const [pendingProvider, setPendingProvider] = useState<"local" | "cohere" | null>(null)
+  const [reindexing, setReindexing] = useState(false)
+  const [reindexMsg, setReindexMsg] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) return
     setLoading(true)
     apiFetch("/rag/config")
       .then((r) => r.json())
-      .then((res: ApiResponse<{ settings: AppSettings }>) => {
-        if (res.success && res.data) setSettings(res.data.settings)
+      .then((res: ApiResponse<{ settings: AppSettings; totalChunks: number }>) => {
+        if (res.success && res.data) {
+          setSettings(res.data.settings)
+          setTotalChunks(res.data.totalChunks ?? 0)
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [open])
+
+  const confirmProviderSwitch = async () => {
+    if (!pendingProvider || !settings) return
+    const provider = pendingProvider
+    setPendingProvider(null)
+    setReindexing(true)
+    setReindexMsg(null)
+    try {
+      const putRes = await apiFetch("/rag/config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ embeddingProvider: provider }),
+      })
+      const putBody: ApiResponse<AppSettings> = await putRes.json()
+      if (putBody.success && putBody.data) setSettings(putBody.data)
+
+      const reindexRes = await apiFetch("/rag/reindex-embeddings", { method: "POST" })
+      const reindexBody: ApiResponse<{ reindexed: number; provider: string }> = await reindexRes.json()
+      if (reindexBody.success && reindexBody.data) {
+        setReindexMsg(`Re-indexed ${reindexBody.data.reindexed} chunk${reindexBody.data.reindexed === 1 ? "" : "s"} with ${provider === "cohere" ? "Cohere" : "the local model"}.`)
+      } else {
+        setReindexMsg("Provider switched, but re-indexing failed. Try again from Settings.")
+      }
+    } catch {
+      setReindexMsg("Provider switched, but re-indexing failed. Try again from Settings.")
+    } finally {
+      setReindexing(false)
+      setTimeout(() => setReindexMsg(null), 5000)
+    }
+  }
 
   const handleSave = async () => {
     if (!settings) return
@@ -65,6 +103,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
   if (typeof window === "undefined") return null
 
   return createPortal(
+    <>
     <AnimatePresence>
       {open && (
         <motion.div
@@ -138,8 +177,15 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                     )}
                     <Field label="Model">
                       <input
-                        value={settings.groqModel}
-                        onChange={(e) => update({ groqModel: e.target.value })}
+                        value={settings.llmProvider === "gemini" ? settings.geminiModel : settings.groqModel}
+                        onChange={(e) =>
+                          update(
+                            settings.llmProvider === "gemini"
+                              ? { geminiModel: e.target.value }
+                              : { groqModel: e.target.value }
+                          )
+                        }
+                        placeholder={settings.llmProvider === "gemini" ? "gemini-2.5-flash" : "openai/gpt-oss-20b"}
                         className="input-field"
                       />
                     </Field>
@@ -154,13 +200,46 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                   </Section>
 
                   <Section title="Embedding">
-                    <Field label="Local Model">
-                      <input
-                        value={settings.embeddingModel}
-                        readOnly
-                        className="input-field bg-gray-50 text-gray-500"
+                    <Field label="Provider">
+                      <SelectField
+                        value={settings.embeddingProvider === "cohere" ? "cohere" : "local"}
+                        onChange={(v) => {
+                          const next = v as "local" | "cohere"
+                          if (next === settings.embeddingProvider) return
+                          setPendingProvider(next)
+                        }}
+                        options={[
+                          { value: "local", label: "Local (sentence-transformers)" },
+                          { value: "cohere", label: "Cohere" },
+                        ]}
                       />
                     </Field>
+                    {reindexing && (
+                      <p className="flex items-center gap-1.5 text-[11px] text-gray-500">
+                        <Loader2 className="h-3 w-3 animate-spin" /> Re-indexing chunks…
+                      </p>
+                    )}
+                    {reindexMsg && (
+                      <p className="text-[11px] text-emerald-600">{reindexMsg}</p>
+                    )}
+                    {settings.embeddingProvider === "cohere" ? (
+                      <Field label="Cohere Model">
+                        <input
+                          value={settings.cohereEmbedModel}
+                          onChange={(e) => update({ cohereEmbedModel: e.target.value })}
+                          placeholder="embed-english-v3.0"
+                          className="input-field"
+                        />
+                      </Field>
+                    ) : (
+                      <Field label="Local Model">
+                        <input
+                          value={settings.embeddingModel}
+                          readOnly
+                          className="input-field bg-gray-50 text-gray-500"
+                        />
+                      </Field>
+                    )}
                     <Field label="Similarity Metric">
                       <SelectField
                         value={settings.vectorSimilarity ?? "cosine"}
@@ -172,6 +251,53 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                         ]}
                       />
                     </Field>
+                  </Section>
+
+                  <Section title="Reranker">
+                    <Field label="Provider">
+                      <SelectField
+                        value={settings.rerankerProvider === "cohere" ? "cohere" : "local"}
+                        onChange={(v) => update({ rerankerProvider: v as AppSettings["rerankerProvider"] })}
+                        options={[
+                          { value: "local", label: "Local (cross-encoder)" },
+                          { value: "cohere", label: "Cohere" },
+                        ]}
+                      />
+                    </Field>
+                    {settings.rerankerProvider === "cohere" ? (
+                      <Field label="Cohere Model">
+                        <input
+                          value={settings.cohereRerankModel}
+                          onChange={(e) => update({ cohereRerankModel: e.target.value })}
+                          placeholder="rerank-english-v3.0"
+                          className="input-field"
+                        />
+                      </Field>
+                    ) : (
+                      <Field label="Local Model">
+                        <input
+                          value={settings.rerankerModel}
+                          onChange={(e) => update({ rerankerModel: e.target.value })}
+                          placeholder="cross-encoder/ms-marco-MiniLM-L-6-v2"
+                          className="input-field"
+                        />
+                      </Field>
+                    )}
+                  </Section>
+
+                  <Section title="Cost">
+                    <Field label="Approximate Cost per Token (USD)">
+                      <input
+                        type="number"
+                        step="0.0000001"
+                        min="0"
+                        value={settings.costPerToken}
+                        onChange={(e) => update({ costPerToken: parseFloat(e.target.value) || 0 })}
+                        placeholder="0.0000005"
+                        className="input-field"
+                      />
+                    </Field>
+                    <p className="text-[11px] text-gray-400">There's no per-model pricing table, so benchmark cost is estimated as total tokens &times; this rate. Adjust it to roughly match whichever model you're actually using.</p>
                   </Section>
 
                   <Section title="Chunking">
@@ -248,7 +374,31 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>,
+    </AnimatePresence>
+
+    <Dialog open={!!pendingProvider} onOpenChange={(o) => { if (!o) setPendingProvider(null) }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-amber-50">
+            <AlertTriangle className="h-5 w-5 text-amber-600" />
+          </div>
+          <DialogTitle className="text-center">Switch embedding provider?</DialogTitle>
+          <DialogDescription className="text-center">
+            Switching to <span className="font-medium text-gray-700">{pendingProvider === "cohere" ? "Cohere" : "Local"}</span> will
+            automatically re-index {totalChunks > 0 ? `all ${totalChunks} existing chunk${totalChunks === 1 ? "" : "s"}` : "your existing chunks"} with
+            the new provider. Your documents stay as-is - no re-upload needed - but this may take a moment
+            depending on how much content you have indexed.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="sm:justify-center">
+          <Button variant="outline" onClick={() => setPendingProvider(null)}>Cancel</Button>
+          <Button className="bg-gray-900 text-white hover:bg-gray-800" onClick={confirmProviderSwitch}>
+            Switch &amp; Re-index
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>,
     document.body
   )
 }

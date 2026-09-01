@@ -1,14 +1,16 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { useBenchmark } from "@/hooks/use-benchmark"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { GitCompare, TrendingUp, TrendingDown, ArrowRight, BarChart3, ChevronDown } from "lucide-react"
+import { SelectField } from "@/components/ui/select-field"
+import { GitCompare, TrendingUp, TrendingDown, ArrowRight, BarChart3, ChevronDown, Play, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn, formatDuration, formatNumber } from "@/lib/utils"
-import type { BenchmarkRun, EvaluationMetrics, RagStrategy } from "@/lib/types"
+import { RAG_STRATEGIES } from "@/lib/types"
+import type { BenchmarkRun, BenchmarkConfig, EvaluationMetrics, RagStrategy } from "@/lib/types"
 
 type MetricKey = keyof EvaluationMetrics
 
@@ -19,9 +21,12 @@ const METRIC_LABELS: Record<MetricKey, string> = {
 }
 
 const PERFORMANCE_METRICS: MetricKey[] = ["hitRate", "recall", "precision", "mrr", "ndcg"]
-const QUALITY_METRICS: MetricKey[] = ["faithfulness", "answerRelevance", "contextPrecision", "contextRecall"]
 const SYSTEM_METRICS: MetricKey[] = ["latencyMs", "inputTokens", "outputTokens", "totalTokens", "cost"]
-const HIGHER_IS_BETTER: MetricKey[] = ["hitRate", "recall", "precision", "mrr", "ndcg", "faithfulness", "answerRelevance", "contextPrecision", "contextRecall"]
+// Only real, computed metrics - faithfulness/answerRelevance/contextPrecision/
+// contextRecall are never actually computed (always 0, no LLM-judge exists),
+// so they're deliberately excluded from comparison rather than shown as fake data.
+const DISPLAYED_METRIC_KEYS: MetricKey[] = [...PERFORMANCE_METRICS, ...SYSTEM_METRICS]
+const HIGHER_IS_BETTER: MetricKey[] = ["hitRate", "recall", "precision", "mrr", "ndcg"]
 
 function isHigherBetter(key: MetricKey): boolean { return HIGHER_IS_BETTER.includes(key) }
 
@@ -65,17 +70,40 @@ function HorizontalBar({ label, valueA, valueB, maxValue, metricKey, runALabel, 
 }
 
 export function StrategyComparison() {
-  const { runs } = useBenchmark()
+  const {
+    runs,
+    datasets,
+    selectedDataset,
+    setSelectedDataset,
+    selectedVersion,
+    setSelectedVersion,
+    config,
+    runComparison,
+    isRunning,
+    comparisonLeg,
+    progress,
+  } = useBenchmark()
   const [selectedRunA, setSelectedRunA] = useState("")
   const [selectedRunB, setSelectedRunB] = useState("")
   const [dropdownOpen, setDropdownOpen] = useState<"a" | "b" | null>(null)
+  const [strategyA, setStrategyA] = useState<RagStrategy>("hybrid-rerank-mmr")
+  const [strategyB, setStrategyB] = useState<RagStrategy>("hybrid")
 
   const runA = useMemo(() => runs.find((r) => r.id === selectedRunA) ?? null, [runs, selectedRunA])
   const runB = useMemo(() => runs.find((r) => r.id === selectedRunB) ?? null, [runs, selectedRunB])
 
+  const handleRunComparison = useCallback(async () => {
+    if (!selectedDataset || isRunning || strategyA === strategyB) return
+    const configA: BenchmarkConfig = { ...config, strategy: strategyA }
+    const configB: BenchmarkConfig = { ...config, strategy: strategyB }
+    const { runA: newRunA, runB: newRunB } = await runComparison(selectedDataset, selectedVersion, configA, configB)
+    if (newRunA) setSelectedRunA(newRunA.id)
+    if (newRunB) setSelectedRunB(newRunB.id)
+  }, [selectedDataset, selectedVersion, config, strategyA, strategyB, runComparison, isRunning])
+
   const comparisons = useMemo(() => {
     if (!runA || !runB) return null
-    const metricKeys = Object.keys(METRIC_LABELS) as MetricKey[]
+    const metricKeys = DISPLAYED_METRIC_KEYS
     const improvements: { key: MetricKey; delta: number; change: number }[] = []
     const regressions: { key: MetricKey; delta: number; change: number }[] = []
     const stable: { key: MetricKey; delta: number; change: number }[] = []
@@ -96,7 +124,7 @@ export function StrategyComparison() {
     const stratA = getStrategyLabel(runA.strategy), stratB = getStrategyLabel(runB.strategy)
     const highRecall = comparisons.improvements.find((i) => i.key === "recall")
     const highLatency = comparisons.regressions.find((r) => r.key === "latencyMs")
-    if (highRecall && highLatency) recs.push(`${stratB} shows ${Math.abs(highRecall.change).toFixed(0)}% better recall but ${Math.abs(highLatency.change).toFixed(0)}% higher latency. Consider if the quality improvement justifies the cost increase.`)
+    if (highRecall && highLatency) recs.push(`${stratB} shows ${Math.abs(highRecall.change).toFixed(4)}% better recall but ${Math.abs(highLatency.change).toFixed(4)}% higher latency. Consider if the quality improvement justifies the cost increase.`)
     const lowMRR = comparisons.regressions.find((r) => r.key === "mrr")
     if (lowMRR) recs.push(`MRR regression with ${stratB} suggests the first relevant result may appear lower in rankings.`)
     if (comparisons.improvements.length === 0 && comparisons.regressions.length > 0) recs.push(`${stratA} outperforms ${stratB} across most metrics.`)
@@ -146,18 +174,97 @@ export function StrategyComparison() {
         <div><h2 className="text-xl font-bold text-gray-900">Strategy Comparison</h2><p className="text-sm text-gray-500">Compare benchmark results across different RAG strategies.</p></div>
       </div>
 
+      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900">Run a New Comparison</h3>
+          <p className="mt-0.5 text-xs text-gray-500">Pick a dataset and two different strategies. Configuration A runs to completion first, then Configuration B starts automatically.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-gray-600">Dataset</label>
+            <SelectField
+              value={selectedDataset?.id ?? ""}
+              onChange={(id) => {
+                const ds = datasets.find((d) => d.id === id)
+                if (ds) {
+                  setSelectedDataset(ds)
+                  setSelectedVersion(ds.currentVersion || "v1")
+                }
+              }}
+              placeholder="Select a dataset..."
+              options={datasets.map((d) => ({ value: d.id, label: d.name }))}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-gray-600">Version</label>
+            <SelectField
+              value={selectedVersion}
+              onChange={setSelectedVersion}
+              placeholder="Select a version..."
+              options={(selectedDataset?.versions ?? []).map((v) => ({ value: v.version, label: `${v.version} (${v.cases.length} cases)` }))}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-gray-600">Configuration A — Strategy</label>
+            <SelectField
+              value={strategyA}
+              onChange={(v) => setStrategyA(v as RagStrategy)}
+              options={RAG_STRATEGIES.map((s) => ({ value: s.value, label: s.label }))}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-gray-600">Configuration B — Strategy</label>
+            <SelectField
+              value={strategyB}
+              onChange={(v) => setStrategyB(v as RagStrategy)}
+              options={RAG_STRATEGIES.map((s) => ({ value: s.value, label: s.label }))}
+            />
+          </div>
+        </div>
+
+        {isRunning && comparisonLeg && (
+          <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-medium text-indigo-900">
+                Running Configuration {comparisonLeg.toUpperCase()} — {getStrategyLabel(comparisonLeg === "a" ? strategyA : strategyB)}
+              </span>
+              <span className="text-xs text-indigo-600">{progress.completed}/{progress.total} test cases</span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-indigo-100">
+              <div
+                className="h-full rounded-full bg-indigo-500 transition-all"
+                style={{ width: `${progress.total > 0 ? (progress.completed / progress.total) * 100 : 0}%` }}
+              />
+            </div>
+            {progress.currentQuery && <p className="mt-1.5 truncate text-[11px] text-indigo-500">{progress.currentQuery}</p>}
+          </div>
+        )}
+
+        <Button
+          onClick={handleRunComparison}
+          disabled={isRunning || !selectedDataset || strategyA === strategyB}
+          className="w-full h-10 rounded-lg bg-indigo-600 text-sm font-semibold text-white hover:bg-indigo-500"
+        >
+          {isRunning ? (
+            <div className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Running Comparison...</div>
+          ) : (
+            <div className="flex items-center gap-2"><Play className="h-4 w-4" />Run Comparison</div>
+          )}
+        </Button>
+        {strategyA === strategyB && (
+          <p className="text-center text-[11px] text-amber-600">Pick two different strategies to compare.</p>
+        )}
+      </div>
+
       <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold text-gray-900">Or Compare Existing Runs</h3>
+          <p className="mt-0.5 text-xs text-gray-500">Pick two runs already in your history.</p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <RunDropdown label="Run A" side="a" runs={runs} selectedId={selectedRunA} onSelect={setSelectedRunA} />
-          <div className="flex items-end justify-center pb-1">
-            <button
-              type="button"
-              onClick={() => { if (selectedRunA && selectedRunB) { /* compare triggers automatically via state */ } }}
-              className="hidden md:flex items-center gap-1 px-4 py-2 rounded-full bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 hover:text-red-700 transition-colors cursor-pointer border border-red-200"
-            >
-              Go <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
           <RunDropdown label="Run B" side="b" runs={runs} selectedId={selectedRunB} onSelect={setSelectedRunB} />
         </div>
       </div>
@@ -197,8 +304,8 @@ export function StrategyComparison() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-            {[{ title: "Performance", desc: "Retrieval effectiveness", metrics: PERFORMANCE_METRICS }, { title: "Quality", desc: "Answer quality", metrics: QUALITY_METRICS }, { title: "System", desc: "Resource usage", metrics: SYSTEM_METRICS }].map((section) => (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            {[{ title: "Performance", desc: "Retrieval effectiveness", metrics: PERFORMANCE_METRICS }, { title: "System", desc: "Resource usage", metrics: SYSTEM_METRICS }].map((section) => (
               <div key={section.title} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
                 <h4 className="font-semibold text-gray-900 mb-1">{section.title}</h4>
                 <p className="text-xs text-gray-500 mb-4">{section.desc}</p>
@@ -213,13 +320,13 @@ export function StrategyComparison() {
             {comparisons.improvements.length > 0 && (
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 bg-green-50 border-b border-green-100"><div className="flex items-center gap-2"><TrendingUp className="h-4 w-4 text-green-600" /><h4 className="font-semibold text-green-800 text-sm">Improvements</h4><Badge className="bg-green-100 text-green-700 text-[10px] border-0">{comparisons.improvements.length}</Badge></div></div>
-                <div className="p-4 space-y-2">{comparisons.improvements.map((item) => (<div key={item.key} className="flex items-center justify-between py-2 px-3 rounded-lg bg-green-50/50"><span className="text-sm text-gray-700">{METRIC_LABELS[item.key]}</span><span className="text-sm font-mono font-medium text-green-700">+{Math.abs(item.change).toFixed(1)}%</span></div>))}</div>
+                <div className="p-4 space-y-2">{comparisons.improvements.map((item) => (<div key={item.key} className="flex items-center justify-between py-2 px-3 rounded-lg bg-green-50/50"><span className="text-sm text-gray-700">{METRIC_LABELS[item.key]}</span><span className="text-sm font-mono font-medium text-green-700">+{Math.abs(item.change).toFixed(4)}%</span></div>))}</div>
               </div>
             )}
             {comparisons.regressions.length > 0 && (
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 bg-red-50 border-b border-red-100"><div className="flex items-center gap-2"><TrendingDown className="h-4 w-4 text-red-600" /><h4 className="font-semibold text-red-800 text-sm">Regressions</h4><Badge className="bg-red-100 text-red-700 text-[10px] border-0">{comparisons.regressions.length}</Badge></div></div>
-                <div className="p-4 space-y-2">{comparisons.regressions.map((item) => (<div key={item.key} className="flex items-center justify-between py-2 px-3 rounded-lg bg-red-50/50"><span className="text-sm text-gray-700">{METRIC_LABELS[item.key]}</span><span className="text-sm font-mono font-medium text-red-700">{item.change.toFixed(1)}%</span></div>))}</div>
+                <div className="p-4 space-y-2">{comparisons.regressions.map((item) => (<div key={item.key} className="flex items-center justify-between py-2 px-3 rounded-lg bg-red-50/50"><span className="text-sm text-gray-700">{METRIC_LABELS[item.key]}</span><span className="text-sm font-mono font-medium text-red-700">{item.change.toFixed(4)}%</span></div>))}</div>
               </div>
             )}
             {comparisons.stable.length > 0 && (

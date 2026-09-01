@@ -6,9 +6,7 @@ import {
   Clock,
   Zap,
   CheckCircle2,
-  XCircle,
   AlertTriangle,
-  Loader2,
   StopCircle,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -18,30 +16,6 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { cn, formatDuration } from "@/lib/utils"
 import type { RagStrategy } from "@/lib/types"
-
-const STAGES = [
-  "Query Analysis",
-  "Vector Search",
-  "BM25 Search",
-  "RRF Fusion",
-  "Reranking",
-  "MMR Selection",
-  "Context Building",
-  "LLM Generation",
-] as const
-
-type StageStatus = "pending" | "running" | "completed" | "error"
-
-function getStageStatuses(completed: number, total: number): StageStatus[] {
-  if (total === 0) return STAGES.map(() => "pending")
-  const progress = completed / total
-  const stageProgress = progress * STAGES.length
-  return STAGES.map((_, i) => {
-    if (i < Math.floor(stageProgress)) return "completed"
-    if (i === Math.floor(stageProgress) && progress < 1) return "running"
-    return "pending"
-  })
-}
 
 function formatElapsed(ms: number): string {
   const seconds = Math.floor(ms / 1000)
@@ -108,8 +82,7 @@ export function BenchmarkProgress() {
 
   const { completed, total, currentQuery } = progress
   const percentage = total > 0 ? (completed / total) * 100 : 0
-  const stageStatuses = getStageStatuses(completed, total)
-  const throughput = elapsedMs > 0 ? (completed / (elapsedMs / 60000)).toFixed(1) : "0.0"
+  const throughput = elapsedMs > 0 ? (completed / (elapsedMs / 60000)).toFixed(4) : "0.0000"
   const estimatedRemaining =
     completed > 0 && completed < total
       ? ((elapsedMs / completed) * (total - completed))
@@ -253,47 +226,6 @@ export function BenchmarkProgress() {
           </div>
         )}
 
-        <Separator />
-
-        {/* Stage Indicators */}
-        <div className="space-y-3">
-          <h4 className="text-sm font-medium text-gray-700">Pipeline Stages</h4>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {STAGES.map((stage, i) => {
-              const status = stageStatuses[i]
-              return (
-                <div
-                  key={stage}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors",
-                    status === "completed" &&
-                      "bg-green-50 border-green-200 text-green-700",
-                    status === "running" &&
-                      "bg-blue-50 border-blue-200 text-blue-700",
-                    status === "error" &&
-                      "bg-red-50 border-red-200 text-red-700",
-                    status === "pending" &&
-                      "bg-gray-50 border-gray-100 text-gray-400"
-                  )}
-                >
-                  {status === "completed" && (
-                    <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
-                  )}
-                  {status === "running" && (
-                    <Loader2 className="w-4 h-4 text-blue-500 shrink-0 animate-spin" />
-                  )}
-                  {status === "error" && (
-                    <XCircle className="w-4 h-4 text-red-500 shrink-0" />
-                  )}
-                  {status === "pending" && (
-                    <div className="w-4 h-4 rounded-full border-2 border-gray-200 shrink-0" />
-                  )}
-                  <span className="truncate">{stage}</span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
       </motion.div>
     </AnimatePresence>
   )

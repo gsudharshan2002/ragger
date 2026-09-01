@@ -229,6 +229,8 @@ export type FailureCategory =
   | "citation_failure"
   | "latency_failure"
   | "token_limit_failure"
+  | "llm_failure"
+  | "prompt_issue"
 
 export interface ExpectedSource {
   id: string
@@ -243,28 +245,10 @@ export interface ExpectedSource {
 export interface GoldenCase {
   id: string
   query: string
-  expectedAnswer: string
   expectedSources: ExpectedSource[]
-  expectedSection?: string
-  expectedPages: number[]
-  whyDifficult: string
   difficulty: Difficulty
   tags: string[]
   status: TestCaseStatus
-  advanced?: {
-    expectedKeywords?: string[]
-    expectedEntities?: string[]
-    expectedCitation?: boolean
-    expectedAnswerType?: string
-    expectedLanguage?: string
-    expectedSourceCount?: number
-    minHitRate?: number
-    minRecall?: number
-    minPrecision?: number
-    minMRR?: number
-    maxLatencyMs?: number
-    maxTokens?: number
-  }
   lastMetrics?: EvaluationMetrics
   traceId?: string
 }
@@ -324,6 +308,7 @@ export interface MMRConfig {
 export interface LLMConfig {
   model: string
   temperature: number
+  topP: number
   maxTokens: number
   systemPromptVersion?: string
 }
@@ -347,10 +332,6 @@ export type BenchmarkMetric =
   | "precision"
   | "mrr"
   | "ndcg"
-  | "faithfulness"
-  | "answer_relevance"
-  | "context_precision"
-  | "context_recall"
   | "latency"
   | "input_tokens"
   | "output_tokens"
@@ -363,15 +344,11 @@ export const ALL_METRICS: { value: BenchmarkMetric; label: string; category: str
   { value: "precision", label: "Precision", category: "Retrieval", tooltip: "Measures how much of the retrieved information was relevant." },
   { value: "mrr", label: "MRR", category: "Retrieval", tooltip: "Measures how highly the first relevant result appears." },
   { value: "ndcg", label: "NDCG", category: "Retrieval", tooltip: "Measures ranking quality while considering the position of relevant results." },
-  { value: "faithfulness", label: "Faithfulness", category: "RAG Quality", tooltip: "Measures whether the answer is grounded in the provided context." },
-  { value: "answer_relevance", label: "Answer Relevance", category: "RAG Quality", tooltip: "Measures whether the answer addresses the user's question." },
-  { value: "context_precision", label: "Context Precision", category: "RAG Quality", tooltip: "Measures how precisely the retrieved context matches the query needs." },
-  { value: "context_recall", label: "Context Recall", category: "RAG Quality", tooltip: "Measures how completely the retrieved context covers the needed information." },
   { value: "latency", label: "Latency", category: "System", tooltip: "Average response time across all test cases." },
-  { value: "input_tokens", label: "Input Tokens", category: "System", tooltip: "Average input tokens used per query." },
+  { value: "input_tokens", label: "Input Tokens", category: "System", tooltip: "Average input tokens used per query (estimated)." },
   { value: "output_tokens", label: "Output Tokens", category: "System", tooltip: "Average output tokens generated per query." },
   { value: "total_tokens", label: "Total Tokens", category: "System", tooltip: "Average total tokens used per query." },
-  { value: "cost", label: "Cost", category: "System", tooltip: "Estimated cost per query based on token usage." },
+  { value: "cost", label: "Cost", category: "System", tooltip: "Estimated cost per query: total tokens × your approximate cost-per-token setting." },
 ]
 
 export interface EvaluationMetrics {
@@ -394,6 +371,10 @@ export interface EvaluationMetrics {
 export interface TestCaseResult {
   caseId: string
   status: TestCaseStatus
+  query: string
+  difficulty: Difficulty
+  expectedAnswer: string
+  expectedSources: ExpectedSource[]
   metrics: EvaluationMetrics
   actualAnswer: string
   actualSources: { document: string; page: number; section: string; chunkId: string; score: number }[]
@@ -708,10 +689,12 @@ export interface FullTrace {
 export interface AppSettings {
   llmProvider: "groq" | "gemini"
   groqModel: string
+  geminiModel: string
   groqApiKey: string
   geminiApiKey: string
   embeddingProvider: "none" | "openai" | "cohere" | "local"
   embeddingModel: string
+  cohereEmbedModel: string
   embeddingApiKey: string
   vectorSimilarity?: "cosine" | "dot_product" | "l2"
   chunkSize: number
@@ -719,8 +702,11 @@ export interface AppSettings {
   defaultTopK: number
   defaultStrategy: RagStrategy
   systemPrompt: string
+  rerankerProvider: "local" | "cohere"
   rerankerModel: string
+  cohereRerankModel: string
   mmrLambda: number
+  costPerToken: number
 }
 
 // --- API Response ---

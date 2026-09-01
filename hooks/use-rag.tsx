@@ -40,6 +40,34 @@ export function normalizeTrace(raw: Record<string, any>): RagTrace {
   const bm25 = raw.bm25
     ? { topK: raw.bm25.chunk_count ?? 0, queryTerms: raw.bm25.query_terms ?? [], latencyMs: raw.bm25.latency_ms ?? 0, chunks: (raw.bm25.results ?? []).map((c: Record<string, any>) => mapChunk(c, "bm25")) }
     : undefined
+  const rrf = raw.rrf
+    ? {
+        vectorChunks: (raw.vector_search?.results ?? []).map((c: Record<string, any>) => mapChunk(c, "vector")),
+        bm25Chunks: (raw.bm25?.results ?? []).map((c: Record<string, any>) => mapChunk(c, "bm25")),
+        mergedChunks: (raw.rrf.results ?? []).map((c: Record<string, any>) => mapChunk(c, "rrf")),
+        latencyMs: raw.rrf.latency_ms ?? 0,
+      }
+    : undefined
+  const reranker = raw.reranker
+    ? {
+        model: raw.reranker.model ?? "",
+        candidates: config.reranker?.candidate_count ?? config.reranker?.candidateCount ?? raw.reranker.input_chunk_count ?? 0,
+        topN: config.reranker?.top_n ?? config.reranker?.topN ?? (raw.reranker.results ?? []).length,
+        latencyMs: raw.reranker.latency_ms ?? 0,
+        beforeChunks: (raw.rrf?.results ?? []).map((c: Record<string, any>) => mapChunk(c, "rrf")),
+        afterChunks: (raw.reranker.results ?? []).map((c: Record<string, any>) => mapChunk(c, "reranker")),
+      }
+    : undefined
+  const mmr = raw.mmr
+    ? {
+        lambda: config.mmr?.lambda_ ?? config.mmr?.lambda ?? 0,
+        candidateCount: config.mmr?.candidate_count ?? config.mmr?.candidateCount ?? (raw.mmr.results ?? []).length,
+        finalCount: config.mmr?.final_count ?? config.mmr?.finalCount ?? raw.mmr.selected_count ?? 0,
+        latencyMs: raw.mmr.latency_ms ?? 0,
+        selectedChunks: (raw.mmr.results ?? []).filter((c: Record<string, any>) => c.selected).map((c: Record<string, any>) => mapChunk(c, "mmr")),
+        rejectedChunks: (raw.mmr.results ?? []).filter((c: Record<string, any>) => !c.selected).map((c: Record<string, any>) => mapChunk(c, "mmr")),
+      }
+    : undefined
 
   return {
     overview: {
@@ -60,6 +88,9 @@ export function normalizeTrace(raw: Record<string, any>): RagTrace {
     query: raw.query ?? "",
     vectorSearch,
     bm25,
+    rrf,
+    reranker,
+    mmr,
     context: {
       chunks,
       totalTokens: context.total_tokens ?? context.totalTokens ?? 0,

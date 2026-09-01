@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import {
   Settings2,
   ChevronDown,
@@ -215,11 +216,14 @@ function SelectInput({
 }
 
 export function BenchmarkConfig() {
+  const router = useRouter()
   const {
     config,
     setConfig,
+    syncConfigFromChatSettings,
     datasets,
     selectedDataset,
+    setSelectedDataset,
     selectedVersion,
     setSelectedVersion,
     startBenchmark,
@@ -235,11 +239,21 @@ export function BenchmarkConfig() {
     llm: true,
   })
 
+  // Every time this screen is opened, reset the RAG pipeline settings back
+  // to whatever Chat/Settings is currently running with - any unsaved
+  // tweaks from a previous visit here are intentionally discarded, since
+  // this form never represents a persisted "benchmark config", only a
+  // scratch copy of the real settings the user can tweak for one run.
+  useEffect(() => {
+    syncConfigFromChatSettings()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const updateConfig = useCallback(
     (partial: Partial<BenchmarkConfig>) => {
-      setConfig({ ...config, ...partial })
+      setConfig((prev) => ({ ...prev, ...partial }))
     },
-    [config, setConfig]
+    [setConfig]
   )
 
   const toggleMetric = useCallback(
@@ -267,7 +281,6 @@ export function BenchmarkConfig() {
 
   const categoryIcons: Record<string, React.ReactNode> = {
     Retrieval: <Search className="w-3 h-3 text-indigo-500" />,
-    "RAG Quality": <Brain className="w-3 h-3 text-purple-500" />,
     System: <Cpu className="w-3 h-3 text-emerald-500" />,
   }
 
@@ -478,7 +491,7 @@ export function BenchmarkConfig() {
                             <Info className="w-3 h-3 text-gray-400 hover:text-gray-600 cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent side="top">
-                            Higher values prioritize relevance over diversity.
+                            Higher values prioritize relevance over diversity when selecting chunks. This is a retrieval setting, unrelated to the LLM's Temperature below.
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -532,6 +545,16 @@ export function BenchmarkConfig() {
                   min={0}
                   max={2}
                   step={0.1}
+                  tooltip="Controls how random/creative the LLM's answer text is. Unrelated to MMR Lambda below, which controls retrieval diversity, not text generation."
+                />
+                <NumberInput
+                  label="Top P"
+                  value={config.llm.topP}
+                  onChange={(v) => updateConfig({ llm: { ...config.llm, topP: v } })}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  tooltip="Nucleus sampling: only consider tokens within the top P probability mass. Leave at 1 to disable and rely on Temperature alone."
                 />
                 <NumberInput
                   label="Max Tokens"
@@ -625,6 +648,7 @@ export function BenchmarkConfig() {
                 onChange={(v) => {
                   const ds = datasets.find((d) => d.id === v)
                   if (ds) {
+                    setSelectedDataset(ds)
                     updateConfig({ datasetId: ds.id, datasetVersion: ds.currentVersion })
                     setSelectedVersion(ds.currentVersion)
                   }
@@ -660,7 +684,10 @@ export function BenchmarkConfig() {
 
       <div className="border-t border-black/[0.06] bg-white px-5 py-4">
         <Button
-          onClick={() => startBenchmark()}
+          onClick={() => {
+            startBenchmark()
+            router.push("/benchmark")
+          }}
           disabled={isRunning || !selectedDataset || config.metrics.length === 0}
           className={cn(
             "w-full h-10 rounded-lg text-sm font-semibold transition-all",

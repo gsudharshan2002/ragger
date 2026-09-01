@@ -14,6 +14,7 @@ import {
   BarChart3,
   Download,
   ExternalLink,
+  Brain,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -27,7 +28,6 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { SelectField } from "@/components/ui/select-field"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { apiFetch } from "@/lib/api"
 import { cn, formatDuration, formatNumber } from "@/lib/utils"
@@ -108,6 +108,14 @@ const FAILURE_CATEGORY_META: Record<
     label: "Token Limit Failure",
     icon: <AlertTriangle className="h-4 w-4 text-pink-500" />,
   },
+  llm_failure: {
+    label: "LLM Failure",
+    icon: <AlertTriangle className="h-4 w-4 text-red-600" />,
+  },
+  prompt_issue: {
+    label: "System Prompt Needs Improvement",
+    icon: <Brain className="h-4 w-4 text-purple-500" />,
+  },
 }
 
 const SCORE_METRICS = [
@@ -115,7 +123,7 @@ const SCORE_METRICS = [
   { key: "recall" as const, label: "Recall" },
   { key: "precision" as const, label: "Precision" },
   { key: "mrr" as const, label: "MRR" },
-  { key: "faithfulness" as const, label: "Faithfulness" },
+  { key: "ndcg" as const, label: "NDCG" },
 ]
 
 const GRID_METRICS = [
@@ -124,10 +132,6 @@ const GRID_METRICS = [
   { key: "precision" as const, label: "Precision", color: "bg-violet-500" },
   { key: "mrr" as const, label: "MRR", color: "bg-amber-500" },
   { key: "ndcg" as const, label: "NDCG", color: "bg-rose-500" },
-  { key: "faithfulness" as const, label: "Faithfulness", color: "bg-teal-500" },
-  { key: "answerRelevance" as const, label: "Answer Relevance", color: "bg-cyan-500" },
-  { key: "contextPrecision" as const, label: "Context Precision", color: "bg-orange-500" },
-  { key: "contextRecall" as const, label: "Context Recall", color: "bg-indigo-500" },
 ]
 
 function metricValue(metrics: EvaluationMetrics, key: string): number {
@@ -141,10 +145,6 @@ function overallScore(m: EvaluationMetrics): number {
     m.precision,
     m.mrr,
     m.ndcg,
-    m.faithfulness,
-    m.answerRelevance,
-    m.contextPrecision,
-    m.contextRecall,
   ]
   return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 100)
 }
@@ -189,7 +189,7 @@ export function BenchmarkResults() {
         level,
         label: DIFFICULTY_STYLES[level].label,
         badge: DIFFICULTY_STYLES[level].badge,
-        count: bm ? Object.values(bm).filter((v) => v !== undefined).length : 0,
+        count: activeRun?.results.filter((r) => r.difficulty === level && r.status !== "not_run").length ?? 0,
         metrics: bm ?? {},
       }
     })
@@ -326,7 +326,7 @@ export function BenchmarkResults() {
                   {gm.label}
                 </div>
                 <div className="mt-1 text-xs font-semibold text-gray-900">
-                  {(value * 100).toFixed(1)}%
+                  {(value * 100).toFixed(4)}%
                 </div>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-200">
                   <motion.div
@@ -350,7 +350,7 @@ export function BenchmarkResults() {
                       )}
                     >
                       {delta > 0 ? "+" : ""}
-                      {(delta * 100).toFixed(1)}%
+                      {(delta * 100).toFixed(4)}%
                     </span>
                   </div>
                 )}
@@ -398,8 +398,7 @@ export function BenchmarkResults() {
                 </Button>
               </div>
             </div>
-            <ScrollArea className="max-h-[600px]">
-              <div className="overflow-x-auto">
+            <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
               <table className="w-full text-left">
                 <thead className="sticky top-0 z-10 bg-gray-50">
                   <tr className="border-b border-gray-100">
@@ -410,7 +409,7 @@ export function BenchmarkResults() {
                     <th className="px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">Recall</th>
                     <th className="px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">Precision</th>
                     <th className="px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">MRR</th>
-                    <th className="px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">Faithfulness</th>
+                    <th className="px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">NDCG</th>
                     <th className="px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">Status</th>
                     <th className="px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider text-gray-400">Actions</th>
                   </tr>
@@ -420,7 +419,7 @@ export function BenchmarkResults() {
                     const isExpanded = expandedRow === result.caseId
                     const statusStyle = STATUS_STYLES[result.status] ?? STATUS_STYLES.not_run
                     const datasetVersion = run.config.datasetId
-                    const goldenCase = runs.length > 0 ? null : null
+                    const difficultyStyle = DIFFICULTY_STYLES[result.difficulty] ?? DIFFICULTY_STYLES.medium
 
                     return (
                       <AnimatePresence key={result.caseId}>
@@ -437,28 +436,28 @@ export function BenchmarkResults() {
                           <td className="px-4 py-2.5 text-xs text-gray-400">{idx + 1}</td>
                           <td className="max-w-[280px] px-4 py-2.5">
                             <span className="truncate text-xs text-gray-700 block">
-                              {result.actualAnswer.slice(0, 60) || "—"}
+                              {result.query || "—"}
                             </span>
                           </td>
                           <td className="px-4 py-2.5">
-                            <Badge className={cn("text-[10px] rounded-full px-2 py-0.5 font-medium", "bg-gray-100 text-gray-600")}>
-                              {result.status === "passed" ? "—" : "—"}
+                            <Badge className={cn("text-[10px] rounded-full px-2 py-0.5 font-medium", difficultyStyle.badge)}>
+                              {difficultyStyle.label}
                             </Badge>
                           </td>
                           <td className="px-4 py-2.5 text-xs font-semibold text-gray-700">
-                            {(result.metrics.hitRate * 100).toFixed(0)}%
+                            {(result.metrics.hitRate * 100).toFixed(4)}%
                           </td>
                           <td className="px-4 py-2.5 text-xs font-semibold text-gray-700">
-                            {(result.metrics.recall * 100).toFixed(0)}%
+                            {(result.metrics.recall * 100).toFixed(4)}%
                           </td>
                           <td className="px-4 py-2.5 text-xs font-semibold text-gray-700">
-                            {(result.metrics.precision * 100).toFixed(0)}%
+                            {(result.metrics.precision * 100).toFixed(4)}%
                           </td>
                           <td className="px-4 py-2.5 text-xs font-semibold text-gray-700">
-                            {(result.metrics.mrr * 100).toFixed(0)}%
+                            {(result.metrics.mrr * 100).toFixed(4)}%
                           </td>
                           <td className="px-4 py-2.5 text-xs font-semibold text-gray-700">
-                            {(result.metrics.faithfulness * 100).toFixed(0)}%
+                            {(result.metrics.ndcg * 100).toFixed(4)}%
                           </td>
                           <td className="px-4 py-2.5">
                             <Badge
@@ -503,7 +502,7 @@ export function BenchmarkResults() {
                                       Expected Answer
                                     </h4>
                                     <p className="text-xs text-gray-700 leading-relaxed">
-                                      {"—"}
+                                      {result.expectedAnswer || "—"}
                                     </p>
                                   </div>
                                   <div>
@@ -533,11 +532,21 @@ export function BenchmarkResults() {
                                           </tr>
                                         </thead>
                                         <tbody>
-                                          <tr>
-                                            <td colSpan={3} className="px-3 py-2 text-xs text-gray-400 italic">
-                                              No expected sources available in result
-                                            </td>
-                                          </tr>
+                                          {result.expectedSources.length > 0 ? (
+                                            result.expectedSources.map((src, si) => (
+                                              <tr key={si} className="border-b border-gray-50 last:border-0">
+                                                <td className="px-3 py-1.5 text-[11px] text-gray-700">{src.document}</td>
+                                                <td className="px-3 py-1.5 text-[11px] text-gray-600">{src.page}</td>
+                                                <td className="px-3 py-1.5 text-[11px] text-gray-600">{src.section || "—"}</td>
+                                              </tr>
+                                            ))
+                                          ) : (
+                                            <tr>
+                                              <td colSpan={3} className="px-3 py-2 text-xs text-gray-400 italic">
+                                                No expected sources available in result
+                                              </td>
+                                            </tr>
+                                          )}
                                         </tbody>
                                       </table>
                                     </div>
@@ -564,7 +573,7 @@ export function BenchmarkResults() {
                                                 <td className="px-3 py-1.5 text-[11px] text-gray-700">{src.document}</td>
                                                 <td className="px-3 py-1.5 text-[11px] text-gray-600">{src.page}</td>
                                                 <td className="px-3 py-1.5 text-[11px] text-gray-600">{src.section || "—"}</td>
-                                                <td className="px-3 py-1.5 text-[11px] font-semibold text-gray-700">{(src.score * 100).toFixed(1)}%</td>
+                                                <td className="px-3 py-1.5 text-[11px] font-semibold text-gray-700">{(src.score * 100).toFixed(4)}%</td>
                                               </tr>
                                             ))
                                           ) : (
@@ -625,8 +634,7 @@ export function BenchmarkResults() {
                   })}
                 </tbody>
               </table>
-              </div>
-            </ScrollArea>
+            </div>
           </div>
         </TabsContent>
 
@@ -674,7 +682,7 @@ export function BenchmarkResults() {
                                 />
                               </div>
                               <span className="text-[10px] font-semibold text-gray-600 w-10 text-right">
-                                {(val * 100).toFixed(0)}%
+                                {(val * 100).toFixed(4)}%
                               </span>
                             </div>
                           </td>
@@ -843,10 +851,10 @@ export function BenchmarkResults() {
                               {row.label}
                             </td>
                             <td className="py-3 px-4 text-xs text-gray-600">
-                              {(row.valA * 100).toFixed(1)}%
+                              {(row.valA * 100).toFixed(4)}%
                             </td>
                             <td className="py-3 px-4 text-xs text-gray-600">
-                              {(row.valB * 100).toFixed(1)}%
+                              {(row.valB * 100).toFixed(4)}%
                             </td>
                             <td className="py-3 px-4">
                               <span
@@ -861,7 +869,7 @@ export function BenchmarkResults() {
                                   <TrendingDown className="h-3 w-3" />
                                 ) : null}
                                 {row.delta > 0 ? "+" : ""}
-                                {(row.delta * 100).toFixed(2)}%
+                                {(row.delta * 100).toFixed(4)}%
                               </span>
                             </td>
                             <td className="py-3 px-4">
@@ -871,7 +879,7 @@ export function BenchmarkResults() {
                                   row.improved ? "text-emerald-600" : row.delta < 0 ? "text-rose-600" : "text-gray-400"
                                 )}
                               >
-                                {row.pct > 0 ? "+" : ""}{row.pct.toFixed(1)}%
+                                {row.pct > 0 ? "+" : ""}{row.pct.toFixed(4)}%
                               </span>
                             </td>
                           </tr>

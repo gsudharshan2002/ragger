@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useCallback, useRef, useState, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useCallback, useRef, useState, useEffect, type Dispatch, type SetStateAction, type ReactNode } from "react"
 import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import type {
   GoldenDataset,
@@ -18,9 +18,11 @@ interface BenchmarkContextValue {
   selectedVersion: string
   setSelectedVersion: (v: string) => void
   config: BenchmarkConfig
-  setConfig: (c: BenchmarkConfig) => void
+  setConfig: Dispatch<SetStateAction<BenchmarkConfig>>
+  syncConfigFromChatSettings: () => Promise<void>
   runs: BenchmarkRun[]
   activeRun: BenchmarkRun | null
+  viewRun: (run: BenchmarkRun) => void
   isRunning: boolean
   progress: { completed: number; total: number; currentQuery: string }
   selectedCases: Set<string>
@@ -28,6 +30,8 @@ interface BenchmarkContextValue {
   selectAllCases: (ids: string[]) => void
   clearSelection: () => void
   startBenchmark: (overrideDataset?: GoldenDataset, overrideVersion?: string) => void
+  runComparison: (ds: GoldenDataset, version: string, configA: BenchmarkConfig, configB: BenchmarkConfig) => Promise<{ runA: BenchmarkRun | null; runB: BenchmarkRun | null }>
+  comparisonLeg: "a" | "b" | null
   cancelBenchmark: () => void
   createDataset: (name: string, description: string, tags: string[]) => void
   importDataset: (name: string, description: string, tags: string[], cases: GoldenCase[]) => Promise<GoldenDataset | null>
@@ -38,6 +42,7 @@ interface BenchmarkContextValue {
   deleteDataset: (datasetId: string) => void
   exportDataset: (datasetId: string) => string
   exportRunResults: (runId: string) => string
+  deleteRun: (runId: string) => void
   comparisonRuns: BenchmarkRun[]
   setComparisonRuns: (runs: BenchmarkRun[]) => void
   selectedFailedCase: TestCaseResult | null
@@ -63,7 +68,52 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
   const [selectedCases, setSelectedCases] = useState<Set<string>>(new Set())
   const [comparisonRuns, setComparisonRuns] = useState<BenchmarkRun[]>([])
   const [selectedFailedCase, setSelectedFailedCase] = useState<TestCaseResult | null>(null)
+  const [comparisonLeg, setComparisonLeg] = useState<"a" | "b" | null>(null)
   const cancelRef = useRef(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
+
+  // Benchmark's RAG pipeline settings (strategy, embedding, reranker, MMR,
+  // LLM model) always mirror whatever Chat/Settings is actively running -
+  // never a separately-remembered benchmark config. Editing the Benchmark
+  // Configuration form only touches local state (never PUTs to /rag/config),
+  // so it can never leak back into Chat's settings; conversely, every time
+  // the benchmark config screen is (re)opened this is called again to reset
+  // any prior ad-hoc edits back to the current Chat defaults - nothing
+  // benchmark-specific is ever persisted as a "saved" config.
+  const syncConfigFromChatSettings = useCallback(async () => {
+    try {
+      const res = await apiFetch("/rag/config")
+      const body: { success: boolean; data?: { settings?: Record<string, any> } } = await res.json()
+      const s = body.data?.settings
+      if (!s) return
+
+      const llmModel = s.llmProvider === "gemini" ? s.geminiModel : s.groqModel
+      const embeddingModel = s.embeddingProvider === "cohere" ? s.cohereEmbedModel : s.embeddingModel
+      const rerankerModel = s.rerankerProvider === "cohere" ? s.cohereRerankModel : s.rerankerModel
+      const topK = typeof s.defaultTopK === "number" ? s.defaultTopK : undefined
+
+      setConfig((prev) => ({
+        ...prev,
+        strategy: s.defaultStrategy ?? prev.strategy,
+        vector: prev.vector && {
+          ...prev.vector,
+          embeddingModel: embeddingModel ?? prev.vector.embeddingModel,
+          topK: topK ?? prev.vector.topK,
+          similarity: s.vectorSimilarity ?? prev.vector.similarity,
+        },
+        bm25: prev.bm25 && { ...prev.bm25, topK: topK ?? prev.bm25.topK },
+        reranker: prev.reranker && {
+          ...prev.reranker,
+          model: rerankerModel ?? prev.reranker.model,
+          candidateCount: topK ?? prev.reranker.candidateCount,
+        },
+        mmr: prev.mmr && { ...prev.mmr, lambda: typeof s.mmrLambda === "number" ? s.mmrLambda : prev.mmr.lambda },
+        llm: { ...prev.llm, model: llmModel ?? prev.llm.model },
+      }))
+    } catch (err) {
+      console.error("Failed to sync active RAG config:", err)
+    }
+  }, [])
 
   useEffect(() => {
     apiFetch("/datasets")
@@ -77,6 +127,15 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         }
       })
       .catch((err) => console.error("Failed to fetch datasets:", err))
+
+    apiFetch("/benchmark/runs")
+      .then((res) => res.json())
+      .then((res: { success: boolean; data?: BenchmarkRun[] }) => {
+        setRuns(res.data ?? [])
+      })
+      .catch((err) => console.error("Failed to fetch benchmark run history:", err))
+
+    syncConfigFromChatSettings()
   }, [])
 
   const defaultConfig: BenchmarkConfig = {
@@ -86,10 +145,10 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
     vector: { embeddingModel: "sentence-transformers/all-MiniLM-L6-v2", topK: 20, similarity: "cosine" },
     bm25: { topK: 20, language: "english", tokenizer: "standard" },
     rrf: { k: 60, vectorWeight: 1, bm25Weight: 1 },
-    reranker: { model: "cross-encoder/ms-marco-MiniLM-L-6-v2", candidateCount: 20, topN: 8 },
+    reranker: { model: "cross-encoder/ms-marco-MiniLM-L-6-v2", candidateCount: 20, topN: 10 },
     mmr: { lambda: 0.7, candidateCount: 15, finalCount: 8 },
-    llm: { model: "gpt-4o", temperature: 0.7, maxTokens: 2048 },
-    metrics: ["hit_rate", "recall", "precision", "mrr", "ndcg", "faithfulness", "answer_relevance"],
+    llm: { model: "openai/gpt-oss-20b", temperature: 0.7, topP: 1, maxTokens: 1024 },
+    metrics: ["hit_rate", "recall", "precision", "mrr", "ndcg"],
   }
 
   const [config, setConfig] = useState<BenchmarkConfig>(defaultConfig)
@@ -111,25 +170,19 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
     setSelectedCases(new Set())
   }, [])
 
-  const startBenchmark = useCallback(async (overrideDataset?: GoldenDataset, overrideVersion?: string) => {
-    const ds = overrideDataset ?? selectedDataset
-    if (!ds || isRunning) return
-    const version = overrideVersion ?? selectedVersion
-    if (overrideDataset) {
-      setSelectedDataset(overrideDataset)
-      setSelectedVersion(version)
-    }
-    cancelRef.current = false
-    setIsRunning(true)
-
+  const runSingleBenchmark = useCallback(async (
+    ds: GoldenDataset,
+    version: string,
+    cfg: BenchmarkConfig,
+  ): Promise<BenchmarkRun | null> => {
     const runId = `bench_${generateId()}`
     const placeholderRun: BenchmarkRun = {
       id: runId,
       datasetId: ds.id,
       datasetName: ds.name,
       datasetVersion: version,
-      strategy: config.strategy,
-      config: { ...config },
+      strategy: cfg.strategy,
+      config: { ...cfg },
       status: "running",
       startedAt: new Date().toISOString(),
       totalTests: 0,
@@ -149,58 +202,163 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         retrieval_failure: 0, missing_source: 0, wrong_source: 0,
         poor_ranking: 0, poor_context: 0, poor_answer: 0,
         citation_failure: 0, latency_failure: 0, token_limit_failure: 0,
+        llm_failure: 0, prompt_issue: 0,
       },
     }
 
     setActiveRun(placeholderRun)
     setProgress({ completed: 0, total: 0, currentQuery: "Starting benchmark..." })
 
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
-      const res = await apiFetch("/benchmark/run", {
+      const res = await apiFetch("/benchmark/run-stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           datasetId: ds.id,
-          strategy: config.strategy,
-          ragConfig: config,
+          strategy: cfg.strategy,
+          ragConfig: cfg,
         }),
+        signal: controller.signal,
       })
 
-      if (!res.ok) throw new Error(`Benchmark failed: ${res.statusText}`)
+      if (!res.ok || !res.body) throw new Error(`Benchmark failed: ${res.statusText}`)
 
-      const response = await res.json()
-      const completedRun: BenchmarkRun = {
-        ...response.data,
-        config: response.data.config ?? config,
-        datasetName: response.data.datasetName ?? ds.name,
-        datasetVersion: response.data.datasetVersion ?? version,
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ""
+      let finalRun: BenchmarkRun | null = null
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split("\n")
+        buffer = lines.pop() || ""
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue
+          const raw = line.slice(6).trim()
+          if (raw === "[DONE]") continue
+
+          let event: any
+          try {
+            event = JSON.parse(raw)
+          } catch {
+            continue
+          }
+
+          if (event.type === "benchmark.started") {
+            setProgress({ completed: 0, total: event.total, currentQuery: "Starting benchmark..." })
+            setActiveRun((prev) => (prev ? { ...prev, totalTests: event.total } : prev))
+          } else if (event.type === "case.started") {
+            setProgress({ completed: event.index - 1, total: event.total, currentQuery: event.query })
+          } else if (event.type === "case.completed") {
+            const caseResult: TestCaseResult = event.result
+            setProgress({ completed: event.index, total: event.total, currentQuery: "" })
+            setActiveRun((prev) => {
+              if (!prev) return prev
+              const results = [...prev.results, caseResult]
+              return {
+                ...prev,
+                completedTests: results.length,
+                passedTests: results.filter((r) => r.status === "passed").length,
+                partialTests: results.filter((r) => r.status === "partial").length,
+                failedTests: results.filter((r) => r.status === "failed").length,
+                results,
+              }
+            })
+          } else if (event.type === "benchmark.completed") {
+            finalRun = {
+              ...event.data,
+              config: event.data.config ?? cfg,
+              datasetName: event.data.datasetName ?? ds.name,
+              datasetVersion: event.data.datasetVersion ?? version,
+            }
+          } else if (event.type === "error") {
+            throw new Error(event.error || "Benchmark failed")
+          }
+        }
       }
-      completedRun.id = runId
-      completedRun.startedAt = placeholderRun.startedAt
-      completedRun.completedAt = new Date().toISOString()
-      completedRun.status = "completed"
 
-      setActiveRun(completedRun)
-      setRuns((prev) => [completedRun, ...prev])
-      setProgress({
-        completed: completedRun.totalTests,
-        total: completedRun.totalTests,
-        currentQuery: "",
-      })
+      if (finalRun) {
+        finalRun.id = runId
+        finalRun.startedAt = placeholderRun.startedAt
+        finalRun.completedAt = new Date().toISOString()
+        finalRun.status = "completed"
+
+        setActiveRun(finalRun)
+        setRuns((prev) => [finalRun as BenchmarkRun, ...prev])
+        return finalRun
+      }
+      return null
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return null
+      }
       console.error("Benchmark error:", err)
       setActiveRun((prev) => prev ? { ...prev, status: "failed" } : null)
+      return null
+    } finally {
+      abortControllerRef.current = null
+    }
+  }, [])
+
+  const startBenchmark = useCallback(async (overrideDataset?: GoldenDataset, overrideVersion?: string) => {
+    const ds = overrideDataset ?? selectedDataset
+    if (!ds || isRunning) return
+    const version = overrideVersion ?? selectedVersion
+    if (overrideDataset) {
+      setSelectedDataset(overrideDataset)
+      setSelectedVersion(version)
+    }
+    cancelRef.current = false
+    setIsRunning(true)
+    try {
+      await runSingleBenchmark(ds, version, config)
     } finally {
       setIsRunning(false)
     }
-  }, [selectedDataset, selectedVersion, config, isRunning, setSelectedDataset, setSelectedVersion])
+  }, [selectedDataset, selectedVersion, config, isRunning, setSelectedDataset, setSelectedVersion, runSingleBenchmark])
+
+  const runComparison = useCallback(async (
+    ds: GoldenDataset,
+    version: string,
+    configA: BenchmarkConfig,
+    configB: BenchmarkConfig,
+  ): Promise<{ runA: BenchmarkRun | null; runB: BenchmarkRun | null }> => {
+    if (isRunning) return { runA: null, runB: null }
+    cancelRef.current = false
+    setIsRunning(true)
+    setComparisonLeg("a")
+    try {
+      const runA = await runSingleBenchmark(ds, version, configA)
+      if (cancelRef.current) return { runA, runB: null }
+      setComparisonLeg("b")
+      const runB = await runSingleBenchmark(ds, version, configB)
+      return { runA, runB }
+    } finally {
+      setComparisonLeg(null)
+      setIsRunning(false)
+    }
+  }, [isRunning, runSingleBenchmark])
 
   const cancelBenchmark = useCallback(() => {
     cancelRef.current = true
+    abortControllerRef.current?.abort()
+    abortControllerRef.current = null
     setIsRunning(false)
+    setComparisonLeg(null)
     setActiveRun(null)
     setProgress({ completed: 0, total: 0, currentQuery: "" })
   }, [])
+
+  const viewRun = useCallback((run: BenchmarkRun) => {
+    if (isRunning) return
+    setActiveRun(run)
+  }, [isRunning])
 
   const createDataset = useCallback(async (name: string, description: string, tags: string[]) => {
     try {
@@ -337,6 +495,18 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
     return JSON.stringify(run, null, 2)
   }, [runs])
 
+  const deleteRun = useCallback(async (runId: string) => {
+    try {
+      const res = await apiFetch(`/benchmark/runs/${runId}`, { method: "DELETE" })
+      if (!res.ok) throw new Error(`Failed to delete run: ${res.statusText}`)
+      setRuns((prev) => prev.filter((r) => r.id !== runId))
+      setComparisonRuns((prev) => prev.filter((r) => r.id !== runId))
+      setActiveRun((prev) => (prev?.id === runId ? null : prev))
+    } catch (err) {
+      console.error("Delete run error:", err)
+    }
+  }, [])
+
   return (
     <BenchmarkContext.Provider
       value={{
@@ -347,8 +517,10 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         setSelectedVersion,
         config,
         setConfig,
+        syncConfigFromChatSettings,
         runs,
         activeRun,
+        viewRun,
         isRunning,
         progress,
         selectedCases,
@@ -356,6 +528,8 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         selectAllCases,
         clearSelection,
         startBenchmark,
+        runComparison,
+        comparisonLeg,
         cancelBenchmark,
         createDataset,
         importDataset,
@@ -366,6 +540,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         deleteDataset,
         exportDataset,
         exportRunResults,
+        deleteRun,
         comparisonRuns,
         setComparisonRuns,
         selectedFailedCase,

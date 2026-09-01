@@ -119,19 +119,6 @@ function generateGoldenCases(count: number): GoldenCase[] {
     "How does BM25 handle synonyms and paraphrases?",
   ]
 
-  const answers = [
-    "RRF combines ranked lists by assigning scores based on rank positions using the formula RRF(d) = Σ 1/(k + rank_i(d)), which merges results without requiring score normalization between different retrieval methods.",
-    "Bi-encoders encode query and document independently for fast retrieval, while cross-encoders evaluate query-document pairs jointly for more accurate reranking but at higher computational cost.",
-    "MMR balances relevance and diversity by penalizing documents similar to already-selected ones. The lambda parameter controls the trade-off: higher lambda prioritizes relevance, lower lambda prioritizes diversity.",
-    "Key BM25 parameters include k1 (term frequency saturation), b (length normalization), and top_k (number of results). Language and tokenizer settings also affect retrieval quality.",
-    "Larger chunks provide more context but may dilute relevance. Smaller chunks are more precise but may lack sufficient context. Typical optimal sizes range from 256-512 tokens with 50-128 token overlap.",
-    "The embedding model converts text into dense vector representations that capture semantic meaning. Model choice affects retrieval quality, latency, and dimensionality of the vector index.",
-    "Hybrid retrieval combines vector search (semantic matching) with BM25 (lexical matching) to leverage the strengths of both approaches, improving recall across diverse query types.",
-    "Higher Top K increases recall but may introduce noise. Lower Top K improves precision but risks missing relevant documents. The optimal value depends on the use case and context window size.",
-    "Modern rerankers use learned attention mechanisms to handle ambiguity by attending to different parts of the query-document pair, though very ambiguous queries may still produce uncertain rankings.",
-    "When no relevant documents are retrieved, the system should indicate this clearly rather than generating an answer based on irrelevant context. This is a key failure mode to monitor.",
-  ]
-
   const difficulties: Difficulty[] = ["easy", "medium", "hard", "expert"]
 
   return Array.from({ length: count }, (_, i) => {
@@ -144,7 +131,6 @@ function generateGoldenCases(count: number): GoldenCase[] {
     return {
       id: `case_${generateId()}`,
       query: queries[i % queries.length],
-      expectedAnswer: answers[i % answers.length],
       expectedSources: [
         {
           id: generateId(),
@@ -154,9 +140,6 @@ function generateGoldenCases(count: number): GoldenCase[] {
           chunkId: expectedChunkId,
         },
       ],
-      expectedSection,
-      expectedPages: [expectedPage, expectedPage + 1],
-      whyDifficult: `This query ${difficulty === "expert" ? "requires multi-hop reasoning across multiple documents and sections" : difficulty === "hard" ? "requires understanding relationships between concepts across sections" : difficulty === "medium" ? "requires careful analysis of technical content" : "tests basic understanding of core concepts"}.`,
       difficulty,
       tags: pickN(SAMPLE_TAGS, Math.floor(Math.random() * 3) + 1),
       status: "not_run",
@@ -212,11 +195,17 @@ function generateTestCaseResult(goldenCase: GoldenCase, strategy: RagStrategy): 
     citation_failure: "The answer lacked proper citation of the source documents.",
     latency_failure: "The query exceeded the maximum acceptable latency threshold.",
     token_limit_failure: "The query exceeded the token limit for the context window.",
+    llm_failure: "The LLM failed to generate an answer - a model/config issue, not retrieval.",
+    prompt_issue: "The expected source was retrieved but the model didn't use it - likely a system-prompt issue.",
   }
 
   return {
     caseId: goldenCase.id,
     status,
+    query: goldenCase.query,
+    difficulty: goldenCase.difficulty,
+    expectedAnswer: "",
+    expectedSources: goldenCase.expectedSources,
     metrics,
     actualAnswer: `Generated answer for: ${goldenCase.query}. The system retrieved relevant information and produced a response based on the available context.`,
     actualSources,
@@ -383,6 +372,8 @@ export function generateMockBenchmarkRun(
     citation_failure: 0,
     latency_failure: 0,
     token_limit_failure: 0,
+    llm_failure: 0,
+    prompt_issue: 0,
   }
   for (const r of results) {
     for (const fc of r.failureCategories) {
@@ -425,8 +416,8 @@ export function generateMockBenchmarkRuns(dataset: GoldenDataset): BenchmarkRun[
       rrf: { k: 60, vectorWeight: 1, bm25Weight: 1 },
       reranker: { model: "cross-encoder/ms-marco-MiniLM-L-6-v2", candidateCount: 20, topN: 8 },
       mmr: { lambda: 0.7, candidateCount: 15, finalCount: 8 },
-      llm: { model: "gpt-4o", temperature: 0.7, maxTokens: 2048 },
-      metrics: ["hit_rate", "recall", "precision", "mrr", "ndcg", "faithfulness", "answer_relevance"],
+      llm: { model: "gpt-4o", temperature: 0.7, topP: 1, maxTokens: 2048 },
+      metrics: ["hit_rate", "recall", "precision", "mrr", "ndcg"],
     }
     const run = generateMockBenchmarkRun(dataset, config)
     run.startedAt = new Date(Date.now() - (strategies.length - i) * 3600000).toISOString()
@@ -487,11 +478,7 @@ export function importGoldenCases(jsonStr: string): { cases: GoldenCase[]; error
       cases.push({
         id: item.id as string || generateId(),
         query: item.query as string,
-        expectedAnswer: (item.expectedAnswer as string) || "",
         expectedSources: Array.isArray(item.expectedSources) ? item.expectedSources as ExpectedSource[] : [],
-        expectedSection: item.expectedSection as string | undefined,
-        expectedPages: Array.isArray(item.expectedPages) ? item.expectedPages as number[] : [],
-        whyDifficult: (item.whyDifficult as string) || "",
         difficulty: (item.difficulty as Difficulty) || "medium",
         tags: Array.isArray(item.tags) ? item.tags as string[] : [],
         status: "not_run",

@@ -22,6 +22,8 @@ import {
   Hash,
   Globe,
   Tag,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -29,6 +31,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { apiFetch } from "@/lib/api"
 import type { RagTrace, Chunk, LatencyStage } from "@/lib/types"
 import { getStageColor, getStageLabel } from "@/lib/events"
 import { cn, formatDuration, formatNumber, copyToClipboard } from "@/lib/utils"
@@ -41,6 +45,8 @@ interface TracePanelProps {
 
 export function TracePanel({ open, onClose, trace }: TracePanelProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     overview: true,
     query: true,
@@ -80,6 +86,22 @@ export function TracePanel({ open, onClose, trace }: TracePanelProps) {
     URL.revokeObjectURL(url)
   }
 
+  const handleDeleteTrace = async () => {
+    if (!trace) return
+    setDeleting(true)
+    try {
+      const res = await apiFetch(`/traces/${trace.overview.traceId}`, { method: "DELETE" })
+      if (res.ok) {
+        setConfirmingDelete(false)
+        onClose()
+      }
+    } catch {
+      // ignore - dialog stays open so the user can retry
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   if (!trace) return null
 
   const { overview } = trace
@@ -94,6 +116,7 @@ export function TracePanel({ open, onClose, trace }: TracePanelProps) {
   const maxLatency = Math.max(...latencyStages.map((s) => s.durationMs))
 
   return (
+    <>
     <AnimatePresence>
       {open && (
         <>
@@ -131,6 +154,21 @@ export function TracePanel({ open, onClose, trace }: TracePanelProps) {
                     {copiedField === "traceId" ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   </TooltipTrigger>
                   <TooltipContent>Copy Trace ID</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setConfirmingDelete(true)}
+                        className="w-7 h-7 text-gray-400 hover:text-red-500"
+                      />
+                    }
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent>Delete Trace</TooltipContent>
                 </Tooltip>
                 <Button
                   variant="ghost"
@@ -399,6 +437,28 @@ export function TracePanel({ open, onClose, trace }: TracePanelProps) {
         </>
       )}
     </AnimatePresence>
+
+    <Dialog open={confirmingDelete} onOpenChange={(o) => { if (!o) setConfirmingDelete(false) }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-red-50">
+            <AlertTriangle className="h-5 w-5 text-red-600" />
+          </div>
+          <DialogTitle className="text-center">Delete this trace?</DialogTitle>
+          <DialogDescription className="text-center">
+            This will permanently delete trace <span className="font-mono text-gray-700">{trace?.overview.traceId.slice(0, 8)}</span>. This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="sm:justify-center">
+          <Button variant="outline" onClick={() => setConfirmingDelete(false)}>Cancel</Button>
+          <Button className="bg-red-600 text-white hover:bg-red-700" onClick={handleDeleteTrace} disabled={deleting}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            {deleting ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   )
 }
 

@@ -31,11 +31,11 @@ export function Header({ onUploadClick }: HeaderProps) {
   const [tracesOpen, setTracesOpen] = useState(false)
 
   return (
-    <header className="relative z-10 flex items-center justify-between px-6 py-3 bg-transparent">
+    <header className="relative z-30 flex items-center justify-between px-6 py-3 bg-transparent">
       <div className="flex items-center gap-1 bg-white rounded-full p-1 shadow-[0_1px_8px_-2px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]">
         <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0 px-3.5 py-2 rounded-full">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-sm">
-            <Layers className="w-3.5 h-3.5 text-white" />
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-black shadow-sm overflow-hidden">
+            <img src="/logo-container.svg" alt="RAG Lab" className="w-5 h-5 object-contain" />
           </div>
           <div className="leading-none">
             <h1 className="text-sm font-semibold tracking-tight text-gray-900">

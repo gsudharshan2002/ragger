@@ -43,7 +43,7 @@ function relativeTime(dateStr: string): string {
 
 function formatPercent(value: number | undefined): string {
   if (value === undefined || value === null) return "—"
-  return `${(value * 100).toFixed(1)}%`
+  return `${(value * 100).toFixed(4)}%`
 }
 
 export function DatasetManagement() {
@@ -73,7 +73,7 @@ export function DatasetManagement() {
     let result = allCases
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
-      result = result.filter((c) => c.query.toLowerCase().includes(q) || c.expectedAnswer?.toLowerCase().includes(q))
+      result = result.filter((c) => c.query.toLowerCase().includes(q))
     }
     if (filterDifficulty !== "all") result = result.filter((c) => c.difficulty === filterDifficulty)
     if (filterStatus !== "all") result = result.filter((c) => c.status === filterStatus)
@@ -338,7 +338,7 @@ export function DatasetManagement() {
                 return (
                   <tr key={gc.id} className={cn("border-b border-gray-50 hover:bg-gray-50/50", selectedCaseIds.has(gc.id) && "bg-blue-50/50")}>
                     <td className="px-4 py-3"><input type="checkbox" checked={selectedCaseIds.has(gc.id)} onChange={() => { const next = new Set(selectedCaseIds); if (next.has(gc.id)) next.delete(gc.id); else next.add(gc.id); setSelectedCaseIds(next) }} className="h-4 w-4 rounded border-gray-300 accent-gray-900" /></td>
-                    <td className="max-w-xs px-4 py-3"><p className="truncate font-medium text-gray-900">{gc.query}</p>{gc.expectedSection && <p className="mt-0.5 truncate text-xs text-gray-400">{gc.expectedSection}</p>}</td>
+                    <td className="max-w-xs px-4 py-3"><p className="truncate font-medium text-gray-900">{gc.query}</p></td>
                     <td className="px-4 py-3 text-center"><span className="inline-flex items-center justify-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">{gc.expectedSources.length}</span></td>
                     <td className="px-4 py-3"><Badge variant="outline" className={cn("text-xs font-medium border", diffConfig.color, diffConfig.bg, diffConfig.border)}>{diffConfig.label}</Badge></td>
                     <td className="px-4 py-3"><div className="flex flex-wrap gap-1">{gc.tags.slice(0, 2).map((tag) => (<Badge key={tag} variant="secondary" className="bg-gray-100 text-gray-600 text-xs">{tag}</Badge>))}{gc.tags.length > 2 && <Badge variant="secondary" className="bg-gray-100 text-gray-400 text-xs">+{gc.tags.length - 2}</Badge>}</div></td>
@@ -416,24 +416,17 @@ function CreateDatasetModal({ open, onClose, onCreate }: { open: boolean; onClos
 
 function GoldenCaseEditorModal({ open, onClose, existingCase, onSave }: { open: boolean; onClose: () => void; existingCase: GoldenCase | null; onSave: (data: GoldenCase) => void }) {
   const [query, setQuery] = useState(existingCase?.query ?? "")
-  const [expectedAnswer, setExpectedAnswer] = useState(existingCase?.expectedAnswer ?? "")
   const [sources, setSources] = useState<{ document: string; section: string; page: string; chunkId: string }[]>(existingCase?.expectedSources?.map((s) => ({ document: s.document, section: s.section, page: String(s.page), chunkId: s.chunkId ?? "" })) ?? [{ document: "", section: "", page: "", chunkId: "" }])
-  const [expectedSection, setExpectedSection] = useState(existingCase?.expectedSection ?? "")
-  const [expectedPages, setExpectedPages] = useState(existingCase?.expectedPages?.join(", ") ?? "")
-  const [whyDifficult, setWhyDifficult] = useState(existingCase?.whyDifficult ?? "")
   const [difficulty, setDifficulty] = useState<Difficulty>(existingCase?.difficulty ?? "medium")
   const [tags, setTags] = useState<string[]>(existingCase?.tags ?? [])
   const [tagInput, setTagInput] = useState("")
-  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const handleSave = () => {
-    const parsedPages = expectedPages.split(",").map((p) => parseInt(p.trim(), 10)).filter((n) => !isNaN(n))
     const id = existingCase?.id ?? `case_${generateId()}`
     const data: GoldenCase = {
-      id, query: query.trim(), expectedAnswer: expectedAnswer.trim(),
+      id, query: query.trim(),
       expectedSources: sources.filter((s) => s.document.trim()).map((s) => ({ id: generateId(), document: s.document.trim(), section: s.section.trim(), page: parseInt(s.page, 10) || 1, chunkId: s.chunkId.trim() || undefined })),
-      expectedSection: expectedSection.trim() || undefined, expectedPages: parsedPages.length > 0 ? parsedPages : [],
-      whyDifficult: whyDifficult.trim(), difficulty, tags, status: existingCase?.status ?? "not_run",
+      difficulty, tags, status: existingCase?.status ?? "not_run",
     }
     onSave(data)
   }
@@ -441,26 +434,23 @@ function GoldenCaseEditorModal({ open, onClose, existingCase, onSave }: { open: 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh]">
-        <DialogHeader><DialogTitle>{existingCase ? "Edit Test Case" : "Add Test Case"}</DialogTitle><DialogDescription>Define a golden test case for your benchmark dataset.</DialogDescription></DialogHeader>
+        <DialogHeader><DialogTitle>{existingCase ? "Edit Test Case" : "Add Test Case"}</DialogTitle><DialogDescription>Define a golden test case for your benchmark dataset. Only the query, expected sources, and difficulty affect scoring - everything here is used by the evaluation.</DialogDescription></DialogHeader>
         <ScrollArea className="max-h-[60vh] pr-2">
           <div className="space-y-5 py-2">
             <div><label className="mb-1.5 block text-sm font-medium text-gray-700">Query <span className="text-red-400">*</span></label><Textarea value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Enter the user query..." rows={4} /></div>
-            <div><label className="mb-1.5 block text-sm font-medium text-gray-700">Expected Answer</label><Textarea value={expectedAnswer} onChange={(e) => setExpectedAnswer(e.target.value)} placeholder="What should the ideal answer look like..." rows={4} /></div>
             <div>
               <div className="mb-2 flex items-center justify-between"><label className="text-sm font-medium text-gray-700">Expected Sources</label><Button variant="ghost" size="sm" onClick={() => setSources([...sources, { document: "", section: "", page: "", chunkId: "" }])} className="h-7 text-xs text-gray-600"><Plus className="mr-1 h-3 w-3" />Add Source</Button></div>
+              <p className="mb-2 text-xs text-gray-400">Scoring matches on document + page (and chunk ID, when known). Section is stored for your reference but doesn&apos;t affect the score.</p>
               <div className="space-y-2">{sources.map((source, idx) => (
                 <div key={idx} className="flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50/50 p-2.5">
                   <input type="text" value={source.document} onChange={(e) => setSources(sources.map((s, i) => i === idx ? { ...s, document: e.target.value } : s))} placeholder="Document name" className="flex-1 rounded border border-gray-200 bg-white px-2 py-1.5 text-xs" />
-                  <input type="text" value={source.section} onChange={(e) => setSources(sources.map((s, i) => i === idx ? { ...s, section: e.target.value } : s))} placeholder="Section" className="w-28 rounded border border-gray-200 bg-white px-2 py-1.5 text-xs" />
+                  <input type="text" value={source.section} onChange={(e) => setSources(sources.map((s, i) => i === idx ? { ...s, section: e.target.value } : s))} placeholder="Section (optional)" className="w-28 rounded border border-gray-200 bg-white px-2 py-1.5 text-xs" />
                   <input type="text" value={source.page} onChange={(e) => setSources(sources.map((s, i) => i === idx ? { ...s, page: e.target.value } : s))} placeholder="Page" className="w-16 rounded border border-gray-200 bg-white px-2 py-1.5 text-xs" />
-                  <input type="text" value={source.chunkId} onChange={(e) => setSources(sources.map((s, i) => i === idx ? { ...s, chunkId: e.target.value } : s))} placeholder="Chunk ID" className="w-20 rounded border border-gray-200 bg-white px-2 py-1.5 text-xs" />
+                  <input type="text" value={source.chunkId} onChange={(e) => setSources(sources.map((s, i) => i === idx ? { ...s, chunkId: e.target.value } : s))} placeholder="Chunk ID (optional)" className="w-24 rounded border border-gray-200 bg-white px-2 py-1.5 text-xs" />
                   <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-gray-400 hover:text-red-500 shrink-0" onClick={() => setSources(sources.filter((_, i) => i !== idx))}><X className="h-3.5 w-3.5" /></Button>
                 </div>
               ))}</div>
             </div>
-            <div><label className="mb-1.5 block text-sm font-medium text-gray-700">Expected Section</label><input type="text" value={expectedSection} onChange={(e) => setExpectedSection(e.target.value)} placeholder="e.g. Hybrid Retrieval" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm" /></div>
-            <div><label className="mb-1.5 block text-sm font-medium text-gray-700">Expected Pages</label><input type="text" value={expectedPages} onChange={(e) => setExpectedPages(e.target.value)} placeholder="Comma-separated page numbers" className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm" /></div>
-            <div><label className="mb-1.5 block text-sm font-medium text-gray-700">Why is this query difficult?</label><Textarea value={whyDifficult} onChange={(e) => setWhyDifficult(e.target.value)} placeholder="Explain the difficulty..." rows={3} /></div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Difficulty</label>
               <div className="flex gap-2">{(["easy", "medium", "hard", "expert"] as Difficulty[]).map((d) => {
@@ -473,15 +463,6 @@ function GoldenCaseEditorModal({ open, onClose, existingCase, onSave }: { open: 
               <div className="flex gap-2"><input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && tagInput.trim()) { e.preventDefault(); if (!tags.includes(tagInput.trim())) setTags([...tags, tagInput.trim()]); setTagInput("") } }} placeholder="Add tag..." className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm" /></div>
               {tags.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{tags.map((tag) => (<Badge key={tag} variant="secondary" className="bg-gray-100 text-gray-600 text-xs cursor-pointer hover:bg-red-50" onClick={() => setTags(tags.filter((t) => t !== tag))}>{tag} <X className="ml-1 h-3 w-3" /></Badge>))}</div>}
             </div>
-            <button onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700"><ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showAdvanced && "rotate-180")} />Advanced Settings</button>
-            {showAdvanced && (
-              <div className="rounded-lg border border-gray-100 bg-gray-50/50 p-4 space-y-3">
-                <div><label className="mb-1 block text-xs font-medium text-gray-600">Expected Keywords (comma-separated)</label><input type="text" className="w-full rounded border border-gray-200 bg-white px-2 py-1.5 text-xs" placeholder="keyword1, keyword2" /></div>
-                <div><label className="mb-1 block text-xs font-medium text-gray-600">Min Hit Rate</label><input type="number" step="0.1" min="0" max="1" className="w-full rounded border border-gray-200 bg-white px-2 py-1.5 text-xs" placeholder="0.0" /></div>
-                <div><label className="mb-1 block text-xs font-medium text-gray-600">Min Recall</label><input type="number" step="0.1" min="0" max="1" className="w-full rounded border border-gray-200 bg-white px-2 py-1.5 text-xs" placeholder="0.0" /></div>
-                <div><label className="mb-1 block text-xs font-medium text-gray-600">Max Latency (ms)</label><input type="number" className="w-full rounded border border-gray-200 bg-white px-2 py-1.5 text-xs" placeholder="5000" /></div>
-              </div>
-            )}
           </div>
         </ScrollArea>
         <DialogFooter>

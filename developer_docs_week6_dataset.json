@@ -1,0 +1,71 @@
+{
+  "name": "Developer Documentation Week 6",
+  "description": "Golden evaluation set for SwiftUI and Core Graphics developer documentation.",
+  "tags": ["developer-documentation", "week-6", "swiftui", "core-graphics"],
+  "cases": [
+    {
+      "id": "devdocs-swiftui-001",
+      "query": "What is SwiftUI used for, and what does it provide?",
+      "expectedSources": [{"id": "source-swiftui-1", "document": "SwiftUI updates _ Apple Developer Documentation.pdf", "section": "Framework overview", "page": 1}],
+      "difficulty": "easy",
+      "tags": ["swiftui", "retrieval"],
+      "status": "not_run"
+    },
+    {
+      "id": "devdocs-swiftui-002",
+      "query": "What protocol should a custom SwiftUI view conform to?",
+      "expectedSources": [{"id": "source-swiftui-2", "document": "SwiftUI updates _ Apple Developer Documentation.pdf", "section": "Views", "page": 2}],
+      "difficulty": "easy",
+      "tags": ["swiftui", "views"],
+      "status": "not_run"
+    },
+    {
+      "id": "devdocs-swiftui-003",
+      "query": "How does SwiftUI define the structure of an application?",
+      "expectedSources": [{"id": "source-swiftui-3", "document": "SwiftUI updates _ Apple Developer Documentation.pdf", "section": "App structure", "page": 1}],
+      "difficulty": "medium",
+      "tags": ["swiftui", "app-structure"],
+      "status": "not_run"
+    },
+    {
+      "id": "devdocs-swiftui-004",
+      "query": "What platforms does SwiftUI support?",
+      "expectedSources": [{"id": "source-swiftui-4", "document": "SwiftUI updates _ Apple Developer Documentation.pdf", "section": "Platforms", "page": 4}],
+      "difficulty": "easy",
+      "tags": ["swiftui", "platforms"],
+      "status": "not_run"
+    },
+    {
+      "id": "devdocs-coregraphics-001",
+      "query": "What is the Core Graphics framework based on?",
+      "expectedSources": [{"id": "source-coregraphics-1", "document": "Core Graphics _ Apple Developer Documentation.pdf", "section": "Framework overview", "page": 1}],
+      "difficulty": "easy",
+      "tags": ["core-graphics", "retrieval"],
+      "status": "not_run"
+    },
+    {
+      "id": "devdocs-coregraphics-002",
+      "query": "What kind of rendering does Core Graphics provide?",
+      "expectedSources": [{"id": "source-coregraphics-2", "document": "Core Graphics _ Apple Developer Documentation.pdf", "section": "2D rendering", "page": 1}],
+      "difficulty": "easy",
+      "tags": ["core-graphics", "rendering"],
+      "status": "not_run"
+    },
+    {
+      "id": "devdocs-coregraphics-003",
+      "query": "What does CGImage represent?",
+      "expectedSources": [{"id": "source-coregraphics-3", "document": "Core Graphics _ Apple Developer Documentation.pdf", "section": "Images", "page": 5}],
+      "difficulty": "medium",
+      "tags": ["core-graphics", "images"],
+      "status": "not_run"
+    },
+    {
+      "id": "devdocs-coregraphics-004",
+      "query": "What are CGSize and CGRect used for?",
+      "expectedSources": [{"id": "source-coregraphics-4", "document": "Core Graphics _ Apple Developer Documentation.pdf", "section": "Geometric data types", "page": 3}],
+      "difficulty": "medium",
+      "tags": ["core-graphics", "geometry"],
+      "status": "not_run"
+    }
+  ]
+}

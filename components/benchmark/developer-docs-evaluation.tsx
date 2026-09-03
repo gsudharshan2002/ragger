@@ -1,9 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { AlertCircle, CheckCircle2, RefreshCw, TrendingUp } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { AlertCircle, CheckCircle2, FileJson, Minus, RefreshCw, TrendingDown, TrendingUp } from "lucide-react"
 import { apiFetch } from "@/lib/api"
 import { Button } from "@/components/ui/button"
+import { SelectField } from "@/components/ui/select-field"
+import { RAG_STRATEGIES } from "@/lib/types"
 
 type ProblemTypeScore = {
   cases: number
@@ -26,21 +28,62 @@ type ReportsResponse = {
   improved?: EvaluationReport
 }
 
+const STRATEGY_OPTIONS = RAG_STRATEGIES.map((s) => ({ value: s.value, label: s.label }))
+
 function percent(value: number | undefined): string {
   if (value === undefined) return "—"
   return `${(value * 100).toFixed(2)}%`
 }
 
-function delta(after: number | undefined, before: number | undefined): string {
-  if (after === undefined || before === undefined) return "—"
-  const value = (after - before) * 100
-  return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`
+function deltaPoints(after: number | undefined, before: number | undefined): number | undefined {
+  if (after === undefined || before === undefined) return undefined
+  return (after - before) * 100
 }
+
+// A higher score is always better for these metrics, so the sign of the
+// delta alone tells us whether the "improved" strategy actually improved
+// on the baseline, regressed, or made no meaningful difference.
+const DELTA_EPSILON = 0.005
+
+function DeltaBadge({ after, before }: { after: number | undefined; before: number | undefined }) {
+  const value = deltaPoints(after, before)
+  if (value === undefined) {
+    return <span className="flex items-center gap-1 text-xs font-semibold text-gray-400">—</span>
+  }
+  if (value > DELTA_EPSILON) {
+    return (
+      <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600">
+        <TrendingUp className="h-3.5 w-3.5" />+{value.toFixed(2)}%
+      </span>
+    )
+  }
+  if (value < -DELTA_EPSILON) {
+    return (
+      <span className="flex items-center gap-1 text-xs font-semibold text-rose-600">
+        <TrendingDown className="h-3.5 w-3.5" />{value.toFixed(2)}%
+      </span>
+    )
+  }
+  return (
+    <span className="flex items-center gap-1 text-xs font-semibold text-gray-500">
+      <Minus className="h-3.5 w-3.5" />{value.toFixed(2)}%
+    </span>
+  )
+}
+
+const DEFAULT_CASES: Record<string, unknown>[] = []
 
 export function DeveloperDocsEvaluation() {
   const [reports, setReports] = useState<ReportsResponse | null>(null)
   const [loading, setLoading] = useState(true)
+  const [running, setRunning] = useState(false)
   const [error, setError] = useState("")
+  const [baselineStrategy, setBaselineStrategy] = useState("vector")
+  const [improvedStrategy, setImprovedStrategy] = useState("hybrid-rrf")
+  const [casesJson, setCasesJson] = useState<string>("")
+  const [casesFileName, setCasesFileName] = useState<string>("")
+  const [fileReading, setFileReading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function fetchReports(): Promise<ReportsResponse> {
     const response = await apiFetch("/benchmark/developer-docs/results")
@@ -61,11 +104,68 @@ export function DeveloperDocsEvaluation() {
     }
   }
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCasesFileName(file.name)
+    setFileReading(true)
+    const reader = new FileReader()
+    reader.onload = () => {
+      const text = reader.result as string
+      try {
+        JSON.parse(text)
+        setCasesJson(text)
+        setError("")
+      } catch {
+        setError("Invalid JSON in uploaded file")
+      } finally {
+        setFileReading(false)
+      }
+    }
+    reader.onerror = () => {
+      setError("Failed to read the selected file")
+      setFileReading(false)
+    }
+    reader.readAsText(file)
+  }
+
+  async function runEval() {
+    let cases: Record<string, unknown>[]
+    try {
+      cases = casesJson ? JSON.parse(casesJson) : DEFAULT_CASES
+    } catch {
+      setError("Cases JSON is invalid — fix the file or paste valid JSON")
+      return
+    }
+    if (!cases.length) {
+      setError("Upload or paste a cases JSON file before running")
+      return
+    }
+    setRunning(true)
+    setError("")
+    try {
+      const response = await apiFetch("/benchmark/developer-docs/run", {
+        method: "POST",
+        body: JSON.stringify({
+          cases,
+          baselineStrategy,
+          improvedStrategy,
+          noJudge: false,
+          casesFileName: casesFileName || undefined,
+        }),
+      })
+      if (!response.ok) throw new Error(`Run failed: ${response.status}`)
+      const body: { success: boolean; data?: ReportsResponse } = await response.json()
+      setReports(body.data ?? {})
+    } catch (runError) {
+      setError(runError instanceof Error ? runError.message : "Eval run failed — is the backend running?")
+    } finally {
+      setRunning(false)
+    }
+  }
+
   useEffect(() => {
-    fetchReports()
-      .then(setReports)
-      .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Unable to load evaluation reports"))
-      .finally(() => setLoading(false))
+    loadReports()
   }, [])
 
   const baseline = reports?.baseline
@@ -84,23 +184,68 @@ export function DeveloperDocsEvaluation() {
             <h2 className="text-lg font-semibold text-gray-900">Developer Documentation Evaluation Reference</h2>
           </div>
           <p className="mt-1 text-sm text-gray-500">
-            Saved Week 6 evaluator results. Run the selected dataset below to generate current benchmark results.
+            Upload a test-case JSON, pick two strategies to compare, then click Refresh to run.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => void loadReports()} disabled={loading}>
-          <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          Refresh
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-end gap-3">
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Baseline</label>
+          <SelectField
+            value={baselineStrategy}
+            onChange={setBaselineStrategy}
+            options={STRATEGY_OPTIONS}
+            width="w-[190px]"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Improved</label>
+          <SelectField
+            value={improvedStrategy}
+            onChange={setImprovedStrategy}
+            options={STRATEGY_OPTIONS}
+            width="w-[190px]"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Test cases</label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            className="gap-1.5"
+          >
+            <FileJson className="h-3.5 w-3.5" />
+            {casesFileName || "Choose JSON…"}
+          </Button>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => void runEval()} disabled={loading || running || fileReading}>
+          <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading || running ? "animate-spin" : ""}`} />
+          {running ? "Running eval…" : fileReading ? "Reading file…" : "Refresh"}
         </Button>
       </div>
 
       {loading && <p className="mt-6 text-sm text-gray-500">Loading evaluation reports...</p>}
+      {running && !loading && (
+        <p className="mt-6 text-sm text-blue-600">
+          Running {baselineStrategy} vs {improvedStrategy} — this may take a minute…
+        </p>
+      )}
       {error && <p className="mt-6 flex items-center gap-2 text-sm text-rose-600"><AlertCircle className="h-4 w-4" />{error}</p>}
       {!loading && !error && !baseline && !improved && (
-        <p className="mt-6 text-sm text-amber-700">No reports found. Run the evaluator from the backend first.</p>
+        <p className="mt-6 text-sm text-amber-700">No reports found. Upload a cases file and click Refresh to run.</p>
       )}
       {!loading && !error && improved && !baseline && (
         <p className="mt-6 text-sm text-amber-700">
-          Only one evaluation run found ({improved.strategy}). Run the evaluator once more with a different strategy to see a baseline comparison.
+          Only one run found ({improved.strategy}). Pick a different baseline strategy and run again to compare.
         </p>
       )}
 
@@ -116,9 +261,7 @@ export function DeveloperDocsEvaluation() {
                 <div className="text-[11px] font-medium uppercase tracking-wider text-gray-400">{label as string}</div>
                 <div className="mt-2 flex items-end justify-between gap-2">
                   <div className="text-xl font-bold text-gray-900">{percent(after as number | undefined)}</div>
-                  <div className="flex items-center gap-1 text-xs font-semibold text-emerald-600">
-                    <TrendingUp className="h-3.5 w-3.5" />{delta(after as number | undefined, before as number | undefined)}
-                  </div>
+                  <DeltaBadge after={after as number | undefined} before={before as number | undefined} />
                 </div>
                 <div className="mt-1 text-xs text-gray-500">Baseline: {percent(before as number | undefined)}</div>
               </div>
@@ -146,7 +289,9 @@ export function DeveloperDocsEvaluation() {
                       <td className="px-3 py-3 text-gray-500">{after?.cases ?? before?.cases ?? 0}</td>
                       <td className="px-3 py-3 font-mono text-gray-600">{percent(before?.combined_score)}</td>
                       <td className="px-3 py-3 font-mono text-gray-600">{percent(after?.combined_score)}</td>
-                      <td className="px-3 py-3 font-mono font-semibold text-emerald-600">{delta(after?.combined_score, before?.combined_score)}</td>
+                      <td className="px-3 py-3 font-mono">
+                        <DeltaBadge after={after?.combined_score} before={before?.combined_score} />
+                      </td>
                     </tr>
                   )
                 })}

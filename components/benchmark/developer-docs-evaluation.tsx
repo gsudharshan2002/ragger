@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { AlertCircle, CheckCircle2, FileJson, Minus, RefreshCw, TrendingDown, TrendingUp } from "lucide-react"
+import { useEffect, useState } from "react"
+import { AlertCircle, CheckCircle2, Minus, RefreshCw, TrendingDown, TrendingUp } from "lucide-react"
 import { apiFetch } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { SelectField } from "@/components/ui/select-field"
@@ -12,6 +12,28 @@ type ProblemTypeScore = {
   combined_score: number
 }
 
+type ModeScore = {
+  cases: number
+  passed: number
+  pass_rate: number
+}
+
+type CaseAssertions = {
+  unknown_endpoints: string[]
+  deprecated_without_migration_note: string[][]
+}
+
+type CaseResult = {
+  id: string
+  question: string
+  mode: string
+  regression: boolean
+  assertions?: CaseAssertions
+  faithfulness?: number | null
+  context_precision?: number | null
+  retrieval_score?: number
+}
+
 type EvaluationReport = {
   label: string
   strategy: string
@@ -20,7 +42,11 @@ type EvaluationReport = {
     answer_score: number
     combined_score: number
     problem_type_scores: Record<string, ProblemTypeScore>
+    mode_scores?: Record<string, ModeScore>
+    faithfulness?: number | null
+    context_precision?: number | null
   }
+  results?: CaseResult[]
 }
 
 type ReportsResponse = {
@@ -81,9 +107,7 @@ export function DeveloperDocsEvaluation() {
   const [baselineStrategy, setBaselineStrategy] = useState("vector")
   const [improvedStrategy, setImprovedStrategy] = useState("hybrid-rrf")
   const [casesJson, setCasesJson] = useState<string>("")
-  const [casesFileName, setCasesFileName] = useState<string>("")
-  const [fileReading, setFileReading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [useRagas, setUseRagas] = useState(false)
 
   async function fetchReports(): Promise<ReportsResponse> {
     const response = await apiFetch("/benchmark/developer-docs/results")
@@ -104,41 +128,16 @@ export function DeveloperDocsEvaluation() {
     }
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setCasesFileName(file.name)
-    setFileReading(true)
-    const reader = new FileReader()
-    reader.onload = () => {
-      const text = reader.result as string
-      try {
-        JSON.parse(text)
-        setCasesJson(text)
-        setError("")
-      } catch {
-        setError("Invalid JSON in uploaded file")
-      } finally {
-        setFileReading(false)
-      }
-    }
-    reader.onerror = () => {
-      setError("Failed to read the selected file")
-      setFileReading(false)
-    }
-    reader.readAsText(file)
-  }
-
   async function runEval() {
     let cases: Record<string, unknown>[]
     try {
       cases = casesJson ? JSON.parse(casesJson) : DEFAULT_CASES
     } catch {
-      setError("Cases JSON is invalid — fix the file or paste valid JSON")
+      setError("Cases JSON is invalid — fix and paste valid JSON")
       return
     }
     if (!cases.length) {
-      setError("Upload or paste a cases JSON file before running")
+      setError("Paste a cases JSON array before running")
       return
     }
     setRunning(true)
@@ -151,7 +150,7 @@ export function DeveloperDocsEvaluation() {
           baselineStrategy,
           improvedStrategy,
           noJudge: false,
-          casesFileName: casesFileName || undefined,
+          useRagas,
         }),
       })
       if (!response.ok) throw new Error(`Run failed: ${response.status}`)
@@ -174,6 +173,28 @@ export function DeveloperDocsEvaluation() {
     ...Object.keys(baseline?.summary.problem_type_scores ?? {}),
     ...Object.keys(improved?.summary.problem_type_scores ?? {}),
   ]))
+  const modes = Array.from(new Set([
+    ...Object.keys(baseline?.summary.mode_scores ?? {}),
+    ...Object.keys(improved?.summary.mode_scores ?? {}),
+  ]))
+
+  // Assertion violations and regression cases are read off the "improved"
+  // run's per-case results - that's the run whose numbers are being judged,
+  // so its assertion/regression state is what matters right now.
+  const improvedResults = improved?.results ?? []
+  const assertionChecked = improvedResults.length
+  const endpointViolations = improvedResults.flatMap((r) => r.assertions?.unknown_endpoints ?? [])
+  const deprecationViolations = improvedResults.flatMap((r) => r.assertions?.deprecated_without_migration_note ?? [])
+  const assertionViolationCount = endpointViolations.length + deprecationViolations.length
+  const regressionCases = improvedResults.filter((r) => r.regression)
+
+  // The bonus finding: an answer fully grounded in *some* context
+  // (faithfulness >= 0.9) while that context was the wrong document
+  // version for the question (mode === wrong_source). The average
+  // faithfulness across all cases can look fine while hiding exactly this.
+  const confidentlyWrongCases = improvedResults.filter(
+    (r) => r.mode === "wrong_source" && (r.faithfulness ?? 0) >= 0.9
+  )
 
   return (
     <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -184,7 +205,7 @@ export function DeveloperDocsEvaluation() {
             <h2 className="text-lg font-semibold text-gray-900">Developer Documentation Evaluation Reference</h2>
           </div>
           <p className="mt-1 text-sm text-gray-500">
-            Upload a test-case JSON, pick two strategies to compare, then click Refresh to run.
+            Paste a test-case JSON array, pick two strategies to compare, then click Refresh to run.
           </p>
         </div>
       </div>
@@ -208,30 +229,34 @@ export function DeveloperDocsEvaluation() {
             width="w-[190px]"
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Test cases</label>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            className="hidden"
-            onChange={handleFileChange}
+        <div className="flex w-full flex-col gap-1">
+          <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Test cases (paste JSON)</label>
+          <textarea
+            value={casesJson}
+            onChange={(e) => {
+              setCasesJson(e.target.value)
+              setError("")
+            }}
+            placeholder="Paste the cases JSON array here…"
+            className="w-full rounded-lg border border-gray-200 p-2 font-mono text-xs"
+            rows={4}
           />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            className="gap-1.5"
-          >
-            <FileJson className="h-3.5 w-3.5" />
-            {casesFileName || "Choose JSON…"}
-          </Button>
         </div>
-        <Button variant="outline" size="sm" onClick={() => void runEval()} disabled={loading || running || fileReading}>
+        <Button variant="outline" size="sm" onClick={() => void runEval()} disabled={loading || running}>
           <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading || running ? "animate-spin" : ""}`} />
-          {running ? "Running eval…" : fileReading ? "Reading file…" : "Refresh"}
+          {running ? "Running eval…" : "Refresh"}
         </Button>
       </div>
+
+      <label className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+        <input
+          type="checkbox"
+          checked={useRagas}
+          onChange={(e) => setUseRagas(e.target.checked)}
+          className="h-3.5 w-3.5"
+        />
+        Also compute RAGAS bonus metrics (faithfulness, context precision) — 2 extra LLM calls per case, slower
+      </label>
 
       {loading && <p className="mt-6 text-sm text-gray-500">Loading evaluation reports...</p>}
       {running && !loading && (
@@ -298,6 +323,153 @@ export function DeveloperDocsEvaluation() {
               </tbody>
             </table>
           </div>
+
+          {modes.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-gray-900">Pass Rate by Mode</h3>
+              <p className="mt-1 text-xs text-gray-500">
+                A single overall pass rate can hide a regression on one mode while another mode carries the
+                number - this breaks it out per taxonomy mode instead.
+              </p>
+              <div className="mt-2 overflow-x-auto">
+                <table className="w-full min-w-[540px] text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+                      <th className="px-3 py-2 font-medium">Mode</th>
+                      <th className="px-3 py-2 font-medium">Cases</th>
+                      <th className="px-3 py-2 font-medium">Baseline</th>
+                      <th className="px-3 py-2 font-medium">Improved</th>
+                      <th className="px-3 py-2 font-medium">Delta</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {modes.map((mode) => {
+                      const before = baseline?.summary.mode_scores?.[mode]
+                      const after = improved?.summary.mode_scores?.[mode]
+                      return (
+                        <tr key={mode} className="border-b border-gray-100 last:border-0">
+                          <td className="px-3 py-3 font-medium text-gray-800">{mode.replaceAll("_", " ")}</td>
+                          <td className="px-3 py-3 text-gray-500">{after?.cases ?? before?.cases ?? 0}</td>
+                          <td className="px-3 py-3 font-mono text-gray-600">
+                            {before ? `${before.passed}/${before.cases} (${percent(before.pass_rate)})` : "—"}
+                          </td>
+                          <td className="px-3 py-3 font-mono text-gray-600">
+                            {after ? `${after.passed}/${after.cases} (${percent(after.pass_rate)})` : "—"}
+                          </td>
+                          <td className="px-3 py-3 font-mono">
+                            <DeltaBadge after={after?.pass_rate} before={before?.pass_rate} />
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {improvedResults.length > 0 && (
+            <div className="mt-6 rounded-lg border border-gray-100 bg-gray-50 p-4">
+              <h3 className="text-sm font-semibold text-gray-900">Deterministic Assertions</h3>
+              <p className="mt-1 text-xs text-gray-500">
+                Checked on every answer in the improved run - a parser and a spec/list lookup, not judged by the LLM.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-4 text-sm">
+                <span className="text-gray-600">{assertionChecked} answers checked</span>
+                <span className={assertionViolationCount > 0 ? "font-semibold text-rose-600" : "font-semibold text-emerald-600"}>
+                  {assertionViolationCount} violation{assertionViolationCount === 1 ? "" : "s"}
+                </span>
+                {endpointViolations.length > 0 && (
+                  <span className="text-gray-600">{endpointViolations.length} unknown endpoint{endpointViolations.length === 1 ? "" : "s"}</span>
+                )}
+                {deprecationViolations.length > 0 && (
+                  <span className="text-gray-600">{deprecationViolations.length} deprecated symbol{deprecationViolations.length === 1 ? "" : "s"} without a migration note</span>
+                )}
+              </div>
+              {assertionViolationCount > 0 && (
+                <ul className="mt-3 space-y-1 text-xs text-rose-700">
+                  {endpointViolations.map((path, i) => (
+                    <li key={`endpoint-${i}`}>Unknown endpoint mentioned: <span className="font-mono">{path}</span></li>
+                  ))}
+                  {deprecationViolations.map((symbols, i) => (
+                    <li key={`deprecation-${i}`}>Deprecated symbol without migration note: <span className="font-mono">{symbols.join(", ")}</span></li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {regressionCases.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-gray-900">Regression Cases ({regressionCases.length})</h3>
+              <p className="mt-1 text-xs text-gray-500">
+                Cases replayed verbatim from a real, previously-observed failure - locked in so it can't silently
+                come back.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {regressionCases.map((r) => (
+                  <span
+                    key={r.id}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800"
+                  >
+                    {r.id}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(improved?.summary.faithfulness != null || improved?.summary.context_precision != null) && (
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-gray-900">RAGAS Bonus Metrics</h3>
+              <p className="mt-1 text-xs text-gray-500">
+                Faithfulness: is the answer grounded in *some* retrieved context? Context precision: was the
+                *right* context ranked highly? An answer can score high faithfulness while confidently grounded
+                in the wrong document version — that's what context precision (and the retrieval score) exposes
+                but the faithfulness average alone hides.
+              </p>
+              <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {[
+                  ["Faithfulness", baseline?.summary.faithfulness, improved?.summary.faithfulness],
+                  ["Context Precision", baseline?.summary.context_precision, improved?.summary.context_precision],
+                ].map(([label, before, after]) => (
+                  <div key={label as string} className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <div className="text-[11px] font-medium uppercase tracking-wider text-gray-400">{label as string}</div>
+                    <div className="mt-2 flex items-end justify-between gap-2">
+                      <div className="text-xl font-bold text-gray-900">{percent(after as number | undefined ?? undefined)}</div>
+                      <DeltaBadge after={after as number | undefined ?? undefined} before={before as number | undefined ?? undefined} />
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500">Baseline: {percent(before as number | undefined ?? undefined)}</div>
+                  </div>
+                ))}
+              </div>
+
+              {confidentlyWrongCases.length > 0 ? (
+                <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                  <p className="text-sm font-semibold text-amber-900">
+                    Confidently wrong: {confidentlyWrongCases.length} case{confidentlyWrongCases.length === 1 ? "" : "s"} found
+                  </p>
+                  <ul className="mt-2 space-y-2 text-xs text-amber-800">
+                    {confidentlyWrongCases.map((r) => (
+                      <li key={r.id}>
+                        <span className="font-mono font-semibold">{r.id}</span>: faithfulness {percent(r.faithfulness ?? undefined)}
+                        {" "}while retrieval_score is {percent(r.retrieval_score)} and context_precision is{" "}
+                        {percent(r.context_precision ?? undefined)} — grounded in a real chunk, just the wrong version.
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-2 text-xs text-amber-700">
+                    The average faithfulness above ({percent(improved?.summary.faithfulness ?? undefined)}) looks
+                    healthy precisely because cases like this pull it up while being wrong.
+                  </p>
+                </div>
+              ) : (
+                <p className="mt-3 text-xs text-gray-400">
+                  No confidently-wrong case found in this run (none of the wrong_source-mode cases scored ≥90% faithfulness).
+                </p>
+              )}
+            </div>
+          )}
 
           <p className="mt-4 text-xs text-gray-400">
             Reference reports: {baseline?.strategy ?? "not available"} to {improved?.strategy ?? "not available"}. Current dataset results appear in Benchmark Results below.

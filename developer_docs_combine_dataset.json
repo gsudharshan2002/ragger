@@ -1,0 +1,174 @@
+{
+  "dataset": "Combine RAG Golden Dataset",
+  "version": "v1",
+  "cases": [
+    {
+      "id": "combine-001",
+      "query": "What does the Combine framework provide?",
+      "expectedAnswer": null,
+      "context": null,
+      "difficulty": "easy",
+      "tags": ["combine", "framework-overview"],
+      "expectedSources": [
+        {
+          "document": "Combine | Apple Developer Documentation.pdf",
+          "page": 1,
+          "section": "",
+          "chunkId": ""
+        }
+      ],
+      "expectedSection": null,
+      "expectedPages": [],
+      "whyDifficult": "",
+      "status": "not_run",
+      "advanced": {}
+    },
+    {
+      "id": "combine-002",
+      "query": "What does the Publisher protocol declare?",
+      "expectedAnswer": null,
+      "context": null,
+      "difficulty": "easy",
+      "tags": ["combine", "publishers"],
+      "expectedSources": [
+        {
+          "document": "Combine | Apple Developer Documentation.pdf",
+          "page": 1,
+          "section": "",
+          "chunkId": ""
+        }
+      ],
+      "expectedSection": null,
+      "expectedPages": [],
+      "whyDifficult": "",
+      "status": "not_run",
+      "advanced": {}
+    },
+    {
+      "id": "combine-003",
+      "query": "What does a Subscriber do at the end of a chain of publishers?",
+      "expectedAnswer": null,
+      "context": null,
+      "difficulty": "easy",
+      "tags": ["combine", "subscribers"],
+      "expectedSources": [
+        {
+          "document": "Combine | Apple Developer Documentation.pdf",
+          "page": 1,
+          "section": "",
+          "chunkId": ""
+        }
+      ],
+      "expectedSection": null,
+      "expectedPages": [],
+      "whyDifficult": "",
+      "status": "not_run",
+      "advanced": {}
+    },
+    {
+      "id": "combine-004",
+      "query": "What are the benefits of adopting Combine in your code?",
+      "expectedAnswer": null,
+      "context": null,
+      "difficulty": "medium",
+      "tags": ["combine", "framework-overview"],
+      "expectedSources": [
+        {
+          "document": "Combine | Apple Developer Documentation.pdf",
+          "page": 2,
+          "section": "",
+          "chunkId": ""
+        }
+      ],
+      "expectedSection": null,
+      "expectedPages": [],
+      "whyDifficult": "",
+      "status": "not_run",
+      "advanced": {}
+    },
+    {
+      "id": "combine-005",
+      "query": "What is AnyPublisher in Combine?",
+      "expectedAnswer": null,
+      "context": null,
+      "difficulty": "easy",
+      "tags": ["combine", "publishers"],
+      "expectedSources": [
+        {
+          "document": "Combine | Apple Developer Documentation.pdf",
+          "page": 2,
+          "section": "",
+          "chunkId": ""
+        }
+      ],
+      "expectedSection": null,
+      "expectedPages": [],
+      "whyDifficult": "",
+      "status": "not_run",
+      "advanced": {}
+    },
+    {
+      "id": "combine-006",
+      "query": "What does the Future class do in Combine?",
+      "expectedAnswer": null,
+      "context": null,
+      "difficulty": "medium",
+      "tags": ["combine", "publishers"],
+      "expectedSources": [
+        {
+          "document": "Combine | Apple Developer Documentation.pdf",
+          "page": 3,
+          "section": "",
+          "chunkId": ""
+        }
+      ],
+      "expectedSection": null,
+      "expectedPages": [],
+      "whyDifficult": "",
+      "status": "not_run",
+      "advanced": {}
+    },
+    {
+      "id": "combine-007",
+      "query": "What does the Subscriber protocol declare?",
+      "expectedAnswer": null,
+      "context": null,
+      "difficulty": "easy",
+      "tags": ["combine", "subscribers"],
+      "expectedSources": [
+        {
+          "document": "Combine | Apple Developer Documentation.pdf",
+          "page": 4,
+          "section": "",
+          "chunkId": ""
+        }
+      ],
+      "expectedSection": null,
+      "expectedPages": [],
+      "whyDifficult": "",
+      "status": "not_run",
+      "advanced": {}
+    },
+    {
+      "id": "combine-008",
+      "query": "What is a CurrentValueSubject in Combine?",
+      "expectedAnswer": null,
+      "context": null,
+      "difficulty": "medium",
+      "tags": ["combine", "subjects"],
+      "expectedSources": [
+        {
+          "document": "Combine | Apple Developer Documentation.pdf",
+          "page": 4,
+          "section": "",
+          "chunkId": ""
+        }
+      ],
+      "expectedSection": null,
+      "expectedPages": [],
+      "whyDifficult": "",
+      "status": "not_run",
+      "advanced": {}
+    }
+  ]
+}

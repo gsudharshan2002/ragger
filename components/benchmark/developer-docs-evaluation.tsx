@@ -27,11 +27,13 @@ type ReportsResponse = {
 }
 
 function percent(value: number | undefined): string {
-  return `${((value ?? 0) * 100).toFixed(2)}%`
+  if (value === undefined) return "—"
+  return `${(value * 100).toFixed(2)}%`
 }
 
 function delta(after: number | undefined, before: number | undefined): string {
-  const value = ((after ?? 0) - (before ?? 0)) * 100
+  if (after === undefined || before === undefined) return "—"
+  const value = (after - before) * 100
   return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`
 }
 
@@ -95,6 +97,11 @@ export function DeveloperDocsEvaluation() {
       {error && <p className="mt-6 flex items-center gap-2 text-sm text-rose-600"><AlertCircle className="h-4 w-4" />{error}</p>}
       {!loading && !error && !baseline && !improved && (
         <p className="mt-6 text-sm text-amber-700">No reports found. Run the evaluator from the backend first.</p>
+      )}
+      {!loading && !error && improved && !baseline && (
+        <p className="mt-6 text-sm text-amber-700">
+          Only one evaluation run found ({improved.strategy}). Run the evaluator once more with a different strategy to see a baseline comparison.
+        </p>
       )}
 
       {!loading && !error && (baseline || improved) && (

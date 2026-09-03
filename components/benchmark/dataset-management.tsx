@@ -46,8 +46,47 @@ function formatPercent(value: number | undefined): string {
   return `${(value * 100).toFixed(4)}%`
 }
 
+/** Turns raw imported entries into GoldenCases, dropping anything without a
+ * "query" (the one field scoring actually depends on) instead of silently
+ * sending malformed cases to the backend, where they'd fail validation with
+ * no visible error. Returns how many were dropped so the caller can tell
+ * the user, rather than the import just quietly producing fewer cases than
+ * expected. */
+function normalizeImportedCases(raw: unknown): { cases: GoldenCase[]; skipped: number } {
+  if (!Array.isArray(raw)) return { cases: [], skipped: 0 }
+  const cases: GoldenCase[] = []
+  let skipped = 0
+  for (const item of raw) {
+    if (!item || typeof item !== "object") { skipped++; continue }
+    const entry = item as Record<string, unknown>
+    const query = typeof entry.query === "string" ? entry.query : typeof entry.question === "string" ? entry.question : ""
+    if (!query.trim()) { skipped++; continue }
+    const rawSources = Array.isArray(entry.expectedSources) ? entry.expectedSources : Array.isArray(entry.expected_sources) ? entry.expected_sources : []
+    const expectedSources: ExpectedSource[] = rawSources.map((s) => {
+      const source = (s ?? {}) as Record<string, unknown>
+      return {
+        id: typeof source.id === "string" ? source.id : generateId(),
+        document: typeof source.document === "string" ? source.document : "",
+        section: typeof source.section === "string" ? source.section : "",
+        page: typeof source.page === "number" ? source.page : parseInt(String(source.page ?? ""), 10) || 1,
+        chunkId: typeof source.chunkId === "string" ? source.chunkId : undefined,
+      }
+    })
+    const difficulty = entry.difficulty
+    cases.push({
+      id: typeof entry.id === "string" ? entry.id : `case_${generateId()}`,
+      query,
+      expectedSources,
+      difficulty: difficulty === "easy" || difficulty === "medium" || difficulty === "hard" || difficulty === "expert" ? difficulty : "medium",
+      tags: Array.isArray(entry.tags) ? entry.tags.filter((t): t is string => typeof t === "string") : [],
+      status: "not_run",
+    })
+  }
+  return { cases, skipped }
+}
+
 export function DatasetManagement() {
-  const { datasets, selectedDataset, setSelectedDataset, selectedVersion, setSelectedVersion, createDataset, importDataset, addGoldenCase, updateGoldenCase, deleteGoldenCases, deleteDataset, exportDataset, startBenchmark, isRunning } = useBenchmark()
+  const { datasets, selectedDataset, setSelectedDataset, selectedVersion, setSelectedVersion, createDataset, importDataset, addGoldenCase, addGoldenCases, updateGoldenCase, deleteGoldenCases, deleteDataset, exportDataset, startBenchmark, isRunning } = useBenchmark()
   const router = useRouter()
 
   const [view, setView] = useState<"list" | "detail">("list")
@@ -60,6 +99,7 @@ export function DatasetManagement() {
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedCaseIds, setSelectedCaseIds] = useState<Set<string>>(new Set())
   const [showVersionDropdown, setShowVersionDropdown] = useState(false)
+  const [importFeedback, setImportFeedback] = useState<{ type: "error" | "success"; message: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const currentVersion = useMemo(() => {
@@ -140,11 +180,42 @@ export function DatasetManagement() {
             <p className="mt-1 text-sm text-gray-500">Manage benchmark datasets for evaluation</p>
           </div>
           <div className="flex items-center gap-3">
-            <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target?.result as string); const name = data.name || data.dataset; if (name) { const cases: GoldenCase[] = Array.isArray(data.cases) ? data.cases : []; importDataset(name, data.description || "", data.tags || [], cases) } } catch { console.error("Invalid JSON") } }; reader.readAsText(file) }; e.target.value = "" }} />
-            <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="rounded-full border-gray-200"><Upload className="mr-1.5 h-3.5 w-3.5" />Import</Button>
+            <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              const reader = new FileReader()
+              reader.onload = (ev) => {
+                let data: unknown
+                try {
+                  data = JSON.parse(ev.target?.result as string)
+                } catch {
+                  setImportFeedback({ type: "error", message: "That file isn't valid JSON." })
+                  return
+                }
+                const obj = (data && typeof data === "object" && !Array.isArray(data)) ? data as Record<string, unknown> : {}
+                const name = typeof obj.name === "string" ? obj.name : typeof obj.dataset === "string" ? obj.dataset : ""
+                if (!name) {
+                  setImportFeedback({ type: "error", message: `Expected a JSON object with a "name" field and a "cases" array (got ${Array.isArray(data) ? "an array" : typeof data}).` })
+                  return
+                }
+                const { cases, skipped } = normalizeImportedCases(obj.cases)
+                if (cases.length === 0) {
+                  setImportFeedback({ type: "error", message: "No valid test cases found - each case needs a \"query\" field." })
+                  return
+                }
+                importDataset(name, typeof obj.description === "string" ? obj.description : "", Array.isArray(obj.tags) ? obj.tags.filter((t): t is string => typeof t === "string") : [], cases)
+                setImportFeedback({ type: "success", message: `Imported "${name}" with ${cases.length} test case${cases.length === 1 ? "" : "s"}${skipped ? ` (${skipped} skipped - missing "query")` : ""}.` })
+              }
+              reader.readAsText(file)
+              e.target.value = ""
+            }} />
+            <Button variant="outline" size="sm" onClick={() => { setImportFeedback(null); fileInputRef.current?.click() }} className="rounded-full border-gray-200"><Upload className="mr-1.5 h-3.5 w-3.5" />Import</Button>
             <Button size="sm" onClick={() => setShowCreateModal(true)} className="rounded-full bg-gray-900 text-white hover:bg-gray-800"><Plus className="mr-1.5 h-3.5 w-3.5" />New Dataset</Button>
           </div>
         </div>
+        {importFeedback && (
+          <p className={cn("text-sm", importFeedback.type === "error" ? "text-red-600" : "text-emerald-600")}>{importFeedback.message}</p>
+        )}
 
         {datasets.length === 0 ? (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 py-20">
@@ -239,18 +310,28 @@ export function DatasetManagement() {
             if (!file || !selectedDataset) return
             const reader = new FileReader()
             reader.onload = async (ev) => {
+              let data: unknown
               try {
-                const imported = JSON.parse(ev.target?.result as string)
-                const cases: GoldenCase[] = imported.cases || imported
-                for (const gc of cases) {
-                  await addGoldenCase(selectedDataset.id, gc)
-                }
-              } catch { /* ignore */ }
+                data = JSON.parse(ev.target?.result as string)
+              } catch {
+                setImportFeedback({ type: "error", message: "That file isn't valid JSON." })
+                return
+              }
+              const rawCases = Array.isArray(data) ? data : Array.isArray((data as Record<string, unknown> | null)?.cases) ? (data as Record<string, unknown>).cases : []
+              const { cases, skipped } = normalizeImportedCases(rawCases)
+              if (cases.length === 0) {
+                setImportFeedback({ type: "error", message: "No valid test cases found - each case needs a \"query\" field." })
+                return
+              }
+              const ok = await addGoldenCases(selectedDataset.id, cases)
+              setImportFeedback(ok
+                ? { type: "success", message: `Imported ${cases.length} test case${cases.length === 1 ? "" : "s"}${skipped ? ` (${skipped} skipped - missing "query")` : ""}.` }
+                : { type: "error", message: "Import failed - could not save the new test cases to this dataset." })
             }
             reader.readAsText(file)
             e.target.value = ""
           }} />
-          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}><Upload className="mr-2 h-4 w-4" />Import</Button>
+          <Button variant="outline" size="sm" onClick={() => { setImportFeedback(null); fileInputRef.current?.click() }}><Upload className="mr-2 h-4 w-4" />Import</Button>
           <Button variant="outline" size="sm" onClick={() => selectedDataset && handleExport()}><Download className="mr-2 h-4 w-4" />Export</Button>
           <Button variant="outline" size="sm" onClick={async () => {
             if (!selectedDataset) return
@@ -270,6 +351,9 @@ export function DatasetManagement() {
         </div>
         <Button size="sm" onClick={() => selectedDataset && handleRunBenchmark(selectedDataset)} disabled={isRunning} className="rounded-full bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 hover:bg-emerald-500 hover:shadow-md hover:shadow-emerald-500/40"><Play className="mr-2 h-4 w-4" />{isRunning ? "Running..." : "Run Benchmark"}</Button>
       </div>
+      {importFeedback && (
+        <p className={cn("text-sm", importFeedback.type === "error" ? "text-red-600" : "text-emerald-600")}>{importFeedback.message}</p>
+      )}
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-sm">

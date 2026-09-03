@@ -36,6 +36,7 @@ interface BenchmarkContextValue {
   createDataset: (name: string, description: string, tags: string[]) => void
   importDataset: (name: string, description: string, tags: string[], cases: GoldenCase[]) => Promise<GoldenDataset | null>
   addGoldenCase: (datasetId: string, goldenCase: GoldenCase) => void
+  addGoldenCases: (datasetId: string, goldenCases: GoldenCase[]) => Promise<boolean>
   updateGoldenCase: (datasetId: string, goldenCase: GoldenCase) => void
   deleteGoldenCases: (datasetId: string, caseIds: string[]) => void
   duplicateDataset: (datasetId: string) => void
@@ -430,6 +431,31 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
     } catch { /* ignore */ }
   }, [datasets])
 
+  // Appends every case in one PUT. Looping addGoldenCase per case would read
+  // the same stale `dataset.versions` snapshot on each call (datasets only
+  // updates after the previous await resolves and this function was already
+  // closed over the pre-loop value), so only the last case would actually
+  // survive - a single bulk write avoids that entirely.
+  const addGoldenCases = useCallback(async (datasetId: string, goldenCases: GoldenCase[]): Promise<boolean> => {
+    if (goldenCases.length === 0) return true
+    try {
+      const dataset = datasets.find((item) => item.id === datasetId)
+      if (!dataset) return false
+      const version = dataset.versions.find((item) => item.version === dataset.currentVersion)
+      if (!version) return false
+      const updatedVersion = { ...version, cases: [...version.cases, ...goldenCases], casesCount: version.cases.length + goldenCases.length }
+      const res = await apiFetch(`/datasets/${datasetId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ versions: dataset.versions.map((item) => item.version === version.version ? updatedVersion : item) }) })
+      if (!res.ok) return false
+      const body = await res.json()
+      if (!body.success || !body.data) return false
+      setDatasets((prev) => prev.map((d) => d.id === datasetId ? body.data : d))
+      if (selectedDataset?.id === datasetId) setSelectedDataset(body.data)
+      return true
+    } catch {
+      return false
+    }
+  }, [datasets, selectedDataset])
+
   const updateGoldenCase = useCallback(async (datasetId: string, goldenCase: GoldenCase) => {
     try {
       const dataset = datasets.find((item) => item.id === datasetId)
@@ -534,6 +560,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
         createDataset,
         importDataset,
         addGoldenCase,
+        addGoldenCases,
         updateGoldenCase,
         deleteGoldenCases,
         duplicateDataset,

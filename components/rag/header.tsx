@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Upload, Plus, Activity, BarChart3, Settings, Layers, Database, Brain } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { Upload, Plus, Activity, BarChart3, Settings, Layers, Database, Brain, ClipboardCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRagContext } from "@/hooks/use-rag"
@@ -25,6 +25,7 @@ const NAV_ITEMS = [
 
 export function Header({ onUploadClick }: HeaderProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const { clearChat, session, tracePanelOpen, setTracePanelOpen, selectedTrace, setSelectedTrace } = useRagContext()
   const isChatPage = pathname === "/"
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -72,6 +73,23 @@ export function Header({ onUploadClick }: HeaderProps) {
       <div className="flex items-center gap-1.5">
         {isChatPage && (
           <>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push("/week-6")}
+                    className="gap-1.5 rounded-full border-black/[0.06] bg-white shadow-sm hover:shadow-md transition-all text-gray-600 hover:text-gray-900 h-8 px-3 text-xs font-medium"
+                  />
+                }
+              >
+                <ClipboardCheck className="w-3.5 h-3.5" />
+                Week 6
+              </TooltipTrigger>
+              <TooltipContent>Developer documentation evaluation reference</TooltipContent>
+            </Tooltip>
+
             <Tooltip>
               <TooltipTrigger
                 render={

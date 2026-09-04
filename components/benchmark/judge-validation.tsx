@@ -40,9 +40,12 @@ export function JudgeValidation() {
 
   useEffect(() => {
     apiFetch("/benchmark/developer-docs/prediction")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((body: { data?: { text: string; exists: boolean } } | null) => {
-        if (body?.data?.exists) {
+      .then((r) => {
+        if (!r.ok) throw new Error(`Fetch failed: ${r.status}`)
+        return r.json()
+      })
+      .then((body: { data?: { text: string; exists: boolean } }) => {
+        if (body.data?.exists) {
           setPrediction(body.data.text)
           setPredictionSaved(true)
         }
@@ -119,12 +122,18 @@ export function JudgeValidation() {
                 Run {i + 1}
                 {i === 0 ? " (before)" : ""}
                 {i === 1 ? " (after)" : ""}
+                {i >= 2 ? ` (run ${i + 1})` : ""}
               </div>
               <div className="mt-1 text-lg font-bold text-gray-900">{(run.agreement_rate * 100).toFixed(1)}%</div>
               <div className="text-xs text-gray-500">{run.graded_count}/{run.total_labels} graded</div>
               {run.ungrounded_count > 0 && (
                 <div className="text-[11px] text-amber-600">
                   {run.ungrounded_count} excluded (no expected keywords to grade against)
+                </div>
+              )}
+              {run.graded_count > 0 && run.graded_count < 5 && (
+                <div className="mt-1 text-[11px] text-amber-600">
+                  Small sample — agreement rate may not be statistically meaningful
                 </div>
               )}
             </div>

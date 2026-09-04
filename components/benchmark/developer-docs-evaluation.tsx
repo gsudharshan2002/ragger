@@ -108,6 +108,8 @@ export function DeveloperDocsEvaluation() {
   const [improvedStrategy, setImprovedStrategy] = useState("hybrid-rrf")
   const [casesJson, setCasesJson] = useState<string>("")
   const [useRagas, setUseRagas] = useState(false)
+  const [noJudge, setNoJudge] = useState(false)
+  const [runCaseCount, setRunCaseCount] = useState(0)
 
   async function fetchReports(): Promise<ReportsResponse> {
     const response = await apiFetch("/benchmark/developer-docs/results")
@@ -128,6 +130,20 @@ export function DeveloperDocsEvaluation() {
     }
   }
 
+  async function loadDefaultCases() {
+    try {
+      const response = await apiFetch("/benchmark/developer-docs/default-cases")
+      if (!response.ok) throw new Error(`Load failed: ${response.status}`)
+      const body: { success: boolean; data?: Record<string, unknown>[] } = await response.json()
+      if (body.data) {
+        setCasesJson(JSON.stringify(body.data, null, 2))
+        setError("")
+      }
+    } catch {
+      setError("Failed to load default cases")
+    }
+  }
+
   async function runEval() {
     let cases: Record<string, unknown>[]
     try {
@@ -142,6 +158,7 @@ export function DeveloperDocsEvaluation() {
     }
     setRunning(true)
     setError("")
+    setRunCaseCount(cases.length)
     try {
       const response = await apiFetch("/benchmark/developer-docs/run", {
         method: "POST",
@@ -149,11 +166,23 @@ export function DeveloperDocsEvaluation() {
           cases,
           baselineStrategy,
           improvedStrategy,
-          noJudge: false,
+          noJudge,
           useRagas,
         }),
       })
-      if (!response.ok) throw new Error(`Run failed: ${response.status}`)
+      if (!response.ok) {
+        let msg = `Run failed: ${response.status}`
+        try {
+          const errBody = await response.json()
+          if (response.status === 422 && errBody.detail) {
+            const details = Array.isArray(errBody.detail) ? errBody.detail : [errBody.detail]
+            msg = `Validation error: ${details.map((d: any) => d.msg || d.loc?.join(".") || String(d)).join("; ")}`
+          } else if (errBody.detail) {
+            msg = errBody.detail
+          }
+        } catch { /* use default msg */ }
+        throw new Error(msg)
+      }
       const body: { success: boolean; data?: ReportsResponse } = await response.json()
       setReports(body.data ?? {})
     } catch (runError) {
@@ -230,7 +259,12 @@ export function DeveloperDocsEvaluation() {
           />
         </div>
         <div className="flex w-full flex-col gap-1">
-          <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Test cases (paste JSON)</label>
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Test cases (paste JSON)</label>
+            <button type="button" onClick={() => void loadDefaultCases()} className="text-[11px] text-blue-600 hover:underline">
+              Load default cases
+            </button>
+          </div>
           <textarea
             value={casesJson}
             onChange={(e) => {
@@ -251,6 +285,15 @@ export function DeveloperDocsEvaluation() {
       <label className="mt-3 flex items-center gap-2 text-xs text-gray-500">
         <input
           type="checkbox"
+          checked={noJudge}
+          onChange={(e) => setNoJudge(e.target.checked)}
+          className="h-3.5 w-3.5"
+        />
+        Skip LLM judge (keyword-only scoring — faster, no API cost)
+      </label>
+      <label className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+        <input
+          type="checkbox"
           checked={useRagas}
           onChange={(e) => setUseRagas(e.target.checked)}
           className="h-3.5 w-3.5"
@@ -261,7 +304,7 @@ export function DeveloperDocsEvaluation() {
       {loading && <p className="mt-6 text-sm text-gray-500">Loading evaluation reports...</p>}
       {running && !loading && (
         <p className="mt-6 text-sm text-blue-600">
-          Running {baselineStrategy} vs {improvedStrategy} — this may take a minute…
+          Running {baselineStrategy} vs {improvedStrategy} on {runCaseCount} cases — each case makes {noJudge ? "1" : "2"} LLM call{noJudge ? "" : "s"}{useRagas ? " + 2 RAGAS" : ""}. This may take a few minutes…
         </p>
       )}
       {error && <p className="mt-6 flex items-center gap-2 text-sm text-rose-600"><AlertCircle className="h-4 w-4" />{error}</p>}

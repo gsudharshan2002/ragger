@@ -8,7 +8,7 @@ export type RagStrategy =
   | "hybrid-rerank"
   | "hybrid-rerank-mmr"
 
-export type StageStatus = "idle" | "running" | "completed" | "error" | "skipped"
+export type StageStatus = "idle" | "running" | "completed" | "partial" | "error" | "skipped"
 
 export type DocumentStatus = "uploading" | "processing" | "chunking" | "embedding" | "ready" | "error"
 
@@ -386,6 +386,11 @@ export interface TestCaseResult {
   failureExplanation: string
   durationMs: number
   timestamp: string
+  // Only present when the pipeline itself raised an exception (see
+  // _execute_case's except block in benchmark.py) - such a case never gets
+  // real metrics (they're all zero) and never contributes to
+  // difficultyBreakdown/tagBreakdown, unlike every other status value.
+  error?: string
 }
 
 export interface BenchmarkRun {

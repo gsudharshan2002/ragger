@@ -154,6 +154,23 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
 
   const [config, setConfig] = useState<BenchmarkConfig>(defaultConfig)
 
+  // defaultConfig above is only ever used as useState's initializer (React
+  // ignores it on later renders), and on first render selectedDataset is
+  // still null - datasets load asynchronously in the effect above. Without
+  // this, config.datasetId/datasetVersion stay stuck at "" forever unless
+  // the user manually touches the dataset dropdown (which separately keeps
+  // them in sync itself via updateConfig). This effect covers the
+  // auto-selected-first-dataset case so config never silently disagrees
+  // with what's actually selected.
+  useEffect(() => {
+    if (!selectedDataset) return
+    setConfig((prev) =>
+      prev.datasetId === selectedDataset.id && prev.datasetVersion === selectedVersion
+        ? prev
+        : { ...prev, datasetId: selectedDataset.id, datasetVersion: selectedVersion || prev.datasetVersion }
+    )
+  }, [selectedDataset, selectedVersion])
+
   const toggleCaseSelection = useCallback((id: string) => {
     setSelectedCases((prev) => {
       const next = new Set(prev)
@@ -231,6 +248,13 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
       const decoder = new TextDecoder()
       let buffer = ""
       let finalRun: BenchmarkRun | null = null
+      // Accumulated independently of setActiveRun's state (which is async
+      // and batched) so benchmark.completed has a synchronously-accurate,
+      // already-validated fallback if the backend's own final `results`
+      // array is ever missing or malformed - real per-case results that
+      // arrived via case.completed must not be discarded just because the
+      // summary event at the end of the stream came back incomplete.
+      const accumulatedResults: TestCaseResult[] = []
 
       while (true) {
         const { done, value } = await reader.read()
@@ -258,10 +282,23 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
             setProgress({ completed: event.index - 1, total: event.total, currentQuery: event.query })
           } else if (event.type === "case.completed") {
             const caseResult: TestCaseResult = event.result
+            // Upsert by caseId, not a plain append - if the SSE stream
+            // re-emits case.completed for the same case (retry/reconnect),
+            // treat the newer result as authoritative instead of
+            // double-counting it in passedTests/partialTests/failedTests.
+            const existingIndex = accumulatedResults.findIndex((r) => r.caseId === caseResult.caseId)
+            if (existingIndex >= 0) {
+              accumulatedResults[existingIndex] = caseResult
+            } else {
+              accumulatedResults.push(caseResult)
+            }
             setProgress({ completed: event.index, total: event.total, currentQuery: "" })
             setActiveRun((prev) => {
               if (!prev) return prev
-              const results = [...prev.results, caseResult]
+              const prevIndex = prev.results.findIndex((r) => r.caseId === caseResult.caseId)
+              const results = prevIndex >= 0
+                ? prev.results.map((r, i) => (i === prevIndex ? caseResult : r))
+                : [...prev.results, caseResult]
               return {
                 ...prev,
                 completedTests: results.length,
@@ -272,11 +309,27 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
               }
             })
           } else if (event.type === "benchmark.completed") {
+            // event.data comes straight off the wire with no schema
+            // guarantee - validate the fields downstream components
+            // actually dereference before trusting them, rather than
+            // spreading blindly and letting a malformed/incomplete payload
+            // silently drop real accumulated results or crash a consumer
+            // later on an unexpected undefined.
+            const data = (event.data ?? {}) as Partial<BenchmarkRun>
+            const hasValidResults = Array.isArray(data.results) && data.results.length > 0
+            const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+              typeof v === "object" && v !== null && !Array.isArray(v)
             finalRun = {
-              ...event.data,
-              config: event.data.config ?? cfg,
-              datasetName: event.data.datasetName ?? ds.name,
-              datasetVersion: event.data.datasetVersion ?? version,
+              ...placeholderRun,
+              ...data,
+              results: hasValidResults ? (data.results as TestCaseResult[]) : accumulatedResults,
+              aggregateMetrics: isPlainObject(data.aggregateMetrics) ? (data.aggregateMetrics as BenchmarkRun["aggregateMetrics"]) : placeholderRun.aggregateMetrics,
+              difficultyBreakdown: isPlainObject(data.difficultyBreakdown) ? data.difficultyBreakdown : placeholderRun.difficultyBreakdown,
+              tagBreakdown: isPlainObject(data.tagBreakdown) ? data.tagBreakdown : placeholderRun.tagBreakdown,
+              failureCategories: isPlainObject(data.failureCategories) ? (data.failureCategories as BenchmarkRun["failureCategories"]) : placeholderRun.failureCategories,
+              config: data.config ?? cfg,
+              datasetName: data.datasetName ?? ds.name,
+              datasetVersion: data.datasetVersion ?? version,
             }
           } else if (event.type === "error") {
             throw new Error(event.error || "Benchmark failed")
@@ -336,7 +389,11 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
     setComparisonLeg("a")
     try {
       const runA = await runSingleBenchmark(ds, version, configA)
-      if (cancelRef.current) return { runA, runB: null }
+      // runSingleBenchmark returns null on cancellation AND on a real
+      // failure (its own catch block) - checking only cancelRef let a
+      // failed (non-cancelled) leg A silently proceed to run leg B,
+      // producing a "comparison" where leg A never actually completed.
+      if (cancelRef.current || !runA) return { runA, runB: null }
       setComparisonLeg("b")
       const runB = await runSingleBenchmark(ds, version, configB)
       return { runA, runB }

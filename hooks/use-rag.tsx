@@ -34,15 +34,16 @@ export function normalizeTrace(raw: Record<string, any>): RagTrace {
     method,
   })
   const chunks = (context.chunks ?? []).map((chunk: Record<string, any>) => mapChunk(chunk))
-  const vectorSearch = raw.vector_search
-    ? { embeddingModel: vectorConfig.embedding_model ?? vectorConfig.embeddingModel ?? "", dimensions: 0, topK: vectorConfig.top_k ?? vectorConfig.topK ?? 0, similarity: "cosine", latencyMs: raw.vector_search.latency_ms ?? 0, chunks: (raw.vector_search.results ?? []).map((c: Record<string, any>) => mapChunk(c, "vector")) }
+  const rawVectorSearch = raw.vector_search ?? raw.vectorSearch
+  const vectorSearch = rawVectorSearch
+    ? { embeddingModel: vectorConfig.embedding_model ?? vectorConfig.embeddingModel ?? "", dimensions: 0, topK: vectorConfig.top_k ?? vectorConfig.topK ?? 0, similarity: "cosine", latencyMs: rawVectorSearch.latency_ms ?? 0, chunks: (rawVectorSearch.results ?? []).map((c: Record<string, any>) => mapChunk(c, "vector")) }
     : undefined
   const bm25 = raw.bm25
     ? { topK: raw.bm25.chunk_count ?? 0, queryTerms: raw.bm25.query_terms ?? [], latencyMs: raw.bm25.latency_ms ?? 0, chunks: (raw.bm25.results ?? []).map((c: Record<string, any>) => mapChunk(c, "bm25")) }
     : undefined
   const rrf = raw.rrf
     ? {
-        vectorChunks: (raw.vector_search?.results ?? []).map((c: Record<string, any>) => mapChunk(c, "vector")),
+        vectorChunks: (rawVectorSearch?.results ?? []).map((c: Record<string, any>) => mapChunk(c, "vector")),
         bm25Chunks: (raw.bm25?.results ?? []).map((c: Record<string, any>) => mapChunk(c, "bm25")),
         mergedChunks: (raw.rrf.results ?? []).map((c: Record<string, any>) => mapChunk(c, "rrf")),
         latencyMs: raw.rrf.latency_ms ?? 0,
@@ -76,7 +77,7 @@ export function normalizeTrace(raw: Record<string, any>): RagTrace {
       sessionId: raw.session_id ?? raw.sessionId,
       requestId: raw.request_id ?? raw.requestId,
       timestamp: raw.timestamp,
-      status: raw.status === "completed" ? "completed" : "error",
+      status: raw.status === "completed" ? "completed" : raw.status === "partial" ? "partial" : "error",
       totalDurationMs: raw.total_latency_ms ?? raw.totalLatencyMs ?? 0,
       strategy: raw.strategy,
       model: llm.model ?? "",
@@ -105,6 +106,7 @@ export function normalizeTrace(raw: Record<string, any>): RagTrace {
       latencyMs: llm.latency_ms ?? llm.latencyMs ?? 0,
       temperature: config.llm?.temperature ?? 0,
       maxTokens: config.llm?.max_tokens ?? config.llm?.maxTokens ?? 0,
+      answer: llm.answer ?? "",
     },
     tokenBreakdown: {
       system: raw.prompt?.system_tokens ?? 0,
@@ -196,11 +198,20 @@ async function fetchRagStream(
         }
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") return
-        throw err
+        // Surface via onEvent so the caller's normal trace.failed/error
+        // handling picks it up (resets isExecuting, shows a message) -
+        // letting this reject silently left the UI stuck on "Executing..."
+        // forever with no indication anything went wrong.
+        onEvent({
+          type: "error",
+          timestamp: Date.now(),
+          data: { error: err instanceof Error ? err.message : "Connection to the server was lost." },
+        })
       }
     }
 
-    // Fire and forget – caller cancels via the returned function
+    // Fire and forget – caller cancels via the returned function. Errors
+    // are handled above via onEvent, not by rejecting here.
     readStream().catch(() => {})
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
@@ -223,6 +234,8 @@ export function RagProvider({ children }: { children: ReactNode }) {
   const [tracePanelOpen, setTracePanelOpen] = useState(false)
   const [selectedTrace, setSelectedTrace] = useState<RagTrace | null>(null)
   const cancelRef = useRef<(() => void) | null>(null)
+  const unsubscribeRef = useRef<(() => void) | null>(null)
+  const traceUnsubscribeRef = useRef<(() => void) | null>(null)
 
   const [session, setSession] = useState<Session>({
     id: generateId(),
@@ -297,6 +310,7 @@ export function RagProvider({ children }: { children: ReactNode }) {
       collectedEventsRef.current.push(event)
       scheduleEventsUpdate()
     })
+    unsubscribeRef.current = unsubscribe
 
     fetchRagStream(content.trim(), strategy, (event) => {
       busRef.current.emit(event)
@@ -307,7 +321,9 @@ export function RagProvider({ children }: { children: ReactNode }) {
       const traceUnsubscribe = busRef.current.subscribe((event: RagEvent) => {
         if (event.type === "trace.completed") {
           traceUnsubscribe()
+          traceUnsubscribeRef.current = null
           cleanup()
+          cancelRef.current = null
 
           const trace = normalizeTrace(event.data as Record<string, any>)
           setActiveTrace(trace)
@@ -321,11 +337,11 @@ export function RagProvider({ children }: { children: ReactNode }) {
             timestamp: new Date().toISOString(),
             trace,
             strategy,
-            sources: (trace.context.chunks as unknown as { documentName: string; page: number; section?: string; documentId: string }[]).map((c) => ({
-              document: c.documentName,
+            sources: trace.context.chunks.map((c) => ({
+              document: c.document,
               page: c.page,
               section: c.section,
-              documentId: c.documentId,
+              documentId: (c as unknown as { document_id?: string }).document_id,
             })),
           }
 
@@ -335,9 +351,12 @@ export function RagProvider({ children }: { children: ReactNode }) {
           }))
 
           unsubscribe()
+          unsubscribeRef.current = null
         } else if (event.type === "trace.failed" || event.type === "error") {
           traceUnsubscribe()
+          traceUnsubscribeRef.current = null
           cleanup()
+          cancelRef.current = null
 
           const errorMessage = (event.data as { error?: string })?.error || "Something went wrong."
           setIsExecuting(false)
@@ -358,23 +377,34 @@ export function RagProvider({ children }: { children: ReactNode }) {
           }))
 
           unsubscribe()
+          unsubscribeRef.current = null
         }
       })
+      traceUnsubscribeRef.current = traceUnsubscribe
     }).catch(() => {
       unsubscribe()
+      unsubscribeRef.current = null
       setIsExecuting(false)
     })
-  }, [strategy, selectedKnowledgeBaseId])
+  }, [strategy, selectedKnowledgeBaseId, isExecuting])
 
   const stopGeneration = useCallback(() => {
     cancelRef.current?.()
     cancelRef.current = null
+    unsubscribeRef.current?.()
+    unsubscribeRef.current = null
+    traceUnsubscribeRef.current?.()
+    traceUnsubscribeRef.current = null
     setIsExecuting(false)
   }, [])
 
   const clearChat = useCallback(() => {
     cancelRef.current?.()
     cancelRef.current = null
+    unsubscribeRef.current?.()
+    unsubscribeRef.current = null
+    traceUnsubscribeRef.current?.()
+    traceUnsubscribeRef.current = null
     setSession((prev) => ({
       ...prev,
       messages: [],

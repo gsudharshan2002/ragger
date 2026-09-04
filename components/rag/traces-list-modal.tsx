@@ -41,13 +41,16 @@ export function TracesListModal({ open, onClose }: TracesListModalProps) {
       .then((r) => r.json())
       .then((res: ApiResponse<TraceSummary[]>) => {
         if (res.success && res.data) {
-          setTraces(res.data.map((t) => ({
-            id: t.id,
-            query: (t as unknown as Record<string, unknown>).query as string || "—",
-            timestamp: (t as unknown as Record<string, unknown>).timestamp as string || "",
-            strategy: (t as unknown as Record<string, unknown>).strategy as string || "—",
-            latencyMs: 0,
-          })))
+          setTraces(res.data.map((t) => {
+            const raw = t as unknown as Record<string, unknown>
+            return {
+              id: t.id,
+              query: raw.query as string || "—",
+              timestamp: raw.timestamp as string || "",
+              strategy: raw.strategy as string || "—",
+              latencyMs: (raw.total_latency_ms as number) ?? (raw.totalLatencyMs as number) ?? 0,
+            }
+          }))
         }
       })
       .catch(() => setError("Failed to load traces"))

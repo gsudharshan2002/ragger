@@ -128,13 +128,25 @@ function NumberInput({
   step?: number
   tooltip?: string
 }) {
+  const clamp = (v: number) => {
+    let result = v
+    if (min !== undefined) result = Math.max(min, result)
+    if (max !== undefined) result = Math.min(max, result)
+    return result
+  }
+
+  const handleChange = (raw: string) => {
+    const parsed = parseFloat(raw)
+    onChange(clamp(Number.isNaN(parsed) ? 0 : parsed))
+  }
+
   const field = (
     <div className="flex flex-col gap-1">
       <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">{label}</label>
       <input
         type="number"
         value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        onChange={(e) => handleChange(e.target.value)}
         min={min}
         max={max}
         step={step}
@@ -161,7 +173,7 @@ function NumberInput({
       <input
         type="number"
         value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        onChange={(e) => handleChange(e.target.value)}
         min={min}
         max={max}
         step={step}
@@ -343,29 +355,29 @@ export function BenchmarkConfig() {
                   <TextInput
                     label="Embedding Model"
                     value={config.vector?.embeddingModel ?? "text-embedding-3-large"}
-                    onChange={(v) => updateConfig({ vector: { ...config.vector, embeddingModel: v, topK: config.vector?.topK ?? 20, similarity: config.vector?.similarity ?? "Cosine" } })}
+                    onChange={(v) => updateConfig({ vector: { ...config.vector, embeddingModel: v, topK: config.vector?.topK ?? 20, similarity: config.vector?.similarity ?? "cosine" } })}
                   />
                   <NumberInput
                     label="Top K"
                     value={config.vector?.topK ?? 20}
-                    onChange={(v) => updateConfig({ vector: { ...config.vector, embeddingModel: config.vector?.embeddingModel ?? "text-embedding-3-large", topK: v, similarity: config.vector?.similarity ?? "Cosine" } })}
+                    onChange={(v) => updateConfig({ vector: { ...config.vector, embeddingModel: config.vector?.embeddingModel ?? "text-embedding-3-large", topK: v, similarity: config.vector?.similarity ?? "cosine" } })}
                     min={1}
                     max={100}
                   />
                   <SelectInput
                     label="Similarity"
-                    value={config.vector?.similarity ?? "Cosine"}
+                    value={config.vector?.similarity ?? "cosine"}
                     onChange={(v) => updateConfig({ vector: { ...config.vector, embeddingModel: config.vector?.embeddingModel ?? "text-embedding-3-large", topK: config.vector?.topK ?? 20, similarity: v } })}
                     options={[
-                      { value: "Cosine", label: "Cosine" },
-                      { value: "Dot Product", label: "Dot Product" },
-                      { value: "L2", label: "L2 (Euclidean)" },
+                      { value: "cosine", label: "Cosine" },
+                      { value: "dot_product", label: "Dot Product" },
+                      { value: "l2", label: "L2 (Euclidean)" },
                     ]}
                   />
                   <NumberInput
                     label="Similarity Threshold"
                     value={config.vector?.similarityThreshold ?? 0}
-                    onChange={(v) => updateConfig({ vector: { ...config.vector, embeddingModel: config.vector?.embeddingModel ?? "text-embedding-3-large", topK: config.vector?.topK ?? 20, similarity: config.vector?.similarity ?? "Cosine", similarityThreshold: v } })}
+                    onChange={(v) => updateConfig({ vector: { ...config.vector, embeddingModel: config.vector?.embeddingModel ?? "text-embedding-3-large", topK: config.vector?.topK ?? 20, similarity: config.vector?.similarity ?? "cosine", similarityThreshold: v } })}
                     min={0}
                     max={1}
                     step={0.05}

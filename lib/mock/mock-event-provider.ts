@@ -189,7 +189,7 @@ function generateTraceEvents(
 
     rerankerAfter.forEach((chunk, i) => {
       accumulatedDelay += 60
-      emitWithDelay({ type: "rerank.updated", timestamp: Date.now(), data: { chunk, newRank: i + 1 } }, accumulatedDelay)
+      emitWithDelay({ type: "rerank.score.updated", timestamp: Date.now(), data: { chunk, newRank: i + 1 } }, accumulatedDelay)
     })
 
     accumulatedDelay += 50

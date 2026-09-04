@@ -14,6 +14,7 @@ type Comparison = {
   judge_verdict: "pass" | "fail" | null
   judge_reasoning: string
   agree: boolean
+  has_keywords: boolean
 }
 
 type ValidationResult = {
@@ -24,6 +25,7 @@ type ValidationResult = {
   agreement_rate: number
   graded_count: number
   ungraded_count: number
+  ungrounded_count: number
   total_labels: number
   comparisons: Comparison[]
 }
@@ -38,9 +40,9 @@ export function JudgeValidation() {
 
   useEffect(() => {
     apiFetch("/benchmark/developer-docs/prediction")
-      .then((r) => r.json())
-      .then((body: { data?: { text: string; exists: boolean } }) => {
-        if (body.data?.exists) {
+      .then((r) => (r.ok ? r.json() : null))
+      .then((body: { data?: { text: string; exists: boolean } } | null) => {
+        if (body?.data?.exists) {
           setPrediction(body.data.text)
           setPredictionSaved(true)
         }
@@ -84,7 +86,7 @@ export function JudgeValidation() {
   }
 
   const latest = runs[runs.length - 1]
-  const disagreements = latest?.comparisons.filter((c) => !c.agree) ?? []
+  const disagreements = latest?.comparisons.filter((c) => !c.agree && c.has_keywords) ?? []
 
   return (
     <section className="mt-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -120,6 +122,11 @@ export function JudgeValidation() {
               </div>
               <div className="mt-1 text-lg font-bold text-gray-900">{(run.agreement_rate * 100).toFixed(1)}%</div>
               <div className="text-xs text-gray-500">{run.graded_count}/{run.total_labels} graded</div>
+              {run.ungrounded_count > 0 && (
+                <div className="text-[11px] text-amber-600">
+                  {run.ungrounded_count} excluded (no expected keywords to grade against)
+                </div>
+              )}
             </div>
           ))}
         </div>

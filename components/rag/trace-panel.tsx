@@ -9,7 +9,6 @@ import {
   ChevronDown,
   ChevronRight,
   Check,
-  Clock,
   FileText,
   Layers,
   MessageSquare,
@@ -18,7 +17,6 @@ import {
   Blend,
   ArrowUpDown,
   Filter,
-  ExternalLink,
   Hash,
   Globe,
   Tag,
@@ -33,7 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { apiFetch } from "@/lib/api"
-import type { RagTrace, Chunk, LatencyStage } from "@/lib/types"
+import type { RagTrace, Chunk } from "@/lib/types"
 import { getStageColor, getStageLabel } from "@/lib/events"
 import { cn, formatDuration, formatNumber, copyToClipboard } from "@/lib/utils"
 
@@ -105,15 +103,6 @@ export function TracePanel({ open, onClose, trace }: TracePanelProps) {
   if (!trace) return null
 
   const { overview } = trace
-  const latencyStages: LatencyStage[] = Object.entries(overview.stages)
-    .filter(([, s]) => s.latencyMs > 0)
-    .map(([name, s]) => ({
-      name: getStageLabel(name),
-      durationMs: s.latencyMs,
-      color: getStageColor(name),
-    }))
-
-  const maxLatency = Math.max(...latencyStages.map((s) => s.durationMs))
 
   return (
     <>
@@ -393,15 +382,6 @@ export function TracePanel({ open, onClose, trace }: TracePanelProps) {
                 </TraceSection>
 
                 <TraceSection
-                  title="Latency Waterfall"
-                  icon={<Clock className="w-3.5 h-3.5" />}
-                  expanded={expandedSections.latency}
-                  onToggle={() => toggleSection("latency")}
-                >
-                  <LatencyWaterfall stages={latencyStages} maxLatency={maxLatency} />
-                </TraceSection>
-
-                <TraceSection
                   title="Raw JSON"
                   icon={<Globe className="w-3.5 h-3.5" />}
                   expanded={expandedSections.raw}
@@ -648,31 +628,4 @@ function TokenBreakdown({ breakdown }: { breakdown: RagTrace["tokenBreakdown"] }
   )
 }
 
-function LatencyWaterfall({ stages, maxLatency }: { stages: LatencyStage[]; maxLatency: number }) {
-  return (
-    <div className="space-y-1.5">
-      {stages.map((stage, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <span className="text-[10px] text-gray-500 w-24 truncate">{stage.name}</span>
-          <div className="flex-1 h-4 bg-gray-50 rounded overflow-hidden relative">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${(stage.durationMs / maxLatency) * 100}%` }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
-              className="h-full rounded flex items-center px-1.5"
-              style={{ backgroundColor: `${stage.color}20` }}
-            >
-              <div
-                className="h-full rounded"
-                style={{ backgroundColor: `${stage.color}60`, width: "100%" }}
-              />
-            </motion.div>
-            <span className="absolute inset-0 flex items-center px-1.5 text-[9px] font-mono text-gray-600">
-              {formatDuration(stage.durationMs)}
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
+

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Search,
@@ -45,6 +45,13 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
   const [stageStates, setStageStates] = useState<Record<string, StageState>>({})
   const [currentStage, setCurrentStage] = useState<string | null>(null)
   const [llmAnswer, setLlmAnswer] = useState("")
+  // How many of `events` have already been folded into stageStates - lets
+  // the effect below process every new event since the last run, not just
+  // events[events.length - 1]. The caller batches multiple bus events into
+  // one setEvents() call to cut re-renders, so more than one new event can
+  // land between effect runs; reading only the last one silently drops the
+  // rest (e.g. vector.chunk.retrieved / bm25.chunk.retrieved events).
+  const processedCountRef = useRef(0)
 
   useEffect(() => {
     const initial: Record<string, StageState> = {}
@@ -61,13 +68,22 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
     setStageStates(initial)
     setCurrentStage(null)
     setLlmAnswer("")
+    processedCountRef.current = 0
   }, [strategy, events.length === 0])
 
   useEffect(() => {
     if (events.length === 0) return
 
-    const latest = events[events.length - 1]
-    const { type, data } = latest
+    // Process every event since the last run, not just the latest one -
+    // the producer batches several bus events into one setEvents() call to
+    // cut re-renders, so more than one new event can land between runs.
+    const newEvents = events.slice(processedCountRef.current)
+    processedCountRef.current = events.length
+    if (newEvents.length === 0) return
+
+    let currentStageChanged = false
+    let nextCurrentStage: string | null = null
+    let llmAnswerDelta = ""
 
     setStageStates((prev) => {
       const next = { ...prev }
@@ -85,65 +101,96 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
         if (!next[id]) next[id] = defaultStage(id)
       }
 
+      const recordCurrentStage = (stage: string | null) => {
+        currentStageChanged = true
+        nextCurrentStage = stage
+      }
+
+      // Builds a minimal Chunk from a per-item retrieval/update event.
+      // These events (verified against rag_engine.py's actual emit calls)
+      // send flat stub fields - chunk_id/rank/score/document/page at most,
+      // sometimes less - never a full chunk with content/section/tokens.
+      // That richer data only ever arrives later via the final trace, so
+      // live cards during vector/bm25/rrf/reranker/mmr stages necessarily
+      // show only what's actually streamed: id, rank, score, and
+      // document/page where the backend happens to include them.
+      const buildChunkStub = (raw: Record<string, unknown>, method: Chunk["method"]): Chunk => ({
+        id: (raw.chunk_id as string) ?? "",
+        rank: (raw.rank as number) ?? 0,
+        score: (raw.score as number) ?? (raw.rrf_score as number) ?? (raw.rerank_score as number) ?? (raw.mmr_score as number) ?? 0,
+        document: (raw.document as string) ?? "",
+        page: (raw.page as number) ?? 0,
+        section: "",
+        tokens: 0,
+        content: "",
+        method,
+      })
+
+      for (const { type, data } of newEvents) {
       if (type === "query.started") {
         ensureStage("query")
         next["query"] = { ...next["query"], status: "running" }
-        setCurrentStage("query")
+        recordCurrentStage("query")
       } else if (type === "query.processed") {
+        // Backend sends chunk_count only - no latency for this event.
         ensureStage("query")
-        next["query"] = { ...next["query"], status: "completed", latencyMs: data.latencyMs as number }
+        next["query"] = { ...next["query"], status: "completed" }
       } else if (type === "vector.started") {
         ensureStage("vector")
         next["vector"] = {
           ...next["vector"],
           status: "running",
           config: {
-            "Embedding Model": (data.embeddingModel as string) || "local MiniLM",
+            "Embedding Model": (data.embedding_model as string) || "local MiniLM",
             Dimensions: (data.dimensions as number) || "pending",
-            "Top K": (data.topK as number) || "pending",
+            "Top K": (data.top_k as number) || "pending",
             Similarity: (data.similarity as string) || "cosine",
           },
         }
-        setCurrentStage("vector")
+        recordCurrentStage("vector")
       } else if (type === "vector.chunk.retrieved") {
         ensureStage("vector")
-        const chunk = data.chunk as Chunk
+        const chunk = buildChunkStub(data, "vector")
         next["vector"] = { ...next["vector"], chunks: [...next["vector"].chunks, chunk] }
       } else if (type === "vector.completed") {
+        // Backend sends result_count only - no latency for this event.
         ensureStage("vector")
-        next["vector"] = { ...next["vector"], status: "completed", latencyMs: data.latencyMs as number }
+        next["vector"] = { ...next["vector"], status: "completed" }
       } else if (type === "bm25.started") {
         ensureStage("bm25")
         next["bm25"] = {
           ...next["bm25"],
           status: "running",
           config: {
-            "Top K": (data.topK as number) || "pending",
-            "Query Terms": Array.isArray(data.queryTerms)
-              ? data.queryTerms.join(", ")
+            "Top K": (data.top_k as number) || "pending",
+            "Query Terms": Array.isArray(data.query_terms)
+              ? (data.query_terms as string[]).join(", ")
               : "pending",
           },
         }
-        setCurrentStage("bm25")
+        recordCurrentStage("bm25")
       } else if (type === "bm25.chunk.retrieved") {
         ensureStage("bm25")
-        const chunk = data.chunk as Chunk
+        const chunk = buildChunkStub(data, "bm25")
         next["bm25"] = { ...next["bm25"], chunks: [...next["bm25"].chunks, chunk] }
       } else if (type === "bm25.completed") {
+        // Backend sends result_count only - no latency for this event.
         ensureStage("bm25")
-        next["bm25"] = { ...next["bm25"], status: "completed", latencyMs: data.latencyMs as number }
+        next["bm25"] = { ...next["bm25"], status: "completed" }
       } else if (type === "rrf.started") {
         ensureStage("rrf")
         next["rrf"] = { ...next["rrf"], status: "running" }
-        setCurrentStage("rrf")
-      } else if (type === "rrf.completed") {
+        recordCurrentStage("rrf")
+      } else if (type === "rrf.result.retrieved") {
+        // Real event name is "rrf.result.retrieved", not "rrf.chunk.retrieved".
         ensureStage("rrf")
-        next["rrf"] = {
-          ...next["rrf"],
-          status: "completed",
-          latencyMs: data.latencyMs as number,
-          chunks: data.chunks as Chunk[],
-        }
+        const chunk = buildChunkStub(data, "rrf")
+        next["rrf"] = { ...next["rrf"], chunks: [...next["rrf"].chunks, chunk] }
+      } else if (type === "rrf.completed") {
+        // Backend sends result_count only, not a chunks array - the fused
+        // chunks list is whatever accumulated from rrf.result.retrieved above.
+        ensureStage("rrf")
+        next["rrf"] = { ...next["rrf"], status: "completed" }
       } else if (type === "reranker.started") {
         ensureStage("reranker")
         next["reranker"] = {
@@ -152,21 +199,28 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
           config: {
             Model: (data.model as string) || "local cross-encoder",
             Candidates: (data.candidates as number) || "pending",
-            "Top N": (data.topN as number) || "pending",
+            "Top N": (data.top_n as number) || "pending",
           },
         }
-        setCurrentStage("reranker")
-      } else if (type === "rerank.updated") {
+        recordCurrentStage("reranker")
+      } else if (type === "rerank.score.updated") {
+        // Real event name is "rerank.score.updated", not "rerank.updated" -
+        // that name never matched anything the backend actually emits.
         ensureStage("reranker")
-        const chunk = data.chunk as Chunk
+        const chunk = buildChunkStub(data, "reranker")
         next["reranker"] = { ...next["reranker"], chunks: [...next["reranker"].chunks, chunk] }
       } else if (type === "reranker.completed") {
+        // Backend sends result_count only - beforeChunks/afterChunks were
+        // never actually sent. "Before" is whatever RRF fused (or vector's
+        // results, if RRF didn't run); "after" is what accumulated above.
         ensureStage("reranker")
         next["reranker"] = {
           ...next["reranker"],
           status: "completed",
-          latencyMs: data.latencyMs as number,
-          details: { beforeChunks: data.beforeChunks, afterChunks: data.afterChunks },
+          details: {
+            beforeChunks: next["rrf"]?.chunks ?? next["vector"]?.chunks ?? [],
+            afterChunks: next["reranker"].chunks,
+          },
         }
       } else if (type === "mmr.started") {
         ensureStage("mmr")
@@ -175,42 +229,66 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
           status: "running",
           config: {
             Lambda: (data.lambda as number) ?? "pending",
-            Candidates: (data.candidateCount as number) || "pending",
+            Candidates: (data.candidate_count as number) || "pending",
           },
         }
-        setCurrentStage("mmr")
+        recordCurrentStage("mmr")
+      } else if (type === "mmr.selection.updated") {
+        // Only fires for chunks MMR actually selected - the backend never
+        // reports rejected chunks individually, only a rejected_count.
+        ensureStage("mmr")
+        const chunk = { ...buildChunkStub(data, "mmr"), selected: true }
+        next["mmr"] = { ...next["mmr"], chunks: [...next["mmr"].chunks, chunk] }
       } else if (type === "mmr.completed") {
+        // Backend sends selected_count/rejected_count, not chunk arrays -
+        // selected chunks are whatever accumulated from
+        // mmr.selection.updated above; rejected chunks were never sent at
+        // all (only the count), so that list is honestly empty, not guessed.
         ensureStage("mmr")
         next["mmr"] = {
           ...next["mmr"],
           status: "completed",
-          latencyMs: data.latencyMs as number,
-          chunks: data.selectedChunks as Chunk[],
-          details: { rejectedChunks: data.rejectedChunks },
+          config: {
+            ...next["mmr"].config,
+            Selected: (data.selected_count as number) ?? next["mmr"].chunks.length,
+            Rejected: (data.rejected_count as number) ?? 0,
+          },
+          details: { rejectedChunks: [] },
         }
       } else if (type === "context.built") {
+        // Backend sends chunk_count/document_count/total_tokens as
+        // top-level snake_case fields on `data` directly (rag_engine.py's
+        // context.built emit) - there is no nested "context" object and no
+        // per-chunk detail in this event at all, despite what this code
+        // used to assume.
         ensureStage("context")
         next["context"] = {
           ...next["context"],
           status: "completed",
           latencyMs: data.latencyMs as number,
-          chunks: (data.context as { chunks: Chunk[] }).chunks,
+          chunks: next["context"]?.chunks ?? [],
           config: {
-            Chunks: (data.context as { chunkCount: number }).chunkCount,
-            Documents: (data.context as { documentCount: number }).documentCount,
-            "Total Tokens": (data.context as { totalTokens: number }).totalTokens,
+            Chunks: (data.chunk_count as number) ?? (data.chunkCount as number) ?? 0,
+            Documents: (data.document_count as number) ?? (data.documentCount as number) ?? 0,
+            "Total Tokens": (data.total_tokens as number) ?? (data.totalTokens as number) ?? 0,
           },
         }
-        setCurrentStage("context")
+        recordCurrentStage("context")
       } else if (type === "prompt.built") {
+        // Backend sends system_tokens/context_tokens/user_tokens/total_tokens
+        // as flat top-level fields - there is no nested "prompt" object.
         ensureStage("prompt")
         next["prompt"] = {
           ...next["prompt"],
           status: "completed",
-          latencyMs: data.latencyMs as number,
-          details: data.prompt as Record<string, unknown>,
+          details: {
+            systemTokens: data.system_tokens,
+            contextTokens: data.context_tokens,
+            userTokens: data.user_tokens,
+            totalTokens: data.total_tokens,
+          },
         }
-        setCurrentStage("prompt")
+        recordCurrentStage("prompt")
       } else if (type === "llm.started") {
         ensureStage("llm")
         next["llm"] = {
@@ -219,25 +297,44 @@ export function RagExecutionCanvas({ events, strategy, trace, isExecuting }: Rag
           config: {
             Model: data.model as string,
             Temperature: data.temperature as number,
-            "Max Tokens": data.maxTokens as number,
+            "Max Tokens": data.max_tokens as number,
           },
         }
-        setCurrentStage("llm")
-      } else if (type === "llm.token.generated") {
-        setLlmAnswer((prev) => prev + (data.token as string))
+        recordCurrentStage("llm")
+      } else if (type === "llm.token.generated" || type === "llm.token") {
+        // Note: use-rag.tsx's event collector filters llm.token events out
+        // of the array this component receives, so this branch does not
+        // currently fire in practice - kept for whichever event name
+        // eventually reaches here if that filtering ever changes.
+        llmAnswerDelta += (data.content as string) ?? (data.token as string) ?? ""
       } else if (type === "llm.completed") {
+        // Backend sends model/latency_ms/status/error as flat top-level
+        // fields - there is no nested "llm" object.
         ensureStage("llm")
         next["llm"] = {
           ...next["llm"],
           status: "completed",
-          latencyMs: data.latencyMs as number,
-          details: data.llm as Record<string, unknown>,
+          latencyMs: data.latency_ms as number,
+          details: { model: data.model, status: data.status, error: data.error },
         }
-        setCurrentStage(null)
+        recordCurrentStage(null)
+      } else if (type === "trace.failed" || type === "error") {
+        // Mark any stage still "running" as errored instead of leaving it
+        // stuck that way forever - nothing else is coming to complete it.
+        for (const id of Object.keys(next)) {
+          if (next[id].status === "running") {
+            next[id] = { ...next[id], status: "error" }
+          }
+        }
+        recordCurrentStage(null)
+      }
       }
 
       return next
     })
+
+    if (currentStageChanged) setCurrentStage(nextCurrentStage)
+    if (llmAnswerDelta) setLlmAnswer((prev) => prev + llmAnswerDelta)
   }, [events])
 
   if (events.length === 0 && !isExecuting) return null
@@ -366,9 +463,9 @@ function PipelineStage({
               {formatDuration(state.latencyMs)}
             </span>
           )}
-          {state.chunks.length > 0 && (
+          {(state.chunks?.length ?? 0) > 0 && (
             <span className="text-[10px] font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
-              {state.chunks.length}
+              {(state.chunks?.length ?? 0)}
             </span>
           )}
           {canExpand && (
@@ -402,7 +499,7 @@ function PipelineStage({
                 </div>
               )}
 
-              {state.chunks.length > 0 && (
+              {(state.chunks?.length ?? 0) > 0 && (
                 <div className="space-y-1.5">
                   <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
                     Retrieved Chunks
@@ -411,9 +508,9 @@ function PipelineStage({
                     {state.chunks.slice(0, 10).map((chunk) => (
                       <ChunkCard key={chunk.id} chunk={chunk} stage={stageId} color={color} />
                     ))}
-                    {state.chunks.length > 10 && (
+                    {(state.chunks?.length ?? 0) > 10 && (
                       <div className="text-[10px] text-gray-400 text-center py-1">
-                        +{state.chunks.length - 10} more chunks
+                        +{(state.chunks?.length ?? 0) - 10} more chunks
                       </div>
                     )}
                   </div>
@@ -438,7 +535,7 @@ function PipelineStage({
                 />
               )}
 
-              {stageId === "context" && state.chunks.length > 0 && (
+              {stageId === "context" && (state.chunks?.length ?? 0) > 0 && (
                 <ContextVisualization chunks={state.chunks} />
               )}
 
@@ -465,7 +562,7 @@ function getStageIcon(stageId: string, color: string) {
     case "context": return <Layers className={iconClass} style={{ color }} />
     case "prompt": return <MessageSquare className={iconClass} style={{ color }} />
     case "llm": return <Sparkles className={iconClass} style={{ color }} />
-    default: return <div className={cn("w-3.5 h-3.5 rounded-full", `bg-[${color}]`)} />
+    default: return <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: color }} />
   }
 }
 

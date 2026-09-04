@@ -78,7 +78,14 @@ export function LabelAnswers() {
       })
       if (!response.ok) throw new Error(`Generate failed: ${response.status}`)
       const body: { success: boolean; data?: LabelSession } = await response.json()
-      setSession(body.data ?? null)
+      setSession((prev) => {
+        if (!body.data) return prev
+        return {
+          ...body.data,
+          cases: body.data.cases ?? prev?.cases,
+          labels: body.data.labels ?? prev?.labels,
+        }
+      })
       setCurrentIndex(0)
     } catch (generateError) {
       setError(generateError instanceof Error ? generateError.message : "Generating answers failed - is the backend running?")

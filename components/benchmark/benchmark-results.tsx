@@ -12,7 +12,6 @@ import {
   FileText,
   Target,
   BarChart3,
-  Download,
   ExternalLink,
   Brain,
 } from "lucide-react"
@@ -36,7 +35,6 @@ import {
   TestCaseResult,
   EvaluationMetrics,
   Difficulty,
-  ALL_METRICS,
   ApiResponse,
 } from "@/lib/types"
 import { useBenchmark } from "@/hooks/use-benchmark"
@@ -164,8 +162,25 @@ export function BenchmarkResults() {
   )
 
   const previousRun = useMemo(() => {
-    if (!activeRun || completedRuns.length < 2) return null
-    return completedRuns.find((r) => r.id !== activeRun.id) ?? null
+    if (!activeRun) return null
+    // The chronologically previous run, not just "the first other completed
+    // run in array order" - completedRuns' order can't be relied on to put
+    // the run right before activeRun next to it, e.g. when activeRun is an
+    // older run opened via viewRun rather than whatever just finished.
+    const activeTime = new Date(activeRun.completedAt || activeRun.startedAt).getTime()
+    if (Number.isNaN(activeTime)) return null
+    let previous: BenchmarkRun | null = null
+    let previousTime = -Infinity
+    for (const r of completedRuns) {
+      if (r.id === activeRun.id) continue
+      const t = new Date(r.completedAt || r.startedAt).getTime()
+      if (Number.isNaN(t) || t >= activeTime) continue
+      if (t > previousTime) {
+        previous = r
+        previousTime = t
+      }
+    }
+    return previous
   }, [activeRun, completedRuns])
 
   const sortedResults = useMemo(() => {
@@ -189,7 +204,14 @@ export function BenchmarkResults() {
         level,
         label: DIFFICULTY_STYLES[level].label,
         badge: DIFFICULTY_STYLES[level].badge,
-        count: activeRun?.results.filter((r) => r.difficulty === level && r.status !== "not_run").length ?? 0,
+        // Must match exactly what the backend excluded from
+        // difficultyBreakdown's average (_execute_case in benchmark.py):
+        // "not_run" cases, AND cases where the pipeline itself raised an
+        // exception (status is "failed" for those too, but they carry no
+        // real metrics - only the presence of `error` distinguishes them
+        // from a genuine, evaluated failure). Otherwise this count can
+        // disagree with how many cases the shown metrics were averaged over.
+        count: activeRun?.results.filter((r) => r.difficulty === level && r.status !== "not_run" && !r.error).length ?? 0,
         metrics: bm ?? {},
       }
     })
@@ -388,15 +410,9 @@ export function BenchmarkResults() {
         <TabsContent value="results">
           <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
             <div className="border-b border-gray-100 px-5 py-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-900">
-                  Test Case Results
-                </h3>
-                <Button variant="outline" size="xs" className="rounded-full text-xs">
-                  <Download className="mr-1 h-3 w-3" />
-                  Export CSV
-                </Button>
-              </div>
+              <h3 className="text-sm font-semibold text-gray-900">
+                Test Case Results
+              </h3>
             </div>
             <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
               <table className="w-full text-left">

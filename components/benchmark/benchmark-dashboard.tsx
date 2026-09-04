@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
   AlertTriangle,
@@ -64,6 +64,14 @@ export function BenchmarkDashboard() {
   const [activeTab, setActiveTab] = useState("overview")
   const [pendingDeleteRun, setPendingDeleteRun] = useState<{ ids: string[]; label: string } | null>(null)
   const [selectedRunIds, setSelectedRunIds] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    setSelectedRunIds((prev) => {
+      const validIds = new Set(runs.map((r) => r.id))
+      const next = new Set([...prev].filter((id) => validIds.has(id)))
+      return next.size === prev.size ? prev : next
+    })
+  }, [runs])
 
   const latestRun = useMemo(() => {
     if (!runs || runs.length === 0) return null
@@ -481,7 +489,6 @@ export function BenchmarkDashboard() {
               onClick={() => {
                 if (pendingDeleteRun) {
                   for (const id of pendingDeleteRun.ids) deleteRun(id)
-                  setSelectedRunIds(new Set())
                 }
                 setPendingDeleteRun(null)
               }}

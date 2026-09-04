@@ -150,6 +150,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                         options={[
                           { value: "groq", label: "Groq" },
                           { value: "gemini", label: "Gemini" },
+                          { value: "openrouter", label: "OpenRouter" },
                         ]}
                       />
                     </Field>
@@ -175,17 +176,42 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                         />
                       </Field>
                     )}
+                    {settings.llmProvider === "openrouter" && (
+                      <Field label="OpenRouter API Key">
+                        <input
+                          type="password"
+                          value={settings.openrouterApiKey ?? ""}
+                          onChange={(e) => update({ openrouterApiKey: e.target.value })}
+                          placeholder="sk-or-…"
+                          className="input-field"
+                        />
+                      </Field>
+                    )}
                     <Field label="Model">
                       <input
-                        value={settings.llmProvider === "gemini" ? settings.geminiModel : settings.groqModel}
+                        value={
+                          settings.llmProvider === "gemini"
+                            ? settings.geminiModel
+                            : settings.llmProvider === "openrouter"
+                              ? settings.openrouterModel
+                              : settings.groqModel
+                        }
                         onChange={(e) =>
                           update(
                             settings.llmProvider === "gemini"
                               ? { geminiModel: e.target.value }
-                              : { groqModel: e.target.value }
+                              : settings.llmProvider === "openrouter"
+                                ? { openrouterModel: e.target.value }
+                                : { groqModel: e.target.value }
                           )
                         }
-                        placeholder={settings.llmProvider === "gemini" ? "gemini-2.5-flash" : "openai/gpt-oss-20b"}
+                        placeholder={
+                          settings.llmProvider === "gemini"
+                            ? "gemini-2.5-flash"
+                            : settings.llmProvider === "openrouter"
+                              ? "meta-llama/llama-3.3-70b-instruct"
+                              : "openai/gpt-oss-20b"
+                        }
                         className="input-field"
                       />
                     </Field>

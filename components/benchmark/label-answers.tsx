@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { AlertCircle, CheckCircle2, RefreshCw, ThumbsDown, ThumbsUp } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { AlertCircle, CheckCircle2, Pencil, RefreshCw, ThumbsDown, ThumbsUp, TriangleAlert, Upload } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
 import { apiFetch } from "@/lib/api"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,14 @@ type LabelCase = {
   question: string
   answer: string
   mode: string
+  regression?: boolean
+  regression_evidence?: {
+    report?: string
+    observed_at?: string
+    observed_retrieval_score?: number
+    note?: string
+    fixed_in_version?: string
+  } | null
 }
 
 type LabelSession = {
@@ -39,6 +47,8 @@ export function LabelAnswers() {
   const [casesJson, setCasesJson] = useState("")
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState<1 | -1>(1)
+  const [showCasesInput, setShowCasesInput] = useState(true)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function nextUnlabeledIndex(fromIndex: number, freshLabels: Record<string, "pass" | "fail">): number {
     const remaining = cases.length
@@ -75,11 +85,31 @@ export function LabelAnswers() {
       const body: { success: boolean; data?: Record<string, unknown>[] } = await response.json()
       if (body.data) {
         setCasesJson(JSON.stringify(body.data, null, 2))
+        setShowCasesInput(false)
         setError("")
       }
     } catch {
       setError("Failed to load default cases")
     }
+  }
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ""
+    if (!file) return
+    setError("")
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result as string)
+        setCasesJson(JSON.stringify(parsed, null, 2))
+        setShowCasesInput(false)
+      } catch {
+        setError(`${file.name} is not valid JSON`)
+      }
+    }
+    reader.onerror = () => setError(`Failed to read ${file.name}`)
+    reader.readAsText(file)
   }
 
   async function generateForLabeling() {
@@ -103,6 +133,7 @@ export function LabelAnswers() {
       })
       if (!response.ok) throw new Error(`Generate failed: ${response.status}`)
       const body: { success: boolean; data?: LabelSession } = await response.json()
+      setShowCasesInput(false)
       setSession((prev) => {
         const labels = body.data?.labels ?? prev?.labels ?? {}
         const firstUnlabeled = (body.data?.cases ?? prev?.cases ?? []).findIndex((c) => !labels[c.id])
@@ -141,10 +172,32 @@ export function LabelAnswers() {
         setCurrentIndex((i) => nextUnlabeledIndex(i, freshLabels))
         return { ...prev, labels: freshLabels }
       })
+
+      if (label === "pass") {
+        const target = cases.find((c) => c.id === caseId)
+        if (target?.regression) await clearRegressionFlag(caseId)
+      }
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Failed to save label")
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function clearRegressionFlag(caseId: string) {
+    try {
+      const response = await apiFetch(`/benchmark/developer-docs/cases/${caseId}/clear-regression`, { method: "POST" })
+      if (!response.ok) return
+      setSession((prev) => {
+        if (!prev?.cases) return prev
+        return {
+          ...prev,
+          cases: prev.cases.map((c) => (c.id === caseId ? { ...c, regression: false, regression_evidence: null } : c)),
+        }
+      })
+    } catch {
+      // Best-effort - regression is display metadata, not label data, so a
+      // failure here shouldn't surface as a labeling error.
     }
   }
 
@@ -200,20 +253,48 @@ export function LabelAnswers() {
         <div className="flex w-full flex-col gap-1">
           <div className="flex items-center justify-between">
             <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Test cases (paste JSON)</label>
-            <button type="button" onClick={() => void loadDefaultCases()} className="text-[11px] text-blue-600 hover:underline">
-              Load default cases
-            </button>
+            <div className="flex items-center gap-3">
+              {!showCasesInput && (
+                <button
+                  type="button"
+                  onClick={() => setShowCasesInput(true)}
+                  className="flex items-center gap-1 text-[11px] text-blue-600 hover:underline"
+                >
+                  <Pencil className="h-3 w-3" /> Edit JSON
+                </button>
+              )}
+              <button type="button" onClick={() => void loadDefaultCases()} className="text-[11px] text-blue-600 hover:underline">
+                Load default cases
+              </button>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1 text-[11px] text-blue-600 hover:underline"
+              >
+                <Upload className="h-3 w-3" /> Upload cases file
+              </button>
+              <input ref={fileInputRef} type="file" accept="application/json,.json" onChange={handleFileUpload} className="hidden" />
+            </div>
           </div>
-          <textarea
-            value={casesJson}
-            onChange={(e) => {
-              setCasesJson(e.target.value)
-              setError("")
-            }}
-            placeholder="Paste the cases JSON array here…"
-            className="w-full rounded-lg border border-gray-200 p-2 font-mono text-xs"
-            rows={4}
-          />
+          <AnimatePresence initial={false}>
+            {showCasesInput && (
+              <motion.textarea
+                key="cases-textarea"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                value={casesJson}
+                onChange={(e) => {
+                  setCasesJson(e.target.value)
+                  setError("")
+                }}
+                placeholder="Paste the cases JSON array here…"
+                className="w-full rounded-lg border border-gray-200 p-2 font-mono text-xs"
+                rows={4}
+              />
+            )}
+          </AnimatePresence>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => void generateForLabeling()} disabled={generating}>
@@ -267,6 +348,20 @@ export function LabelAnswers() {
                 </span>
               )}
             </div>
+
+            {current?.regression && (
+              <div className="mt-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800">
+                <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <div>
+                  <span className="font-semibold">
+                    Known failure {current.regression_evidence?.fixed_in_version ? `· fixed in ${current.regression_evidence.fixed_in_version}` : ""}
+                  </span>
+                  {current.regression_evidence?.note && (
+                    <p className="mt-0.5 text-amber-700">{current.regression_evidence.note}</p>
+                  )}
+                </div>
+              </div>
+            )}
 
             <AnimatePresence mode="wait" custom={direction} initial={false}>
               <motion.div

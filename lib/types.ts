@@ -692,11 +692,13 @@ export interface FullTrace {
 
 // --- Settings ---
 export interface AppSettings {
-  llmProvider: "groq" | "gemini"
+  llmProvider: "groq" | "gemini" | "openrouter"
   groqModel: string
   geminiModel: string
+  openrouterModel: string
   groqApiKey: string
   geminiApiKey: string
+  openrouterApiKey: string
   embeddingProvider: "none" | "openai" | "cohere" | "local"
   embeddingModel: string
   cohereEmbedModel: string

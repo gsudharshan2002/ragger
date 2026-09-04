@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { AlertCircle, Gavel, RefreshCw, Save } from "lucide-react"
+import { AlertCircle, Gavel, RefreshCw, Save, Trash2 } from "lucide-react"
 import { apiFetch } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 
@@ -18,6 +18,7 @@ type Comparison = {
 }
 
 type ValidationResult = {
+  _filename?: string
   labels_source_report: string
   labeled_at: string
   validated_at: string
@@ -53,6 +54,29 @@ export function JudgeValidation() {
       .catch(() => {})
   }, [])
 
+  useEffect(() => {
+    apiFetch("/benchmark/developer-docs/judge-runs")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((body: { data?: ValidationResult[] } | null) => {
+        if (body?.data?.length) setRuns(body.data)
+      })
+      .catch(() => {})
+  }, [])
+
+  async function clearRuns() {
+    setRunning(true)
+    setError("")
+    try {
+      const response = await apiFetch("/benchmark/developer-docs/judge-runs/all", { method: "DELETE" })
+      if (!response.ok) throw new Error(`Clear failed: ${response.status}`)
+      setRuns([])
+    } catch (clearError) {
+      setError(clearError instanceof Error ? clearError.message : "Failed to clear judge runs")
+    } finally {
+      setRunning(false)
+    }
+  }
+
   async function runValidation() {
     setRunning(true)
     setError("")
@@ -63,7 +87,7 @@ export function JudgeValidation() {
         throw new Error(body.detail || `Validation failed: ${response.status}`)
       }
       const body: { data: ValidationResult } = await response.json()
-      setRuns((prev) => [...prev, body.data])
+      setRuns((prev) => [body.data, ...prev.filter((r) => r.validated_at !== body.data.validated_at)])
     } catch (runError) {
       setError(runError instanceof Error ? runError.message : "Judge validation failed")
     } finally {
@@ -109,10 +133,18 @@ export function JudgeValidation() {
         </p>
       )}
 
-      <Button variant="outline" size="sm" onClick={() => void runValidation()} disabled={running} className="mt-4">
-        <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${running ? "animate-spin" : ""}`} />
-        {running ? "Running judge…" : `Run Judge Validation${runs.length > 0 ? " Again" : ""}`}
-      </Button>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <Button variant="outline" size="sm" onClick={() => void runValidation()} disabled={running} className="gap-1.5">
+          <RefreshCw className={`h-3.5 w-3.5 ${running ? "animate-spin" : ""}`} />
+          {running ? "Running judge…" : `Run Judge Validation${runs.length > 0 ? " Again" : ""}`}
+        </Button>
+        {runs.length > 0 && (
+          <Button variant="outline" size="sm" onClick={() => void clearRuns()} disabled={running} className="gap-1.5">
+            <Trash2 className="h-3.5 w-3.5" />
+            Clear old data
+          </Button>
+        )}
+      </div>
 
       {runs.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-3">

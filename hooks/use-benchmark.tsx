@@ -88,7 +88,7 @@ export function BenchmarkProvider({ children }: { children: ReactNode }) {
       const s = body.data?.settings
       if (!s) return
 
-      const llmModel = s.llmProvider === "gemini" ? s.geminiModel : s.groqModel
+      const llmModel = s.llmProvider === "gemini" ? s.geminiModel : s.llmProvider === "openrouter" ? s.openrouterModel : s.groqModel
       const embeddingModel = s.embeddingProvider === "cohere" ? s.cohereEmbedModel : s.embeddingModel
       const rerankerModel = s.rerankerProvider === "cohere" ? s.cohereRerankModel : s.rerankerModel
       const topK = typeof s.defaultTopK === "number" ? s.defaultTopK : undefined

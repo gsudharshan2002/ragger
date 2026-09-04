@@ -7,7 +7,6 @@ import { ChatComposer } from "@/components/rag/chat-composer"
 import { ChatMessage } from "@/components/rag/chat-message"
 import { RagExecutionCanvas } from "@/components/rag/rag-execution-canvas"
 import { UploadModal } from "@/components/rag/upload-modal"
-import { TracePanel } from "@/components/rag/trace-panel"
 import { ChatVisual } from "@/components/rag/chat-visual"
 import { useRagContext } from "@/hooks/use-rag"
 import type { RagTrace } from "@/lib/types"
@@ -67,9 +66,7 @@ export default function Home() {
     events,
     strategy,
     sendMessage,
-    tracePanelOpen,
     setTracePanelOpen,
-    selectedTrace,
     setSelectedTrace,
   } = useRagContext()
 
@@ -257,14 +254,6 @@ export default function Home() {
       )}
 
       <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} />
-      <TracePanel
-        open={tracePanelOpen}
-        onClose={() => {
-          setTracePanelOpen(false)
-          setSelectedTrace(null)
-        }}
-        trace={selectedTrace}
-      />
     </div>
   )
 }

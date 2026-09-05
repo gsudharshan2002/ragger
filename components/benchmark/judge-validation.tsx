@@ -112,19 +112,30 @@ export function JudgeValidation() {
     }
   }
 
-  const latest = runs[runs.length - 1]
+  const latest = runs.find((r) => r.comparisons?.length) ?? runs[0]
   const disagreements = latest?.comparisons.filter((c) => !c.agree && c.has_keywords) ?? []
+
+  function formatTimestamp(iso: string): string {
+    const d = new Date(iso)
+    if (Number.isNaN(d.getTime())) return iso
+    return d.toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
 
   return (
     <section className="mt-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="flex items-center gap-2">
         <Gavel className="h-5 w-5 text-emerald-600" />
-        <h2 className="text-lg font-semibold text-gray-900">Judge Agreement</h2>
+        <h2 className="text-lg font-semibold text-gray-900">Human vs. AI Judge Agreement</h2>
       </div>
       <p className="mt-1 text-sm text-gray-500">
-        Runs the currently active judge prompt against the exact answers you already hand-labeled, and measures
-        agreement. Run this once now (before), write your prediction, then again after the judge prompt is
-        iterated (after) - the two runs below will show the before/after comparison.
+        Compares your hand labels (what you marked as pass/fail) against the AI judge&apos;s verdict for the same
+        answers, and measures how often they agree. Run it once, then again after you improve the judge prompt, to
+        see the before/after change. The history below persists across page loads.
       </p>
 
       {error && (
@@ -136,12 +147,12 @@ export function JudgeValidation() {
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" onClick={() => void runValidation()} disabled={running} className="gap-1.5">
           <RefreshCw className={`h-3.5 w-3.5 ${running ? "animate-spin" : ""}`} />
-          {running ? "Running judge…" : `Run Judge Validation${runs.length > 0 ? " Again" : ""}`}
+          {running ? "Comparing…" : "Run Agreement Check"}
         </Button>
         {runs.length > 0 && (
           <Button variant="outline" size="sm" onClick={() => void clearRuns()} disabled={running} className="gap-1.5">
             <Trash2 className="h-3.5 w-3.5" />
-            Clear old data
+            Clear history
           </Button>
         )}
       </div>
@@ -149,23 +160,33 @@ export function JudgeValidation() {
       {runs.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-3">
           {runs.map((run, i) => (
-            <div key={i} className="rounded-lg border border-gray-100 bg-gray-50 p-3 text-sm">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
-                Run {i + 1}
-                {i === 0 ? " (before)" : ""}
-                {i === 1 ? " (after)" : ""}
-                {i >= 2 ? ` (run ${i + 1})` : ""}
+            <div
+              key={run._filename ?? i}
+              className={`rounded-lg border p-3 text-sm ${i === 0 ? "border-emerald-200 bg-emerald-50/40" : "border-gray-100 bg-gray-50"}`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                  {i === 0 ? "Most recent run" : `Earlier run ${i}`}
+                </span>
+                <span className="text-[11px] text-gray-400">{formatTimestamp(run.validated_at)}</span>
               </div>
-              <div className="mt-1 text-lg font-bold text-gray-900">{(run.agreement_rate * 100).toFixed(1)}%</div>
-              <div className="text-xs text-gray-500">{run.graded_count}/{run.total_labels} graded</div>
+              <div className={`mt-1 text-lg font-bold ${i === 0 ? "text-emerald-700" : "text-gray-900"}`}>
+                {(run.agreement_rate * 100).toFixed(1)}% agreement
+              </div>
+              <div className="text-xs text-gray-500">
+                {run.graded_count}/{run.total_labels} cases graded by the AI judge
+              </div>
+              {run.ungraded_count > 0 && (
+                <div className="text-[11px] text-amber-600">{run.ungraded_count} could not be graded</div>
+              )}
               {run.ungrounded_count > 0 && (
                 <div className="text-[11px] text-amber-600">
-                  {run.ungrounded_count} excluded (no expected keywords to grade against)
+                  {run.ungrounded_count} excluded (no expected keywords)
                 </div>
               )}
               {run.graded_count > 0 && run.graded_count < 5 && (
                 <div className="mt-1 text-[11px] text-amber-600">
-                  Small sample — agreement rate may not be statistically meaningful
+                  Small sample — agreement may not be statistically meaningful
                 </div>
               )}
             </div>
@@ -175,7 +196,9 @@ export function JudgeValidation() {
 
       {latest && (
         <div className="mt-6">
-          <h3 className="text-sm font-semibold text-gray-900">Disagreements ({disagreements.length})</h3>
+          <h3 className="text-sm font-semibold text-gray-900">
+            Cases where you and the AI judge disagreed ({disagreements.length})
+          </h3>
           <div className="mt-2 space-y-3">
             {disagreements.map((c) => (
               <div key={c.case_id} className="rounded-lg border border-rose-100 bg-rose-50/50 p-3 text-sm">
@@ -184,23 +207,31 @@ export function JudgeValidation() {
                 <p className="mt-1 text-gray-700">{c.answer || "(empty)"}</p>
                 <div className="mt-2 flex gap-4 text-xs">
                   <span>
-                    You: <strong className={c.human_label === "pass" ? "text-emerald-600" : "text-rose-600"}>{c.human_label}</strong>
+                    Your label:{" "}
+                    <strong className={c.human_label === "pass" ? "text-emerald-600" : "text-rose-600"}>
+                      {c.human_label}
+                    </strong>
                   </span>
                   <span>
-                    Judge: <strong className={c.judge_verdict === "pass" ? "text-emerald-600" : "text-rose-600"}>{c.judge_verdict ?? "no verdict"}</strong>
+                    AI judge:{" "}
+                    <strong className={c.judge_verdict === "pass" ? "text-emerald-600" : "text-rose-600"}>
+                      {c.judge_verdict ?? "no verdict"}
+                    </strong>
                   </span>
                 </div>
-                {c.judge_reasoning && <p className="mt-1 text-xs italic text-gray-500">Judge said: {c.judge_reasoning}</p>}
+                {c.judge_reasoning && <p className="mt-1 text-xs italic text-gray-500">AI judge said: {c.judge_reasoning}</p>}
               </div>
             ))}
-            {disagreements.length === 0 && <p className="text-sm text-gray-500">No disagreements in this run.</p>}
+            {disagreements.length === 0 && (
+              <p className="text-sm text-gray-500">No disagreements in the most recent run — you and the AI judge fully agreed.</p>
+            )}
           </div>
         </div>
       )}
 
       <div className="mt-6 border-t border-gray-100 pt-4">
         <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
-          Prediction (write this BEFORE iterating the judge prompt)
+          Your prediction — what will improving the judge prompt fix? (write this BEFORE you change it)
         </label>
         <textarea
           value={prediction}
@@ -208,7 +239,7 @@ export function JudgeValidation() {
             setPrediction(e.target.value)
             setPredictionSaved(false)
           }}
-          placeholder="One sentence: what do you think fixing the judge prompt will fix?"
+          placeholder="One sentence: what do you expect changing the judge prompt to improve?"
           className="mt-1 w-full rounded-lg border border-gray-200 p-2 text-sm"
           rows={2}
         />
@@ -220,7 +251,7 @@ export function JudgeValidation() {
           className="mt-2 gap-1.5"
         >
           <Save className="h-3.5 w-3.5" />
-          {predictionSaved ? "Saved" : "Save Prediction"}
+          {predictionSaved ? "Saved" : "Save prediction"}
         </Button>
       </div>
     </section>

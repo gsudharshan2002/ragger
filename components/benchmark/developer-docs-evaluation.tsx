@@ -28,6 +28,7 @@ type CaseResult = {
   question: string
   mode: string
   regression: boolean
+  status?: "passed" | "failed"
   assertions?: CaseAssertions
   faithfulness?: number | null
   context_precision?: number | null
@@ -104,8 +105,9 @@ export function DeveloperDocsEvaluation() {
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState(false)
   const [error, setError] = useState("")
+  const [strategy, setStrategy] = useState("hybrid-rerank-mmr")
+  const [compareDifferentStrategy, setCompareDifferentStrategy] = useState(false)
   const [baselineStrategy, setBaselineStrategy] = useState("vector")
-  const [improvedStrategy, setImprovedStrategy] = useState("hybrid-rrf")
   const [casesJson, setCasesJson] = useState<string>("")
   const [useRagas, setUseRagas] = useState(false)
   const [noJudge, setNoJudge] = useState(false)
@@ -164,8 +166,8 @@ export function DeveloperDocsEvaluation() {
         method: "POST",
         body: JSON.stringify({
           cases,
-          baselineStrategy,
-          improvedStrategy,
+          strategy,
+          baselineStrategy: compareDifferentStrategy ? baselineStrategy : undefined,
           noJudge,
           useRagas,
         }),
@@ -216,13 +218,18 @@ export function DeveloperDocsEvaluation() {
   const deprecationViolations = improvedResults.flatMap((r) => r.assertions?.deprecated_without_migration_note ?? [])
   const assertionViolationCount = endpointViolations.length + deprecationViolations.length
   const regressionCases = improvedResults.filter((r) => r.regression)
+  const regressionCasesFailing = regressionCases.filter((r) => r.status !== "passed")
+  const regressionCasesHolding = regressionCases.filter((r) => r.status === "passed")
 
   // The bonus finding: an answer fully grounded in *some* context
   // (faithfulness >= 0.9) while that context was the wrong document
   // version for the question (mode === wrong_source). The average
   // faithfulness across all cases can look fine while hiding exactly this.
+  // retrieval_score < 1 is required too - a wrong_source-tagged case where
+  // retrieval actually found the expected source is just a well-answered
+  // case, not a "confidently wrong" one.
   const confidentlyWrongCases = improvedResults.filter(
-    (r) => r.mode === "wrong_source" && (r.faithfulness ?? 0) >= 0.9
+    (r) => r.mode === "wrong_source" && (r.faithfulness ?? 0) >= 0.9 && (r.retrieval_score ?? 1) < 1
   )
 
   return (
@@ -234,26 +241,19 @@ export function DeveloperDocsEvaluation() {
             <h2 className="text-lg font-semibold text-gray-900">Developer Documentation Evaluation Reference</h2>
           </div>
           <p className="mt-1 text-sm text-gray-500">
-            Paste a test-case JSON array, pick two strategies to compare, then click Refresh to run.
+            Paste a test-case JSON array, then click Refresh to run this strategy now. It&apos;s automatically
+            compared against the most recent PRIOR run of the same strategy - before vs. after your latest
+            change, not two different retrieval methods.
           </p>
         </div>
       </div>
 
       <div className="mt-4 flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Baseline</label>
+          <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Strategy</label>
           <SelectField
-            value={baselineStrategy}
-            onChange={setBaselineStrategy}
-            options={STRATEGY_OPTIONS}
-            width="w-[190px]"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Improved</label>
-          <SelectField
-            value={improvedStrategy}
-            onChange={setImprovedStrategy}
+            value={strategy}
+            onChange={setStrategy}
             options={STRATEGY_OPTIONS}
             width="w-[190px]"
           />
@@ -300,11 +300,31 @@ export function DeveloperDocsEvaluation() {
         />
         Also compute RAGAS bonus metrics (faithfulness, context precision) — 2 extra LLM calls per case, slower
       </label>
+      <label className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+        <input
+          type="checkbox"
+          checked={compareDifferentStrategy}
+          onChange={(e) => setCompareDifferentStrategy(e.target.checked)}
+          className="h-3.5 w-3.5"
+        />
+        Advanced: compare against a different strategy run fresh now, instead of this strategy&apos;s own previous run
+      </label>
+      {compareDifferentStrategy && (
+        <div className="mt-2 flex flex-col gap-1">
+          <label className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Compare against</label>
+          <SelectField
+            value={baselineStrategy}
+            onChange={setBaselineStrategy}
+            options={STRATEGY_OPTIONS}
+            width="w-[190px]"
+          />
+        </div>
+      )}
 
       {loading && <p className="mt-6 text-sm text-gray-500">Loading evaluation reports...</p>}
       {running && !loading && (
         <p className="mt-6 text-sm text-blue-600">
-          Running {baselineStrategy} vs {improvedStrategy} on {runCaseCount} cases — each case makes {noJudge ? "1" : "2"} LLM call{noJudge ? "" : "s"}{useRagas ? " + 2 RAGAS" : ""}. This may take a few minutes…
+          Running {strategy}{compareDifferentStrategy ? ` vs ${baselineStrategy}` : " (vs. its own previous run)"} on {runCaseCount} cases — each case makes {noJudge ? "1" : "2"} LLM call{noJudge ? "" : "s"}{useRagas ? " + 2 RAGAS" : ""}. This may take a few minutes…
         </p>
       )}
       {error && <p className="mt-6 flex items-center gap-2 text-sm text-rose-600"><AlertCircle className="h-4 w-4" />{error}</p>}
@@ -313,7 +333,8 @@ export function DeveloperDocsEvaluation() {
       )}
       {!loading && !error && improved && !baseline && (
         <p className="mt-6 text-sm text-amber-700">
-          Only one run found ({improved.strategy}). Pick a different baseline strategy and run again to compare.
+          This is the first saved run of {improved.strategy}. Make a change, then Refresh again to compare
+          against this run.
         </p>
       )}
 
@@ -449,16 +470,44 @@ export function DeveloperDocsEvaluation() {
                 Cases replayed verbatim from a real, previously-observed failure - locked in so it can't silently
                 come back.
               </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {regressionCases.map((r) => (
-                  <span
-                    key={r.id}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800"
-                  >
-                    {r.id}
-                  </span>
-                ))}
-              </div>
+
+              {regressionCasesFailing.length > 0 && (
+                <div className="mt-3">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-700">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    Still Failing ({regressionCasesFailing.length})
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap gap-2">
+                    {regressionCasesFailing.map((r) => (
+                      <span
+                        key={r.id}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-800"
+                      >
+                        {r.id}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {regressionCasesHolding.length > 0 && (
+                <div className="mt-3">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Holding ({regressionCasesHolding.length})
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap gap-2">
+                    {regressionCasesHolding.map((r) => (
+                      <span
+                        key={r.id}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800"
+                      >
+                        {r.id}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -515,7 +564,10 @@ export function DeveloperDocsEvaluation() {
           )}
 
           <p className="mt-4 text-xs text-gray-400">
-            Reference reports: {baseline?.strategy ?? "not available"} to {improved?.strategy ?? "not available"}. Current dataset results appear in Benchmark Results below.
+            {baseline && improved && baseline.strategy === improved.strategy
+              ? `${improved.strategy}: previous run vs. latest run.`
+              : `Reference reports: ${baseline?.strategy ?? "not available"} to ${improved?.strategy ?? "not available"}.`}{" "}
+            Current dataset results appear in Benchmark Results below.
           </p>
         </>
       )}

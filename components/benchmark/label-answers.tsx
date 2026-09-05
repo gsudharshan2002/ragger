@@ -228,7 +228,7 @@ export function LabelAnswers() {
   const current = cases[Math.min(currentIndex, Math.max(0, cases.length - 1))]
 
   return (
-    <section className="mt-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
       <div className="flex items-center gap-2">
         <CheckCircle2 className="h-5 w-5 text-emerald-600" />
         <h2 className="text-lg font-semibold text-gray-900">Blind Judge Validation - Hand Labels</h2>

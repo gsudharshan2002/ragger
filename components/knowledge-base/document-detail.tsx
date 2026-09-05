@@ -11,6 +11,7 @@ import {
   Clock,
   Check,
   AlertCircle,
+  AlertTriangle,
   Loader2,
   RefreshCw,
   Trash2,
@@ -104,6 +105,12 @@ const STATUS_CONFIG: Record<
     bg: "bg-emerald-50",
     icon: Check,
   },
+  needs_reembedding: {
+    label: "Needs Reembedding",
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    icon: AlertTriangle,
+  },
   failed: {
     label: "Failed",
     color: "text-red-600",
@@ -180,7 +187,7 @@ export function DocumentDetail({
 
   const panelClass = inline
     ? "flex flex-col h-full bg-white"
-    : "fixed inset-y-0 right-0 w-full max-w-2xl bg-white border-l border-gray-200 shadow-[-8px_0_24px_-8px_rgba(0,0,0,0.08)] z-40 flex flex-col"
+    : "fixed inset-y-0 right-0 w-full max-w-2xl bg-white popup-bevel z-40 flex flex-col"
 
   if (loading) {
     return (

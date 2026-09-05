@@ -114,7 +114,7 @@ export default function Home() {
 
       {!hasMessages ? (
         <main className="flex-1 flex items-center justify-center relative z-10 px-4 overflow-hidden">
-          <div className="relative z-10 w-full max-w-7xl flex items-center gap-12">
+          <div className="relative z-10 w-full max-w-7xl flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -149,12 +149,12 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="text-center mb-8 flex-1 max-w-4xl"
+              className="text-center mb-20 sm:mb-8 flex-1 max-w-4xl"
             >
-              <h1 className="text-6xl font-semibold text-white tracking-tight mb-2">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight mb-2">
                 RAG LAB
               </h1>
-              <p className="text-sm text-gray-400 max-w-md mx-auto leading-relaxed mb-8">
+              <p className="text-sm text-gray-400 max-w-md mx-auto leading-relaxed mb-6 sm:mb-8">
                 Ask your documents anything
               </p>
 
@@ -201,7 +201,7 @@ export default function Home() {
         </main>
       ) : (
         <main className="flex-1 flex flex-col min-h-0 relative z-10">
-          <div ref={chatContainerRef} className="flex-1 overflow-y-auto pb-24">
+          <div ref={chatContainerRef} className="flex-1 overflow-y-auto pb-40 sm:pb-24">
             <div className="max-w-3xl mx-auto py-4 space-y-2">
               <AnimatePresence mode="popLayout">
                 {session.messages.map((msg) => (
@@ -247,7 +247,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 z-20">
+          <div className="absolute bottom-14 sm:bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
             <ChatComposer />
           </div>
         </main>

@@ -35,6 +35,8 @@ export interface Chunk {
   bm25Rank?: number
   rrfScore?: number
   rerankScore?: number
+  keywords?: string[]
+  matchedKeywords?: string[]
   selected?: boolean
 }
 
@@ -446,6 +448,7 @@ export type DocumentProcessingStatus =
   | "embedding"
   | "indexing"
   | "ready"
+  | "needs_reembedding"
   | "failed"
 
 export interface DocumentMetadata {
@@ -480,6 +483,8 @@ export interface StoredChunk {
   content: string
   tokenCount: number
   embedding?: number[]
+  keywords?: string[]
+  metadata?: Record<string, unknown>
   startOffset: number
   endOffset: number
 }

@@ -109,7 +109,7 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
     <div className="relative z-10 px-4 pb-4">
       <div className="max-w-4xl mx-auto">
         <div className="relative bg-white rounded-full shadow-[0_2px_20px_-4px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] transition-shadow hover:shadow-[0_4px_30px_-4px_rgba(0,0,0,0.12),0_0_0_1px_rgba(0,0,0,0.06)]">
-          <div className="flex items-center gap-1.5 px-2 py-1.5">
+          <div className="flex items-center gap-1 px-1.5 sm:px-2 py-1 sm:py-1.5">
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -117,12 +117,12 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
                     variant="ghost"
                     size="icon"
                     onClick={onUploadClick}
-                    className="shrink-0 w-8 h-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100/60"
-                  />
+                    className="shrink-0 w-7 h-7 sm:w-8 sm:h-8 min-w-[44px] min-h-[44px] sm:min-w-8 sm:min-h-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100/60"
+                  >
+                    <Paperclip className="w-4 h-4" />
+                  </Button>
                 }
-              >
-                <Paperclip className="w-4 h-4" />
-              </TooltipTrigger>
+              />
               <TooltipContent>Attach file</TooltipContent>
             </Tooltip>
 
@@ -134,20 +134,20 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
                       onClick={() => setStrategyOpen(!strategyOpen)}
                       onMouseEnter={() => setStrategyOpen(true)}
                       className={cn(
-                        "flex items-center gap-1 px-2 py-2 rounded-full text-[11px] font-medium transition-all border overflow-hidden",
+                        "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 min-h-[44px] sm:min-h-8 rounded-full text-[11px] font-medium transition-all border overflow-hidden",
                         strategyOpen
-                          ? "bg-gray-100 border-gray-200 text-gray-700 w-auto"
-                          : "bg-white border-black/[0.06] text-gray-500 hover:bg-gray-50 hover:border-gray-200 w-8 justify-center"
+                          ? "bg-gray-100 border-gray-200 text-gray-700 w-auto max-w-[110px]"
+                          : "bg-white border-black/[0.06] text-gray-500 hover:bg-gray-50 hover:border-gray-200 w-7 sm:w-8 justify-center"
                       )}
-                    />
+                    >
+                      {getStrategyIcon(strategy)}
+                      <span className={cn("whitespace-nowrap overflow-hidden text-ellipsis transition-all duration-200", strategyOpen ? "opacity-100 ml-1" : "opacity-0 w-0 ml-0")}>
+                        {currentStrategy.label}
+                      </span>
+                      <ChevronDown className={cn("w-3.5 h-3.5 transition-all duration-200 shrink-0", strategyOpen ? "opacity-100 ml-0.5" : "opacity-0 w-0 ml-0")} />
+                    </button>
                   }
-                >
-                  {getStrategyIcon(strategy)}
-                  <span className={cn("whitespace-nowrap transition-all duration-200", strategyOpen ? "opacity-100 ml-1" : "opacity-0 w-0 ml-0")}>
-                    {currentStrategy.label}
-                  </span>
-                  <ChevronDown className={cn("w-3 h-3 transition-all duration-200 shrink-0", strategyOpen ? "opacity-100 ml-0.5" : "opacity-0 w-0 ml-0")} />
-                </TooltipTrigger>
+                />
                 <TooltipContent>Select retrieval strategy</TooltipContent>
               </Tooltip>
 
@@ -158,7 +158,7 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 4, scale: 0.98 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute bottom-full mb-2 left-0 w-64 bg-white rounded-xl shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12),0_0_0_1px_rgba(0,0,0,0.06)] border border-black/[0.04] overflow-hidden"
+                    className="absolute bottom-full mb-2 left-0 w-64 bg-white rounded-xl overflow-hidden popup-bevel-sm"
                   >
                     <div className="p-1">
                       {RAG_STRATEGIES.map((s) => (
@@ -186,7 +186,7 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
               </AnimatePresence>
             </div>
 
-            <div className="relative" ref={kbDropdownRef} onMouseLeave={() => setKbOpen(false)}>
+            <div className="relative hidden sm:block" ref={kbDropdownRef} onMouseLeave={() => setKbOpen(false)}>
               <Tooltip>
                 <TooltipTrigger
                   render={
@@ -196,20 +196,20 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
                       className={cn(
                         "flex items-center gap-1 px-2 py-2 rounded-full text-[11px] font-medium transition-all border overflow-hidden",
                         kbOpen
-                          ? "bg-gray-100 border-gray-200 text-gray-700 w-auto"
+                          ? "bg-gray-100 border-gray-200 text-gray-700 w-auto max-w-[110px]"
                           : selectedKb
                             ? "bg-blue-50 border-blue-200 text-blue-600 w-8 justify-center"
                             : "bg-white border-black/[0.06] text-gray-500 hover:bg-gray-50 hover:border-gray-200 w-8 justify-center"
                       )}
-                    />
+                    >
+                      <Database className="w-3 h-3 shrink-0" />
+                      <span className={cn("whitespace-nowrap overflow-hidden text-ellipsis transition-all duration-200", kbOpen ? "opacity-100 ml-1" : "opacity-0 w-0 ml-0")}>
+                        {selectedKb ? selectedKb.name : "All KBs"}
+                      </span>
+                      <ChevronDown className={cn("w-3.5 h-3.5 transition-all duration-200 shrink-0", kbOpen ? "opacity-100 ml-0.5" : "opacity-0 w-0 ml-0")} />
+                    </button>
                   }
-                >
-                  <Database className="w-3 h-3 shrink-0" />
-                  <span className={cn("whitespace-nowrap transition-all duration-200", kbOpen ? "opacity-100 ml-1" : "opacity-0 w-0 ml-0")}>
-                    {selectedKb ? selectedKb.name : "All KBs"}
-                  </span>
-                  <ChevronDown className={cn("w-3 h-3 transition-all duration-200 shrink-0", kbOpen ? "opacity-100 ml-0.5" : "opacity-0 w-0 ml-0")} />
-                </TooltipTrigger>
+                />
                 <TooltipContent>Select knowledge base</TooltipContent>
               </Tooltip>
 
@@ -220,7 +220,7 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 4, scale: 0.98 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute bottom-full mb-2 left-0 w-56 bg-white rounded-xl shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12),0_0_0_1px_rgba(0,0,0,0.06)] border border-black/[0.04] overflow-hidden"
+                    className="absolute bottom-full mb-2 left-0 w-56 bg-white rounded-xl overflow-hidden popup-bevel-sm"
                   >
                     <div className="p-1">
                       <button
@@ -275,7 +275,7 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
               placeholder="Ask a question about your documents..."
               rows={1}
               disabled={isExecuting}
-              className="flex-1 resize-none bg-transparent px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none disabled:opacity-50 min-h-[40px] max-h-[160px] leading-relaxed"
+              className="flex-1 min-w-0 resize-none bg-transparent px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none disabled:opacity-50 min-h-[40px] max-h-[160px] leading-relaxed"
             />
 
             <Tooltip>
@@ -286,14 +286,14 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
                     size="icon"
                     onClick={handleMicToggle}
                     className={cn(
-                      "shrink-0 w-8 h-8 rounded-full transition-colors",
+                      "shrink-0 w-7 h-7 sm:w-8 sm:h-8 min-w-[44px] min-h-[44px] sm:min-w-8 sm:min-h-8 rounded-full transition-colors",
                       isListening ? "text-red-500 bg-red-50 hover:bg-red-100" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100/60"
                     )}
-                  />
+                  >
+                    {isListening ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mic className="w-4 h-4" />}
+                  </Button>
                 }
-              >
-                {isListening ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mic className="w-4 h-4" />}
-              </TooltipTrigger>
+              />
               <TooltipContent>{isListening ? "Stop listening" : "Voice input"}</TooltipContent>
             </Tooltip>
 
@@ -305,13 +305,13 @@ export function ChatComposer({ onUploadClick }: { onUploadClick?: () => void }) 
                 disabled={!value.trim()}
                 size="icon"
                 className={cn(
-                  "shrink-0 w-8 h-8 rounded-full transition-all",
+                  "shrink-0 w-8 h-8 min-w-[44px] min-h-[44px] sm:min-w-8 sm:min-h-8 rounded-full transition-all",
                   value.trim()
                     ? "bg-gray-900 text-white hover:bg-gray-800 shadow-sm"
                     : "bg-gray-100 text-gray-400"
                 )}
               >
-                <Send className="w-3.5 h-3.5" />
+                <Send className="w-4 h-4" />
               </Button>
             )}
           </div>

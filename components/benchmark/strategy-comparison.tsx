@@ -151,7 +151,7 @@ export function StrategyComparison() {
           <ChevronDown className={cn("h-4 w-4 text-gray-400 transition-transform shrink-0 ml-2", isOpen && "rotate-180")} />
         </button>
         <AnimatePresence>{isOpen && (
-          <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }} className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+          <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }} className="absolute z-50 mt-1 w-full bg-white rounded-xl overflow-hidden popup-bevel-sm">
             <ScrollArea className="max-h-64">
               {runList.length === 0 ? <div className="px-4 py-6 text-center text-sm text-gray-500">No runs available.</div> : runList.map((run) => (
                 <button key={run.id} type="button" onClick={() => { onSelect(run.id); setDropdownOpen(null) }} className={cn("w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0", run.id === selectedId && "bg-indigo-50")}>

@@ -62,7 +62,7 @@ export function ChatMessage({ message, onViewTrace }: ChatMessageProps) {
                   onClick={() => setShowSources(!showSources)}
                   className="flex items-center gap-1 text-[11px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showSources ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                  {showSources ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                   Sources ({uniqueSources.length})
                 </button>
                 {showSources && (
@@ -95,7 +95,7 @@ export function ChatMessage({ message, onViewTrace }: ChatMessageProps) {
                               <span>{source.section}</span>
                             </>
                           )}
-                          <ExternalLink className="w-2.5 h-2.5 text-gray-300" />
+                          <ExternalLink className="w-3.5 h-3.5 text-gray-300" />
                         </Link>
                       )
                     })}
@@ -129,12 +129,12 @@ export function ChatMessage({ message, onViewTrace }: ChatMessageProps) {
                           variant="ghost"
                           size="icon"
                           onClick={() => copyToClipboard(message.trace!.overview.traceId)}
-                          className="w-5 h-5 text-gray-300 hover:text-gray-500"
-                        />
+                          className="w-5 h-5 text-gray-300 hover:text-gray-500 hidden sm:inline-flex"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </Button>
                       }
-                    >
-                      <Copy className="w-2.5 h-2.5" />
-                    </TooltipTrigger>
+                    />
                     <TooltipContent>Copy trace ID</TooltipContent>
                   </Tooltip>
                   <Button

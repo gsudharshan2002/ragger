@@ -60,7 +60,7 @@ export function SelectField({ value, onChange, options, placeholder = "Select…
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.12 }}
-            className="absolute z-50 mt-1 w-full min-w-[160px] rounded-lg border border-black/[0.08] bg-white py-1 shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)]"
+            className="absolute z-50 mt-1 w-full min-w-[160px] rounded-lg bg-white py-1 popup-bevel-sm"
           >
             {options.map((opt) => (
               <button

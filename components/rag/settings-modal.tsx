@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { apiFetch, previewUrl as previewUrlHelper } from "@/lib/api"
 import { createPortal } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Settings, Loader2, Check, AlertCircle, AlertTriangle } from "lucide-react"
+import { X, Settings, Loader2, Check, AlertCircle, AlertTriangle, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SelectField } from "@/components/ui/select-field"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
@@ -14,9 +14,10 @@ import { cn } from "@/lib/utils"
 interface SettingsModalProps {
   open: boolean
   onClose: () => void
+  onDataCleared?: () => void
 }
 
-export function SettingsModal({ open, onClose }: SettingsModalProps) {
+export function SettingsModal({ open, onClose, onDataCleared }: SettingsModalProps) {
   const [settings, setSettings] = useState<AppSettings | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -25,6 +26,9 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
   const [pendingProvider, setPendingProvider] = useState<"local" | "cohere" | null>(null)
   const [reindexing, setReindexing] = useState(false)
   const [reindexMsg, setReindexMsg] = useState<string | null>(null)
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false)
+  const [clearing, setClearing] = useState(false)
+  const [clearMsg, setClearMsg] = useState<"ok" | "err" | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -68,6 +72,29 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
     } finally {
       setReindexing(false)
       setTimeout(() => setReindexMsg(null), 5000)
+    }
+  }
+
+  const clearAllData = async () => {
+    if (clearing) return
+    setClearing(true)
+    setClearMsg(null)
+    try {
+      const res = await apiFetch("/rag/clear-data", { method: "POST" })
+      const body: ApiResponse<{ documents: number; chunks: number; knowledgeBases: number; folders: number }> = await res.json()
+      if (body.success) {
+        setTotalChunks(0)
+        setClearMsg("ok")
+        setClearConfirmOpen(false)
+        onDataCleared?.()
+      } else {
+        setClearMsg("err")
+      }
+    } catch {
+      setClearMsg("err")
+    } finally {
+      setClearing(false)
+      setTimeout(() => setClearMsg(null), 6000)
     }
   }
 
@@ -118,7 +145,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2 }}
-            className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-black/[0.06] overflow-hidden"
+            className="w-full max-w-lg bg-white rounded-2xl popup-bevel overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
@@ -384,6 +411,39 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                       />
                     </Field>
                   </Section>
+
+                  <Section title="Danger Zone">
+                    <div className="rounded-xl border border-red-100 bg-red-50/50 p-4">
+                      <p className="text-xs font-semibold text-red-700 mb-1">
+                        Clear all documents &amp; indexes
+                      </p>
+                      <p className="text-[11px] text-red-600/80 leading-relaxed mb-3">
+                        Deletes every uploaded document, its source PDF, all chunked and
+                        indexed data, knowledge bases and folders.
+                        {totalChunks > 0 && ` ${totalChunks} chunk${totalChunks === 1 ? "" : "s"} are currently indexed.`}{" "}
+                        Your settings, API keys, datasets and traces are not touched.
+                      </p>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setClearConfirmOpen(true)}
+                        className="rounded-full gap-1.5 text-xs"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Clear all data
+                      </Button>
+                      {clearMsg === "ok" && (
+                        <p className="mt-2 text-[11px] text-emerald-600 flex items-center gap-1">
+                          <Check className="w-3 h-3" /> All documents and indexes cleared.
+                        </p>
+                      )}
+                      {clearMsg === "err" && (
+                        <p className="mt-2 text-[11px] text-red-600 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" /> Failed to clear data. Try again.
+                        </p>
+                      )}
+                    </div>
+                  </Section>
                 </>
               )}
             </div>
@@ -420,6 +480,30 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
           <Button variant="outline" onClick={() => setPendingProvider(null)}>Cancel</Button>
           <Button className="bg-gray-900 text-white hover:bg-gray-800" onClick={confirmProviderSwitch}>
             Switch &amp; Re-index
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <Dialog open={clearConfirmOpen} onOpenChange={(o) => { if (!o && !clearing) setClearConfirmOpen(false) }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-red-50">
+            <Trash2 className="h-5 w-5 text-red-600" />
+          </div>
+          <DialogTitle className="text-center">Delete all documents &amp; indexes?</DialogTitle>
+          <DialogDescription className="text-center">
+            This permanently deletes every uploaded document, its source PDF file, all chunked
+            and indexed data, knowledge bases and folders.
+            {totalChunks > 0 && ` ${totalChunks} chunk${totalChunks === 1 ? "" : "s"} will be removed.`}{" "}
+            This cannot be undone. Settings, API keys, datasets and traces stay intact.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="sm:justify-center">
+          <Button variant="outline" onClick={() => setClearConfirmOpen(false)} disabled={clearing}>Cancel</Button>
+          <Button className="bg-red-600 text-white hover:bg-red-700" onClick={clearAllData} disabled={clearing}>
+            {clearing ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <Trash2 className="w-3.5 h-3.5 mr-1" />}
+            {clearing ? "Deleting…" : "Delete everything"}
           </Button>
         </DialogFooter>
       </DialogContent>

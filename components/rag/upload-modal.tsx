@@ -95,6 +95,7 @@ export function UploadModal({ open, onClose, knowledgeBaseId }: UploadModalProps
       case "indexing":
         return "embedding"
       case "ready":
+      case "needs_reembedding":
         return "ready"
       case "failed":
         return "error"
@@ -310,7 +311,7 @@ export function UploadModal({ open, onClose, knowledgeBaseId }: UploadModalProps
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <div className="w-full max-w-lg bg-white rounded-2xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.15)] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full max-w-lg bg-white rounded-2xl popup-bevel overflow-hidden" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between px-6 py-4 border-b border-black/[0.04]">
                 <div>
                   <h2 className="text-sm font-semibold text-gray-900">Upload Documents</h2>

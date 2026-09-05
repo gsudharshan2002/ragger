@@ -77,6 +77,7 @@ export default function DocumentViewerPage({
     embedding: { label: "Embedding", color: "text-blue-600 bg-blue-50" },
     indexing: { label: "Indexing", color: "text-blue-600 bg-blue-50" },
     uploaded: { label: "Uploaded", color: "text-gray-600 bg-gray-50" },
+    needs_reembedding: { label: "Needs Reembedding", color: "text-amber-600 bg-amber-50" },
     failed: { label: "Failed", color: "text-red-600 bg-red-50" },
   }
 

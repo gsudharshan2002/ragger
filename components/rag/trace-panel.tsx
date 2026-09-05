@@ -121,7 +121,7 @@ export function TracePanel({ open, onClose, trace }: TracePanelProps) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-2xl bg-white shadow-[-8px_0_30px_-8px_rgba(0,0,0,0.1)] border-l border-black/[0.04]"
+            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-2xl bg-white popup-bevel"
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-black/[0.04]">
               <div>
@@ -137,11 +137,11 @@ export function TracePanel({ open, onClose, trace }: TracePanelProps) {
                         size="icon"
                         onClick={() => handleCopy(overview.traceId, "traceId")}
                         className="w-7 h-7 text-gray-400 hover:text-gray-600"
-                      />
+                      >
+                        {copiedField === "traceId" ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                      </Button>
                     }
-                  >
-                    {copiedField === "traceId" ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  </TooltipTrigger>
+                  />
                   <TooltipContent>Copy Trace ID</TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -152,11 +152,11 @@ export function TracePanel({ open, onClose, trace }: TracePanelProps) {
                         size="icon"
                         onClick={() => setConfirmingDelete(true)}
                         className="w-7 h-7 text-gray-400 hover:text-red-500"
-                      />
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     }
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </TooltipTrigger>
+                  />
                   <TooltipContent>Delete Trace</TooltipContent>
                 </Tooltip>
                 <Button
@@ -170,7 +170,7 @@ export function TracePanel({ open, onClose, trace }: TracePanelProps) {
               </div>
             </div>
 
-            <ScrollArea className="h-[calc(100vh-65px)]">
+            <ScrollArea className="h-[calc(100vh-65px)] pb-[env(safe-area-inset-bottom)]">
               <div className="p-6 space-y-4">
                 <TraceSection
                   title="Overview"
@@ -537,6 +537,7 @@ function RetrievalChunksTable({ chunks, muted }: { chunks: Chunk[]; muted?: bool
             <th className="text-left py-1 px-2 font-medium">Page</th>
             <th className="text-left py-1 px-2 font-medium">Section</th>
             <th className="text-left py-1 px-2 font-medium">Tokens</th>
+            <th className="text-left py-1 px-2 font-medium">Keywords</th>
           </tr>
         </thead>
         <tbody>
@@ -555,6 +556,33 @@ function RetrievalChunksTable({ chunks, muted }: { chunks: Chunk[]; muted?: bool
               <td className="py-1.5 px-2 text-gray-600">{chunk.page}</td>
               <td className="py-1.5 px-2 text-gray-600">{chunk.section}</td>
               <td className="py-1.5 px-2 font-mono text-gray-600">{chunk.tokens}</td>
+              <td className="py-1.5 px-2">
+                {chunk.matchedKeywords && chunk.matchedKeywords.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {chunk.matchedKeywords.map((kw) => (
+                      <span
+                        key={kw}
+                        className="rounded bg-emerald-50 border border-emerald-200 px-1 py-0.5 text-[9px] font-medium text-emerald-700"
+                      >
+                        {kw}
+                      </span>
+                    ))}
+                  </div>
+                ) : chunk.keywords && chunk.keywords.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {chunk.keywords.slice(0, 5).map((kw) => (
+                      <span
+                        key={kw}
+                        className="rounded bg-gray-50 border border-black/[0.06] px-1 py-0.5 text-[9px] text-gray-400"
+                      >
+                        {kw}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-gray-300">—</span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

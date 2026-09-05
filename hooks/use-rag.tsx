@@ -31,6 +31,8 @@ export function normalizeTrace(raw: Record<string, any>): RagTrace {
     section: chunk.section ?? "",
     tokens: chunk.tokens ?? chunk.token_count ?? chunk.tokenCount ?? 0,
     content: chunk.content ?? "",
+    keywords: chunk.keywords ?? [],
+    matchedKeywords: chunk.matched_keywords ?? chunk.matchedKeywords ?? [],
     method,
   })
   const chunks = (context.chunks ?? []).map((chunk: Record<string, any>) => mapChunk(chunk))
@@ -132,6 +134,7 @@ interface RagContextValue {
   stopGeneration: () => void
   addDocument: (doc: UploadedDocument) => void
   removeDocument: (id: string) => void
+  refreshDocuments: () => Promise<void>
   clearChat: () => void
   tracePanelOpen: boolean
   setTracePanelOpen: (open: boolean) => void
@@ -269,6 +272,14 @@ export function RagProvider({ children }: { children: ReactNode }) {
       documents: prev.documents.filter((d) => d.id !== id),
     }))
     apiFetch(`/documents/${id}`, { method: "DELETE" }).catch(() => {})
+  }, [])
+
+  const refreshDocuments = useCallback(async () => {
+    const res = await apiFetch("/documents")
+    const data = await res.json()
+    if (data.success && data.data) {
+      setSession((prev) => ({ ...prev, documents: data.data }))
+    }
   }, [])
 
   const sendMessage = useCallback((content: string) => {
@@ -429,6 +440,7 @@ export function RagProvider({ children }: { children: ReactNode }) {
         stopGeneration,
         addDocument,
         removeDocument,
+        refreshDocuments,
         clearChat,
         tracePanelOpen,
         setTracePanelOpen,

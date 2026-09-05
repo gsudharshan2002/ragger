@@ -75,7 +75,7 @@ export function KbCreateModal({ open, onClose, onCreated }: KbCreateModalProps) 
       />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
-          className="w-full max-w-lg bg-white rounded-2xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.15)] overflow-hidden"
+          className="w-full max-w-lg bg-white rounded-2xl overflow-hidden popup-bevel"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between px-6 py-4 border-b border-black/[0.04]">

@@ -90,12 +90,12 @@ export function BenchmarkProgress() {
 
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        className="bg-white rounded-xl shadow-lg border border-black/[0.06] p-6 space-y-5"
-      >
+        <motion.div
+         initial={{ opacity: 0, y: -10 }}
+         animate={{ opacity: 1, y: 0 }}
+         exit={{ opacity: 0, y: -10 }}
+         className="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-5"
+       >
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

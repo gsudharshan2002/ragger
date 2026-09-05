@@ -78,7 +78,7 @@ export function ChunkEditor({ chunk, onSave, onCancel }: ChunkEditorProps) {
         initial={{ opacity: 0, scale: 0.97, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.97, y: 8 }}
-        className="relative w-full max-w-2xl bg-white rounded-2xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.15)] overflow-hidden max-h-[85vh] flex flex-col"
+        className="relative w-full max-w-2xl bg-white rounded-2xl overflow-hidden max-h-[85vh] flex flex-col popup-bevel"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-black/[0.04] shrink-0">

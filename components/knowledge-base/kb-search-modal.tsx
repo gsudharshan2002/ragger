@@ -57,7 +57,7 @@ export function KbSearchModal({ open, onClose, knowledgeBaseId }: KbSearchModalP
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2 }}
-            className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-black/[0.06] overflow-hidden"
+            className="w-full max-w-lg bg-white rounded-2xl overflow-hidden popup-bevel"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">

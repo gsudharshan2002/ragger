@@ -284,7 +284,7 @@ export function DatasetManagement() {
                   v{currentVersion?.version ?? "?"}<ChevronDown className="h-3.5 w-3.5" />
                 </button>
                 {showVersionDropdown && (
-                  <div className="absolute left-0 top-full z-30 mt-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                  <div className="absolute left-0 top-full z-30 mt-1 w-48 rounded-lg bg-white py-1 popup-bevel-sm">
                     {selectedDataset.versions.map((v) => (
                       <button key={v.version} className={cn("flex w-full items-center justify-between px-3 py-2 text-sm hover:bg-gray-50", v.version === selectedVersion && "bg-gray-100 font-medium")} onClick={() => { setSelectedVersion(v.version); setShowVersionDropdown(false) }}>
                         <span>v{v.version}</span><span className="text-xs text-gray-400">{v.cases.length} cases</span>

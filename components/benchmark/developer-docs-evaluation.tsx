@@ -233,17 +233,17 @@ export function DeveloperDocsEvaluation() {
   )
 
   return (
-    <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Developer Documentation Evaluation Reference</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Developer Documentation Benchmark - Judge Enabled</h2>
           </div>
           <p className="mt-1 text-sm text-gray-500">
-            Paste a test-case JSON array, then click Refresh to run this strategy now. It&apos;s automatically
+            Judge-enabled benchmark run for developer docs. Paste a test-case JSON array, then click Refresh to run this strategy now. It&apos;s automatically
             compared against the most recent PRIOR run of the same strategy - before vs. after your latest
-            change, not two different retrieval methods.
+            change, not two different retrieval methods. This is separate from the blind hand-labeling workflow above.
           </p>
         </div>
       </div>

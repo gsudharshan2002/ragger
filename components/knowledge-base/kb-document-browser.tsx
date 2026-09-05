@@ -10,6 +10,7 @@ import {
   Check,
   Loader2,
   AlertCircle,
+  AlertTriangle,
   Clock,
   Puzzle,
   Hash,
@@ -79,6 +80,12 @@ const STATUS_CONFIG: Record<
     color: "text-emerald-600",
     bg: "bg-emerald-50",
     icon: Check,
+  },
+  needs_reembedding: {
+    label: "Needs Reembedding",
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    icon: AlertTriangle,
   },
   failed: {
     label: "Failed",

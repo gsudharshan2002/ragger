@@ -48,7 +48,7 @@ describe('api', () => {
       
       global.fetch = mockFetch as any
       
-      await apiFetch('/test', { method: 'POST', body: { test: true } })
+      await apiFetch('/test', { method: 'POST', body: JSON.stringify({ test: true }) })
       
       const call = mockFetch.mock.calls[0][1]
       expect(call?.headers?.['Content-Type']).toBe('application/json')

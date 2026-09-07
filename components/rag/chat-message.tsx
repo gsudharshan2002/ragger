@@ -6,6 +6,7 @@ import { User, Bot, ChevronDown, ChevronRight, ExternalLink, Copy, Check } from 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { StepsPanel } from "@/components/agent/steps-panel"
 import type { ChatMessage as ChatMessageType } from "@/lib/types"
 import { copyToClipboard, cn } from "@/lib/utils"
 import Link from "next/link"
@@ -19,6 +20,7 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message, onViewTrace }: ChatMessageProps) {
   const [showSources, setShowSources] = useState(false)
+  const [showSteps, setShowSteps] = useState(false)
   const [copied, setCopied] = useState(false)
   const isUser = message.role === "user"
 
@@ -101,6 +103,19 @@ export function ChatMessage({ message, onViewTrace }: ChatMessageProps) {
                     })}
                   </motion.div>
                 )}
+              </div>
+            )}
+
+            {message.agentSteps && message.agentSteps.length > 0 && (
+              <div className="space-y-1.5">
+                <button
+                  onClick={() => setShowSteps(!showSteps)}
+                  className="flex items-center gap-1 text-[11px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showSteps ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                  Agent steps ({message.agentSteps.length})
+                </button>
+                {showSteps && <StepsPanel steps={message.agentSteps} isExecuting={false} />}
               </div>
             )}
 

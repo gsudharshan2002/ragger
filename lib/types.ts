@@ -163,6 +163,38 @@ export interface UploadedDocument {
   progress?: number
 }
 
+export type AgentTool = "retrieve" | "answer" | "finish"
+
+export interface AgentAction {
+  tool: AgentTool
+  inputs: Record<string, unknown>
+}
+
+export interface AgentObservation {
+  tool: AgentTool
+  output: Record<string, any>
+  latencyMs: number
+  error?: string | null
+}
+
+export interface AgentStep {
+  stepNumber: number
+  reason: string
+  action: AgentAction
+  observation?: AgentObservation | null
+  latencyMs: number
+}
+
+export interface AgentRunResponse {
+  answer: string
+  steps: AgentStep[]
+  totalLatencyMs: number
+  inputTokens: number
+  outputTokens: number
+  traceId: string
+  sources: { document: string; document_id?: string; page: number; section?: string; chunk_id?: string }[]
+}
+
 export interface ChatMessage {
   id: string
   role: "user" | "assistant"
@@ -171,6 +203,7 @@ export interface ChatMessage {
   trace?: RagTrace
   strategy?: RagStrategy
   sources?: { document: string; page: number; section?: string; documentId?: string }[]
+  agentSteps?: AgentStep[]
 }
 
 export interface Session {

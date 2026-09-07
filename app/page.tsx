@@ -6,10 +6,11 @@ import { Header } from "@/components/rag/header"
 import { ChatComposer } from "@/components/rag/chat-composer"
 import { ChatMessage } from "@/components/rag/chat-message"
 import { RagExecutionCanvas } from "@/components/rag/rag-execution-canvas"
+import { StepsPanel } from "@/components/agent/steps-panel"
 import { UploadModal } from "@/components/rag/upload-modal"
 import { ChatVisual } from "@/components/rag/chat-visual"
 import { useRagContext } from "@/hooks/use-rag"
-import type { RagTrace } from "@/lib/types"
+import type { AgentStep, RagTrace } from "@/lib/types"
 import { FileText, Search, GitCompare, BookOpen, Layers, Zap, ListTree, Sparkles } from "lucide-react"
 
 const SUGGESTIONS_LEFT = [
@@ -65,6 +66,7 @@ export default function Home() {
     isExecuting,
     events,
     strategy,
+    mode,
     sendMessage,
     setTracePanelOpen,
     setSelectedTrace,
@@ -213,7 +215,22 @@ export default function Home() {
                 ))}
               </AnimatePresence>
 
-              {isExecuting && (
+              {isExecuting && mode === "agent" && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="px-4"
+                >
+                  <StepsPanel
+                    steps={events
+                      .filter((e) => e.type === "agent.step.completed")
+                      .map((e) => e.data as unknown as AgentStep)}
+                    isExecuting
+                  />
+                </motion.div>
+              )}
+
+              {isExecuting && mode !== "agent" && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -228,7 +245,7 @@ export default function Home() {
                 </motion.div>
               )}
 
-              {activeTrace && !isExecuting && (
+              {activeTrace && !isExecuting && mode !== "agent" && (
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}

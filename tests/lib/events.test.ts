@@ -1,4 +1,7 @@
 import { RagEventBus, createEventBus, getStagesForStrategy, getStageColor, getStageLabel, getStagePulseClass } from '@/lib/events'
+import type { RagEvent } from '@/lib/events'
+
+const testEvent = (): RagEvent => ({ type: 'test', timestamp: Date.now(), data: {} } as unknown as RagEvent)
 
 describe('events', () => {
   describe('RagEventBus', () => {
@@ -12,7 +15,7 @@ describe('events', () => {
       const listener = jest.fn()
       
       bus.subscribe(listener)
-      bus.emit({ type: 'test', timestamp: Date.now(), data: {} })
+      bus.emit(testEvent())
       
       await new Promise(resolve => setTimeout(resolve, 10))
       expect(listener).toHaveBeenCalledWith({
@@ -28,7 +31,7 @@ describe('events', () => {
       
       const unsubscribe = bus.subscribe(listener)
       unsubscribe()
-      bus.emit({ type: 'test', timestamp: Date.now(), data: {} })
+      bus.emit(testEvent())
       
       await new Promise(resolve => setTimeout(resolve, 10))
       expect(listener).not.toHaveBeenCalled()
@@ -43,7 +46,7 @@ describe('events', () => {
       bus.subscribe(listener2)
       bus.clear()
       
-      bus.emit({ type: 'test', timestamp: Date.now(), data: {} })
+      bus.emit(testEvent())
       
       expect(listener1).not.toHaveBeenCalled()
       expect(listener2).not.toHaveBeenCalled()

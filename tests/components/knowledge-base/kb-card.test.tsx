@@ -1,8 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { KbCard } from '@/components/knowledge-base/kb-card'
+import type { KnowledgeBase } from '@/lib/types'
 
-const mockKnowledgeBase = {
+const mockKnowledgeBase: KnowledgeBase = {
   id: 'kb-1',
   name: 'Test Knowledge Base',
   description: 'A test knowledge base for unit testing',

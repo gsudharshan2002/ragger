@@ -45,10 +45,12 @@ describe('utils', () => {
     })
     
     it('should return a promise', async () => {
-      global.navigator.clipboard = {
-        writeText: jest.fn().mockResolvedValue(undefined),
-      } as Clipboard
-      
+      Object.defineProperty(global.navigator, 'clipboard', {
+        value: { writeText: jest.fn().mockResolvedValue(undefined) },
+        writable: true,
+        configurable: true,
+      })
+
       const result = copyToClipboard('test')
       
       expect(result).toBeInstanceOf(Promise)

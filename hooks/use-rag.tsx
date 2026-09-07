@@ -128,6 +128,8 @@ interface RagContextValue {
   events: RagEvent[]
   strategy: RagStrategy
   setStrategy: (s: RagStrategy) => void
+  mode: "rag" | "agent"
+  setMode: (m: "rag" | "agent") => void
   selectedKnowledgeBaseId: string | null
   setSelectedKnowledgeBaseId: (id: string | null) => void
   sendMessage: (content: string) => void
@@ -154,12 +156,14 @@ async function fetchRagStream(
   query: string,
   strategy: RagStrategy,
   onEvent: (event: RagEvent) => void,
-  knowledgeBaseId?: string
+  knowledgeBaseId?: string,
+  mode: "rag" | "agent" = "rag"
 ): Promise<() => void> {
   const controller = new AbortController()
+  const endpoint = mode === "agent" ? "/agent/run" : "/chat/stream"
 
   try {
-    const response = await apiFetch("/chat/stream", {
+    const response = await apiFetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, strategy, knowledgeBaseId }),
@@ -229,6 +233,7 @@ async function fetchRagStream(
 
 export function RagProvider({ children }: { children: ReactNode }) {
   const busRef = useRef<RagEventBus>(createEventBus())
+  const [mode, setMode] = useState<"rag" | "agent">("rag")
   const [strategy, setStrategy] = useState<RagStrategy>("hybrid-rerank-mmr")
   const [selectedKnowledgeBaseId, setSelectedKnowledgeBaseId] = useState<string | null>(null)
   const [activeTrace, setActiveTrace] = useState<RagTrace | null>(null)
@@ -322,10 +327,9 @@ export function RagProvider({ children }: { children: ReactNode }) {
       scheduleEventsUpdate()
     })
     unsubscribeRef.current = unsubscribe
-
     fetchRagStream(content.trim(), strategy, (event) => {
       busRef.current.emit(event)
-    }, selectedKnowledgeBaseId ?? undefined).then((cleanup) => {
+    }, selectedKnowledgeBaseId ?? undefined, mode).then((cleanup) => {
       cancelRef.current = cleanup
 
       // Watch for trace.completed to finalize
@@ -335,6 +339,42 @@ export function RagProvider({ children }: { children: ReactNode }) {
           traceUnsubscribeRef.current = null
           cleanup()
           cancelRef.current = null
+
+          if (mode === "agent") {
+            // Agent mode's trace.completed carries an AgentRunResponse
+            // (answer/steps/sources), not a FullTrace - it has no
+            // vector/bm25/rrf/reranker/mmr stages for normalizeTrace to
+            // map, so it's handled as its own shape instead.
+            const agentResponse = event.data as Record<string, any>
+            const steps = (agentResponse.steps ?? []) as ChatMessage["agentSteps"]
+
+            setIsExecuting(false)
+            setEvents([...collectedEventsRef.current])
+
+            const assistantMessage: ChatMessage = {
+              id: generateId(),
+              role: "assistant",
+              content: agentResponse.answer ?? "",
+              timestamp: new Date().toISOString(),
+              strategy,
+              agentSteps: steps,
+              sources: (agentResponse.sources ?? []).map((s: Record<string, any>) => ({
+                document: s.document,
+                page: s.page,
+                section: s.section,
+                documentId: s.document_id,
+              })),
+            }
+
+            setSession((prev) => ({
+              ...prev,
+              messages: [...prev.messages, assistantMessage],
+            }))
+
+            unsubscribe()
+            unsubscribeRef.current = null
+            return
+          }
 
           const trace = normalizeTrace(event.data as Record<string, any>)
           setActiveTrace(trace)
@@ -397,7 +437,7 @@ export function RagProvider({ children }: { children: ReactNode }) {
       unsubscribeRef.current = null
       setIsExecuting(false)
     })
-  }, [strategy, selectedKnowledgeBaseId, isExecuting])
+  }, [strategy, selectedKnowledgeBaseId, isExecuting, mode])
 
   const stopGeneration = useCallback(() => {
     cancelRef.current?.()
@@ -434,6 +474,8 @@ export function RagProvider({ children }: { children: ReactNode }) {
         events,
         strategy,
         setStrategy,
+        mode,
+        setMode,
         selectedKnowledgeBaseId,
         setSelectedKnowledgeBaseId,
         sendMessage,

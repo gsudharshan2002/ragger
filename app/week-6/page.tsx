@@ -22,7 +22,7 @@ const JudgeValidation = dynamic(
 function WorkflowStepper() {
   const steps = [
     { icon: Pencil, label: "Generate & label", desc: "Blind hand labels", color: "from-indigo-500 to-violet-500" },
-    { icon: CheckCircle2, label: "Hand labels done", desc: "25/25 pass/fail", color: "from-emerald-500 to-teal-500" },
+    { icon: CheckCircle2, label: "Hand labels done", desc: "All cases pass/fail", color: "from-emerald-500 to-teal-500" },
     { icon: Gavel, label: "Validate judge", desc: "Compare agreement", color: "from-amber-500 to-orange-500" },
   ]
   return (

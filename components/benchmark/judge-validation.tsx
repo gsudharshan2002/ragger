@@ -51,7 +51,9 @@ export function JudgeValidation() {
           setPredictionSaved(true)
         }
       })
-      .catch(() => {})
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : "Failed to load prediction")
+      })
   }, [])
 
   useEffect(() => {
@@ -60,7 +62,9 @@ export function JudgeValidation() {
       .then((body: { data?: ValidationResult[] } | null) => {
         if (body?.data?.length) setRuns(body.data)
       })
-      .catch(() => {})
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : "Failed to load judge runs")
+      })
   }, [])
 
   async function clearRuns() {
@@ -87,7 +91,10 @@ export function JudgeValidation() {
         throw new Error(body.detail || `Validation failed: ${response.status}`)
       }
       const body: { data: ValidationResult } = await response.json()
-      setRuns((prev) => [body.data, ...prev.filter((r) => r.validated_at !== body.data.validated_at)])
+      setRuns((prev) => {
+        const filename = body.data._filename ?? body.data.validated_at
+        return [body.data, ...prev.filter((r) => (r._filename ?? r.validated_at) !== filename)]
+      })
     } catch (runError) {
       setError(runError instanceof Error ? runError.message : "Judge validation failed")
     } finally {

@@ -52,11 +52,12 @@ export function LabelAnswers() {
 
   function nextUnlabeledIndex(fromIndex: number, freshLabels: Record<string, "pass" | "fail">): number {
     const remaining = cases.length
+    if (remaining === 0) return -1
     for (let step = 1; step <= remaining; step++) {
       const idx = (fromIndex + step) % remaining
       if (!freshLabels[cases[idx].id]) return idx
     }
-    return fromIndex
+    return -1
   }
 
   async function loadSession() {
@@ -134,11 +135,12 @@ export function LabelAnswers() {
       if (!response.ok) throw new Error(`Generate failed: ${response.status}`)
       const body: { success: boolean; data?: LabelSession } = await response.json()
       setShowCasesInput(false)
+      const newLabels = body.data?.labels ?? {}
+      const newCases = body.data?.cases ?? []
+      const firstUnlabeled = newCases.findIndex((c) => !newLabels[c.id])
+      setDirection(1)
+      setCurrentIndex(Math.max(0, firstUnlabeled))
       setSession((prev) => {
-        const labels = body.data?.labels ?? prev?.labels ?? {}
-        const firstUnlabeled = (body.data?.cases ?? prev?.cases ?? []).findIndex((c) => !labels[c.id])
-        setDirection(1)
-        setCurrentIndex(Math.max(0, firstUnlabeled))
         if (!body.data) return prev
         return {
           ...body.data,
@@ -169,7 +171,10 @@ export function LabelAnswers() {
         if (!prev) return prev
         const freshLabels = { ...(prev.labels ?? {}), [caseId]: label }
         setDirection(1)
-        setCurrentIndex((i) => nextUnlabeledIndex(i, freshLabels))
+        setCurrentIndex((i) => {
+          const next = nextUnlabeledIndex(i, freshLabels)
+          return next === -1 ? 0 : next
+        })
         return { ...prev, labels: freshLabels }
       })
 

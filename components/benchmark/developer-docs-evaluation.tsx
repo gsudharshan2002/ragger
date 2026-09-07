@@ -38,6 +38,7 @@ type CaseResult = {
 type EvaluationReport = {
   label: string
   strategy: string
+  created_at?: string
   summary: {
     retrieval_score: number
     answer_score: number
@@ -447,7 +448,7 @@ export function DeveloperDocsEvaluation() {
                   <span className="text-gray-600">{endpointViolations.length} unknown endpoint{endpointViolations.length === 1 ? "" : "s"}</span>
                 )}
                 {deprecationViolations.length > 0 && (
-                  <span className="text-gray-600">{deprecationViolations.length} deprecated symbol{deprecationViolations.length === 1 ? "" : "s"} without a migration note</span>
+                  <span className="text-gray-600">{deprecationViolations.length} deprecation violation{deprecationViolations.length === 1 ? "" : "s"} without a migration note</span>
                 )}
               </div>
               {assertionViolationCount > 0 && (
@@ -456,7 +457,7 @@ export function DeveloperDocsEvaluation() {
                     <li key={`endpoint-${i}`}>Unknown endpoint mentioned: <span className="font-mono">{path}</span></li>
                   ))}
                   {deprecationViolations.map((symbols, i) => (
-                    <li key={`deprecation-${i}`}>Deprecated symbol without migration note: <span className="font-mono">{symbols.join(", ")}</span></li>
+                    <li key={`deprecation-${i}`}>Deprecated symbols without migration note: <span className="font-mono">{symbols.join(", ")}</span></li>
                   ))}
                 </ul>
               )}
@@ -569,6 +570,12 @@ export function DeveloperDocsEvaluation() {
               : `Reference reports: ${baseline?.strategy ?? "not available"} to ${improved?.strategy ?? "not available"}.`}{" "}
             Current dataset results appear in Benchmark Results below.
           </p>
+          {improved?.created_at && (
+            <p className="mt-1 text-[11px] text-gray-500">
+              Latest report: {new Date(improved.created_at).toLocaleString()}
+              {baseline?.created_at && ` • Baseline: ${new Date(baseline.created_at).toLocaleString()}`}
+            </p>
+          )}
         </>
       )}
     </section>

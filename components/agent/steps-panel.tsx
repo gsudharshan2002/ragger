@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronDown, ChevronRight, Search, Sparkles, Flag, Loader2, AlertCircle, FileText } from "lucide-react"
+import { ChevronDown, ChevronRight, Search, Sparkles, Flag, Loader2, AlertCircle, FileText, ShieldCheck } from "lucide-react"
 import type { AgentStep, AgentTool } from "@/lib/types"
 import { cn, formatDuration } from "@/lib/utils"
 
@@ -13,12 +13,14 @@ interface StepsPanelProps {
 
 const TOOL_ICON: Record<AgentTool, typeof Search> = {
   retrieve: Search,
+  check_deprecation: ShieldCheck,
   answer: Sparkles,
   finish: Flag,
 }
 
 const TOOL_LABEL: Record<AgentTool, string> = {
   retrieve: "Retrieve",
+  check_deprecation: "Check Deprecation",
   answer: "Answer",
   finish: "Finish",
 }
@@ -131,6 +133,49 @@ function StepCard({ step }: { step: AgentStep }) {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {step.action.tool === "check_deprecation" && (
+                <div>
+                  <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wide mb-1">
+                    Deprecation check
+                    {step.observation?.output?.api_version ? ` · v${step.observation.output.api_version}` : ""}
+                  </div>
+                  {step.observation?.output?.endpoint_or_feature && (
+                    <p className="text-[11px] text-gray-500 mb-1.5">
+                      Endpoint: <span className="font-medium text-gray-700">{step.observation.output.endpoint_or_feature}</span>
+                    </p>
+                  )}
+                  {(() => {
+                    const chunks = (step.observation?.output?.chunks ?? []) as {
+                      document: string
+                      page: number
+                      section?: string
+                      excerpt: string
+                    }[]
+                    return chunks.length === 0 ? (
+                      <p className="text-xs text-gray-400">No deprecation information found.</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {chunks.map((c, i) => (
+                          <div
+                            key={i}
+                            className="flex items-start gap-2 rounded-lg border border-amber-100 bg-amber-50/50 px-2.5 py-1.5"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                            <div className="min-w-0">
+                              <div className="text-[11px] font-medium text-gray-700 truncate">
+                                {c.document} — page {c.page}
+                                {c.section ? ` · ${c.section}` : ""}
+                              </div>
+                              <p className="text-[11px] text-gray-500 line-clamp-2">{c.excerpt}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
               )}
 

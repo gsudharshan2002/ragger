@@ -163,7 +163,7 @@ export interface UploadedDocument {
   progress?: number
 }
 
-export type AgentTool = "retrieve" | "answer" | "finish"
+export type AgentTool = "retrieve" | "check_deprecation" | "answer" | "finish"
 
 export interface AgentAction {
   tool: AgentTool

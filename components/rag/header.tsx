@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Bot, Brain, Sparkles, Upload, Plus, Activity, BarChart3, Settings, Layers, Database, ClipboardCheck } from "lucide-react"
+import { Bot, Brain, Sparkles, Upload, Plus, Activity, BarChart3, Settings, Layers, Database, ClipboardCheck, Wand2, GraduationCap } from "lucide-react"
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { useRagContext } from "@/hooks/use-rag"
 import { cn } from "@/lib/utils"
 import { SettingsModal } from "./settings-modal"
@@ -85,22 +86,41 @@ export function Header({ onUploadClick }: HeaderProps) {
           <div className="hidden sm:flex items-center gap-1.5">
             {isChatPage && (
               <>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push("/week-6")}
-                        className="gap-1.5 rounded-full border-black/[0.06] bg-white shadow-sm hover:shadow-md transition-all text-gray-600 hover:text-gray-900 h-8 px-3 text-xs font-medium whitespace-nowrap"
-                      >
-                        <ClipboardCheck className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Week 6</span>
-                      </Button>
-                    }
-                  />
-                  <TooltipContent>Developer documentation evaluation reference</TooltipContent>
-                </Tooltip>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center justify-center rounded-full bg-red-500 text-white shadow-sm hover:shadow-md transition-all h-8 w-8 px-0 text-xs font-bold tracking-wide cursor-pointer"
+                    >
+                      VS
+                    </motion.div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-transparent shadow-none border-none rounded-xl p-2 w-[180px] flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <DropdownMenuItem className="p-0 mb-1" onClick={() => router.push("/week-6")}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-[150px] gap-2 rounded-full bg-white/80 shadow-sm hover:bg-white transition-all text-gray-700 h-9 px-3 py-2 text-xs font-medium whitespace-nowrap"
+                        >
+                          <GraduationCap className="w-3 h-3" />
+                          Eval Judge
+                        </Button>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="p-0" onClick={() => router.push("/week-7")}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-[150px] gap-2 rounded-full bg-white/80 shadow-sm hover:bg-white transition-all text-gray-700 h-9 px-3 py-2 text-xs font-medium whitespace-nowrap"
+                        >
+                          <Wand2 className="w-3 h-3" />
+                          Agent vs Fixed
+                        </Button>
+                      </DropdownMenuItem>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
                 <Tooltip>
                   <TooltipTrigger
